@@ -25,17 +25,17 @@ main
 
 每轨道：
 
-​		列车数量，每列车：种类，起点，车厢数量，有没有斜坡 <=4*(enum+real+short+bool) ~12byte
+​		列车数量，每列车：种类，起点，车厢数量，有没有斜坡 <=4x(enum+real+short+bool) \~12byte
 
-​		障碍数量，每个障碍：位置，种类 10 x (real + enum) ~20bytes
+​		障碍数量，每个障碍：位置，种类 10 x (real + enum) \~20bytes
 
-​		*金币数量，每个金币：位置，高度 20 x (real + real) ~60bytes
+​		\*金币数量，每个金币：位置，高度 20 x (real + real) \~60bytes
 
 total 300bytes 2400bits
 
-*景观
+\*景观
 
-*隧道
+\*隧道
 
 ## 游戏主逻辑
 
@@ -49,92 +49,63 @@ total 300bytes 2400bits
 
 输出绘制指令
 
+```vhdl
+clk: in std_logic;
+-- internal ports to main game logic
+...
+-- internal ports to geometry buffer (RAM)
+ram_clk: out std_logic;
+ram_addr: out std_logic_vector();
+ram_data: out std_logic_vector();
+...
+-- internal ports to renderer
+data_available: out std_logic;
+```
+
 ## 渲染器
 
-#### 2D图形
-
-##### 接口设计
-
-2D绘制指令：贴图区域x,y,w,h，屏幕坐标xs,ys，深度h (或采用无深度依次绘制)
-
-##### 结构设计
-
-上游为几何实例化模块。
-
-如采用alpha通道，必须正向着色
-
-若正向着色 按块：取指令 - 筛选指令 - 取贴图&透明测试&深度测试&存颜色和深度 - 抖动 - 写帧缓冲
-
-若推迟着色 按块：取指令 - 筛选指令 - 深度测试&存贴图坐标和深度 - 取贴图 - 抖动 - 写帧缓冲
-
-##### 资源分析
-
-每像素(颜色+深度 / 贴图坐标+深度)约32位以内，因此使用80x80像素的块，占用204800bits
-
-帧缓冲布局：方便起见，每32位2像素
-
-抖动器占用 32x80+32/2x80x80=104960bits
-
-块单元每秒需工作640/80x480/80x60=2880次，指令级上应该不构成瓶颈。
-
-##### SRAM带宽分析
-
-贴图存在SRAM中，百万像素级，颜色视资源限制选择RGBA8881/RGBA5551/RGBA3331预抖动
-
-SRAM保守估计250MHz即8Gbps，按屏幕平均贴图覆盖层数为3计算，
-
-若正向着色：RGBA8881: 读贴图需要640x480x60x3x32=1.8Gbps
-
-若推迟着色：均1像素每时钟，读贴图640x480x60x32=0.6Gbps
-
-写帧缓冲 2像素每时钟 需640x480x60/2x32=0.3Gbps
-
-##### 总结
-
-资源应当比较宽裕
-
-#### 3D图形
-
-不实时计算光照。贴图不能预抖动，需要预计算光照。
-
-##### 接口设计
-
-2D绘制指令：三角形顶点世界坐标、贴图坐标；相机矩阵
-
-##### 结构设计
-
-上游为几何实例化模块，预先做大部分可见性剔除。
-
-因贴图难以缓存，使用推迟着色。使用FIFO作模块间缓冲。
-
-几何变换 - 筛选器 - 按块：(放置背景 - 逐三角形栅格化) - 取贴图(最近邻) - 抖动 - 写帧缓冲
-
-其中栅格化步骤：向量积/半平面方程测试 - 透视校正插值 - 深度测试 - 存贴图坐标和深度
-
-可以使抖动和写帧缓冲的块较大，栅格化的块较小。
-
-##### 资源分析
-
-算法比较复杂。其中筛选器与栅格化单元比较庞大，需根据硬件资源调节尺寸。
-
-预期三角形数量为千级，大部分为较小的三角形，小部分为较大的三角形，绝大部分三角形显著大于像素级。
-
-##### SRAM带宽分析
-
-同2D，SRAM带宽需求较小
-
-##### 总结
-
-需要在块内资源的限制下取得较高的效率，难度较大，算法复杂，最好先写软件验证。
-
-三角形最少的建模（200个）：
-
-铁轨 1 quad x 30
-
-车厢 3 quad x 6 x 3
-
-金币 1 quad x 30
+```vhdl
+clk: in std_logic;
+-- internal ports to geometry buffer (RAM)
+ram_clk: out std_logic;
+ram_addr: out std_logic_vector();
+ram_q: in std_logic_vector();
+...
+-- internal ports to geometry generator
+data_available: in std_logic;
+busy: out std_logic;
+```
 
 ## SRAM控制器
 
+```vhdl
+clk: in std_logic;
+-- internal ports to VGA
+addr1: in std_logic_vector(19 downto 0);
+data1: out std_logic_vector(31 downto 0);
+...
+-- internal ports to renderer
+addr2: in std_logic_vector(19 downto 0);
+data2: inout std_logic_vector(31 downto 0);
+...
+-- external ports to SRAM
+addr_e: in std_logic_vector(19 downto 0);
+data_e: inout std_logic_vector(31 downto 0);
+rden_e: out std_logic;
+wren_e: out std_logic;
+chsl_e: out std_logic;
+```
+
+
 ## VGA控制器
+
+```vhdl
+clk: in std_logic;
+-- internal ports to SRAM controller
+addr: out std_logic_vector(19 downto 0);
+data: in std_logic_vector(31 downto 0);
+...
+-- external ports to VGA
+r,g,b: out std_logic_vector(2 downto 0);
+hs,vs: out std_logic;
+```
