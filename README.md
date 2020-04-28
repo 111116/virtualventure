@@ -1,8 +1,23 @@
-文档暂时就写在这里
+## 说明
+
+文档暂时就写在这里。
 
 使用的数据类型：范围整数，定点实数，枚举，……
 
 ## 概览
+
+```vhdl
+main
+  input_controller
+  map_gen
+  game_logic
+  geometry
+  renderer
+  sram_controller
+  vga_controller
+```
+
+## 传感器控制器
 
 
 
@@ -30,7 +45,9 @@ total 300bytes 2400bits
 
 ## 几何实例化
 
+接受地形与玩家信息
 
+输出绘制指令
 
 ## 渲染器
 
@@ -117,3 +134,7 @@ SRAM保守估计250MHz即8Gbps，按屏幕平均贴图覆盖层数为3计算，
 车厢 3 quad x 6 x 3
 
 金币 1 quad x 30
+
+## SRAM控制器
+
+## VGA控制器
