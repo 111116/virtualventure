@@ -14,7 +14,11 @@ Color getTexture(int u, int v)
 
 bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
 {
-	return true;
+	// using cross products to determine if (x,y) is inside
+	// a triangle of counter-clockwise ordered vertices
+	return (v2.x-v1.x)*(y-v1.y) >= (v2.y-v1.y)*(x-v1.x)
+		&& (v3.x-v2.x)*(y-v2.y) >= (v3.y-v2.y)*(x-v2.x)
+		&& (v1.x-v3.x)*(y-v3.y) >= (v1.y-v3.y)*(x-v3.x);
 }
 
 void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color)
@@ -35,6 +39,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 		Vertex sv1 = vertexShader(in_view, v1);
 		Vertex sv2 = vertexShader(in_view, v2);
 		Vertex sv3 = vertexShader(in_view, v3);
+		// backface culling
 		// calculate bounding box
 		int lbound = max(0, min(intfloor(sv1.x), min(intfloor(sv2.x), intfloor(sv3.x))));
 		int rbound = min(w, max(intfloor(sv1.x), max(intfloor(sv2.x), intfloor(sv3.x)))+1);
@@ -52,9 +57,11 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			// check depth buffer
 
 			// write color
-			colorbuffer[x][y].r = 255;
-			colorbuffer[x][y].g = 0;
-			colorbuffer[x][y].b = 0;
+			if (inside) {
+				colorbuffer[x][y].r = 255;
+				colorbuffer[x][y].g = 0;
+				colorbuffer[x][y].b = 0;
+			}
 		}
 	}
 	for (int i=0; i<w; ++i)
