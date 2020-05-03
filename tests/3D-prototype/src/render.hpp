@@ -2,14 +2,14 @@
 #include "consolelog.hpp"
 
 
-Vertex vertexShader(mat4 in_view, Vertex in)
+Vertex perVertex(mat4 in_view, Vertex in)
 {
 	Vertex out;
 	out.x = in_view[0][0] * in.x + in_view[0][1] * in.y + in_view[0][2] * in.z + in_view[0][3];
 	out.y = in_view[1][0] * in.x + in_view[1][1] * in.y + in_view[1][2] * in.z + in_view[1][3];
 	out.z = in_view[2][0] * in.x + in_view[2][1] * in.y + in_view[2][2] * in.z + in_view[2][3];
 	out.w = in_view[3][0] * in.x + in_view[3][1] * in.y + in_view[3][2] * in.z + in_view[3][3];
-	// perspective
+	// perspective division
 	out.w = real(1) / out.w;
 	out.x *= out.w;
 	out.y *= out.w;
@@ -18,12 +18,31 @@ Vertex vertexShader(mat4 in_view, Vertex in)
 	out.x = (out.x+1) * 320;
 	out.y = (-out.y+1) * 240;
 	out.z = (out.z+1) * 0.5;
+	// texture coord
+	out.u = in.u;
+	out.v = in.v;
 	return out;
 }
 
-Color getTexture(int u, int v)
+Color getTexture(real u, real v)
 {
-	// return ;
+	Color t;
+	t.r = intfloor(255*(u));
+	t.g = intfloor(255*(v));
+	t.b = intfloor(255*(1-u));
+	if (intfloor(49*u)%6==0)
+	{
+		t.r *= 0.7;
+		t.g *= 0.7;
+		t.b *= 0.7;
+	}
+	if (intfloor(49*v)%6==0)
+	{
+		t.r *= 0.7;
+		t.g *= 0.7;
+		t.b *= 0.7;
+	}
+	return t;
 }
 
 bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
@@ -39,16 +58,7 @@ bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
 		&& (v1.x-v3.x)*(y-v3.y) >= (v1.y-v3.y)*(x-v3.x);
 }
 
-bool barycentricInterpolation(int x, int y, real& z, int& u, int& v, Vertex v1, Vertex v2, Vertex v3)
-{
-
-}
-
-bool perspectiveInterpolation(int x, int y, int& z, int& u, int& v, Vertex v1, Vertex v2, Vertex v3)
-{
-
-}
-
+// perspective interpolation https://stackoverflow.com/a/24460895/7884249
 void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color)
 {
 	// screen resolution
@@ -72,38 +82,58 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 		Vertex v2 = in_trigs[3*i+1];
 		Vertex v3 = in_trigs[3*i+2];
 		// apply transformation
-		Vertex sv1 = vertexShader(in_view, v1);
-		Vertex sv2 = vertexShader(in_view, v2);
-		Vertex sv3 = vertexShader(in_view, v3);
+		Vertex sv1 = perVertex(in_view, v1);
+		Vertex sv2 = perVertex(in_view, v2);
+		Vertex sv3 = perVertex(in_view, v3);
 		// console.log(sv1, sv2, sv3);
 		// backface culling
+		// precompute barycentric coefficients
+		const real denom = real(1) / ((sv1.x-sv3.x) * (sv2.y-sv1.y) - (sv1.x-sv2.x) * (sv3.y-sv1.y));
+		const vec3 bary_x = vec3( denom * (sv2.y - sv3.y), denom * (sv3.y - sv1.y), denom * (sv1.y - sv2.y) );
+		const vec3 bary_y = vec3( denom * (sv3.x - sv2.x), denom * (sv1.x - sv3.x), denom * (sv2.x - sv1.x) );
+		const vec3 bary_c = vec3(
+	        denom * (sv2.x*sv3.y - sv3.x*sv2.y),
+	       	denom * (sv3.x*sv1.y - sv1.x*sv3.y),
+	        denom * (sv1.x*sv2.y - sv2.x*sv1.y)
+	    );
 		// calculate bounding box
 		int lbound = max(0, min(intfloor(sv1.x), min(intfloor(sv2.x), intfloor(sv3.x))));
 		int rbound = min(w, max(intfloor(sv1.x), max(intfloor(sv2.x), intfloor(sv3.x)))+1);
 		int ubound = max(0, min(intfloor(sv1.y), min(intfloor(sv2.y), intfloor(sv3.y))));
 		int dbound = min(h, max(intfloor(sv1.y), max(intfloor(sv2.y), intfloor(sv3.y)))+1);
 		// loop over all pixels in bounding box
-		for (int x=lbound; x<rbound; ++x)
-		for (int y=ubound; y<dbound; ++y)
+		for (int i=lbound; i<rbound; ++i)
+		for (int j=ubound; j<dbound; ++j)
 		{
+			real x = i;
+			real y = j;
+			// barycentric coordinate
+        	const vec3 bary = vec3(
+        		x * bary_x.x + y * bary_y.x + bary_c.x,
+        		x * bary_x.y + y * bary_y.y + bary_c.y,
+        		x * bary_x.z + y * bary_y.z + bary_c.z
+        	);
 			// determine if pixel is inside triangle
-			bool inside = insideTriangle(x,y, sv1,sv2,sv3);
-			// attribute perspective interpolation
-			int u,v;
-			real z;
-			// perspectiveInterpolation(x,y,z,u,v, v1,v2,v3);
-			// test barycentric interpolation
-			barycentricInterpolation(x,y,z,u,v, sv1,sv2,sv3);
+        	bool inside = bary.x>=0 && bary.y>=0 && bary.z>=0;
+			// perspective interpolation
+			real z = dot(bary, vec3(sv1.z, sv2.z, sv3.z));
+			real w = dot(bary, vec3(sv1.w, sv2.w, sv3.w));
+			// near/far plane clip
+			bool insideclip = z>=0 && z<=1;
+			// convert to perspective correct (clip-space) barycentric
+			const vec3 perspective = vec3(
+				1/w * bary.x * sv1.w,
+				1/w * bary.y * sv2.w,
+				1/w * bary.z * sv3.w
+			);
+			real u = dot(perspective, vec3(sv1.u, sv2.u, sv3.u));
+			real v = dot(perspective, vec3(sv1.v, sv2.v, sv3.v));
 			// check depth buffer
-			bool overwrite = zbuffer[x][y] > z;
-			overwrite = 1;
-			// inside = 1;
+			bool overwrite = zbuffer[i][j] > z;
 			// write color
 			if (inside && overwrite) {
-				colorbuffer[x][y].r = 255;
-				colorbuffer[x][y].g = 0;
-				colorbuffer[x][y].b = 0;
-				zbuffer[x][y] = z;
+				colorbuffer[i][j] = getTexture(u,v);
+				zbuffer[i][j] = z;
 			}
 		}
 	}

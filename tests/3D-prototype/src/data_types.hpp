@@ -53,7 +53,11 @@ mat4 operator* (mat4 a, mat4 b)
 }
 
 
-typedef vec4 Vertex;
+struct Vertex
+{
+	real x,y,z,w; // position
+	real u,v; // texture coord
+};
 
 
 ///////// debug use
