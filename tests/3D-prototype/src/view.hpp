@@ -2,7 +2,6 @@
 
 #include "data_types.hpp"
 
-
 // glm 
 
 mat4 perspective

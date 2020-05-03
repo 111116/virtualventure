@@ -1,5 +1,8 @@
+#pragma once
+
+#include <functional>
 #include "data_types.hpp"
-#include "consolelog.hpp"
+#include "lib/consolelog.hpp"
 
 
 Vertex perVertex(mat4 in_view, Vertex in)
@@ -24,42 +27,17 @@ Vertex perVertex(mat4 in_view, Vertex in)
 	return out;
 }
 
-Color getTexture(real u, real v)
-{
-	Color t;
-	t.r = intfloor(255*(u));
-	t.g = intfloor(255*(v));
-	t.b = intfloor(255*(1-u));
-	if (intfloor(49*u)%6==0)
-	{
-		t.r *= 0.7;
-		t.g *= 0.7;
-		t.b *= 0.7;
-	}
-	if (intfloor(49*v)%6==0)
-	{
-		t.r *= 0.7;
-		t.g *= 0.7;
-		t.b *= 0.7;
-	}
-	return t;
-}
-
-bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
-{
-	// using cross products to determine if (x,y) is inside
-	// a triangle of counter-clockwise ordered vertices
-
-	return (v2.x-v1.x)*(y-v1.y) <= (v2.y-v1.y)*(x-v1.x)
-		&& (v3.x-v2.x)*(y-v2.y) <= (v3.y-v2.y)*(x-v2.x)
-		&& (v1.x-v3.x)*(y-v3.y) <= (v1.y-v3.y)*(x-v3.x) ||
-		   (v2.x-v1.x)*(y-v1.y) >= (v2.y-v1.y)*(x-v1.x)
-		&& (v3.x-v2.x)*(y-v2.y) >= (v3.y-v2.y)*(x-v2.x)
-		&& (v1.x-v3.x)*(y-v3.y) >= (v1.y-v3.y)*(x-v3.x);
-}
+// bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
+// {
+// 	// using cross products to determine if (x,y) is inside
+// 	// a triangle of counter-clockwise ordered vertices
+// 	return (v2.x-v1.x)*(y-v1.y) >= (v2.y-v1.y)*(x-v1.x)
+// 		&& (v3.x-v2.x)*(y-v2.y) >= (v3.y-v2.y)*(x-v2.x)
+// 		&& (v1.x-v3.x)*(y-v3.y) >= (v1.y-v3.y)*(x-v3.x);
+// }
 
 // perspective interpolation https://stackoverflow.com/a/24460895/7884249
-void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color)
+void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color, std::function<Color(real,real)> getTexture)
 {
 	// screen resolution
 	const int w = 640;
@@ -85,7 +63,6 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 		Vertex sv1 = perVertex(in_view, v1);
 		Vertex sv2 = perVertex(in_view, v2);
 		Vertex sv3 = perVertex(in_view, v3);
-		// console.log(sv1, sv2, sv3);
 		// backface culling
 		// precompute barycentric coefficients
 		const real denom = real(1) / ((sv1.x-sv3.x) * (sv2.y-sv1.y) - (sv1.x-sv2.x) * (sv3.y-sv1.y));
@@ -131,7 +108,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			// check depth buffer
 			bool overwrite = zbuffer[i][j] > z;
 			// write color
-			if (inside && overwrite) {
+			if (inside && overwrite && insideclip) {
 				colorbuffer[i][j] = getTexture(u,v);
 				zbuffer[i][j] = z;
 			}
