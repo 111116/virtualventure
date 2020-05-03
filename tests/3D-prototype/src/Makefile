@@ -1,4 +1,4 @@
 CXXFLAGS = -std=c++14 -g -Wall
 
-main: main.cpp render.hpp
+main: main.cpp *.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
