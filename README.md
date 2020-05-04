@@ -93,6 +93,11 @@ ram_q: in std_logic_vector();
 -- internal ports to geometry generator
 data_available: in std_logic;
 busy: out std_logic;
+-- internal ports to SRAM controller
+sram_addr  : out std_logic_vector(31 downto 0);
+sram_data  : inout std_logic;
+sram_wren  : out std_logic;
+sram_valid : in std_logic
 ```
 
 ## SRAM控制器
