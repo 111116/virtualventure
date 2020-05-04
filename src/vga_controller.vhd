@@ -1,10 +1,15 @@
 -- VGA controller
 -- display pixels from SRAM controller
 
+-- SRAM pixel format:
+-- addr #0 to addr #(640x480), row-major
+-- r: 2 downto 0
+-- g: 5 downto 3
+-- b: 8 downto 6
+
 library  ieee;
 use      ieee.std_logic_1164.all;
-use      ieee.std_logic_unsigned.all;
-use      ieee.std_logic_arith.all;
+use      ieee.numeric_std.all;
 
 entity vga_controller is
    port(
@@ -13,7 +18,7 @@ entity vga_controller is
       reset : in  std_logic; -- async reset (low valid)
       -- internal ports to SRAM controller
       addr  : out std_logic_vector(31 downto 0);
-      q     : in std_logic;
+      q     : in std_logic_vector(19 downto 0);
       -- external ports to VGA DAC
       clk25 : out std_logic;
       hs,vs : out std_logic;
@@ -26,8 +31,8 @@ architecture behavior of vga_controller is
    signal clk      : std_logic;                    -- cached 25MHz clock output
    signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color output           
    signal hs1,vs1  : std_logic;                    -- cached sync output
-   signal vector_x : std_logic_vector(9 downto 0); -- horizontal position of current scan
-   signal vector_y : std_logic_vector(8 downto 0); -- vertical position of current scan
+   signal vector_x : unsigned(9 downto 0); -- horizontal position of current scan
+   signal vector_y : unsigned(8 downto 0); -- vertical position of current scan
 
 begin
 
@@ -41,7 +46,7 @@ begin
    end process;
 
  -----------------------------------------------------------------------
-   process(clk,reset)  --行区间像素数（含消隐区）
+   process(clk,reset)  -- assign to H pos (blank included)
    begin
       if reset='0' then
          vector_x <= (others=>'0');
@@ -55,7 +60,7 @@ begin
    end process;
 
  -----------------------------------------------------------------------
-   process(clk,reset)  --场区间行数（含消隐区）
+   process(clk,reset)  -- assign to V pos (blank included)
    begin
       if reset='0' then
          vector_y <= (others=>'0');
@@ -71,7 +76,7 @@ begin
    end process;
  
 -----------------------------------------------------------------------
-   process(clk,reset) --行同步信号产生（同步宽度96，前沿16）
+   process(clk,reset) -- assign to Hsync
    begin
         if reset='0' then
          hs1 <= '1';
@@ -85,7 +90,7 @@ begin
    end process;
  
 -----------------------------------------------------------------------
-   process(clk,reset) --场同步信号产生（同步宽度2，前沿10）
+   process(clk,reset) -- assign to Vsync
    begin
       if reset='0' then
             vs1 <= '1';
@@ -98,7 +103,7 @@ begin
       end if;
    end process;
  -----------------------------------------------------------------------
-   process(clk,reset) --行同步信号输出
+   process(clk,reset) -- output Hsync
    begin
       if reset='0' then
             hs <= '0';
@@ -108,7 +113,7 @@ begin
    end process;
 
  -----------------------------------------------------------------------
-   process(clk,reset) --场同步信号输出
+   process(clk,reset) -- output Vsync
    begin
       if reset='0' then
             vs <= '0';
@@ -118,19 +123,24 @@ begin
    end process;
    
  -----------------------------------------------------------------------   
-   process(reset,clk,vector_x,vector_y) -- XY坐标定位控制
+   process(reset,clk,vector_x,vector_y) -- drawing
+      variable x,y: integer range 0 to 1000;
    begin  
       if reset='0' then
          r1  <= "000";
          g1 <= "000";
          b1 <= "000";   
       elsif rising_edge(clk) then
-         -- TODO: assign to r1,g1,b1 with pixel values
+         -- assign to r1,g1,b1 with pixel values
+         addr <= std_logic_vector(vector_x+vector_y*640);
+         r <= q(2 downto 0);
+         g <= q(5 downto 3);
+         b <= q(8 downto 6);
       end if;      
    end process;  
 
    -----------------------------------------------------------------------
-   process (hs1, vs1, r1, g1, b1)   --色彩输出
+   process (hs1, vs1, r1, g1, b1)   -- output to rgb
    begin
       if hs1 = '1' and vs1 = '1' then
          r  <= r1;
