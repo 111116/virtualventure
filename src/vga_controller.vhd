@@ -17,33 +17,31 @@ entity vga_controller is
       clk_0 : in std_logic; -- 100MHz master clock input
       reset : in  std_logic; -- async reset (low valid)
       -- internal ports to SRAM controller
-      addr  : out std_logic_vector(31 downto 0);
-      q     : in std_logic_vector(19 downto 0);
+      addr  : out std_logic_vector(19 downto 0);
+      q     : in std_logic_vector(31 downto 0);
       -- external ports to VGA DAC
-      clk25 : out std_logic;
       hs,vs : out std_logic;
       r,g,b : out std_logic_vector(2 downto 0)
    );
 end vga_controller;
 
 architecture behavior of vga_controller is
+
+   -- 1/4 freq divider (100MHz -> 25MHz)
+   component vga_pll is
+   end component;
    
-   signal clk      : std_logic;                    -- cached 25MHz clock output
-   signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color output           
-   signal hs1,vs1  : std_logic;                    -- cached sync output
+   signal clk      : std_logic;                   -- cached 25MHz clock
+   signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color
+   signal hs1,vs1  : std_logic;                    -- cached sync
    signal vector_x : unsigned(9 downto 0); -- horizontal position of current scan
    signal vector_y : unsigned(8 downto 0); -- vertical position of current scan
 
 begin
 
-   clk25 <= clk;
  -----------------------------------------------------------------------
-   process(clk_0)  --clock frequency divider
-   begin
-      if(clk_0'event and clk_0='1') then 
-         clk <= not clk;
-      end if;
-   end process;
+   --clock frequency divider
+   freq_divider: vga_pll port map (clk_0, clk);
 
  -----------------------------------------------------------------------
    process(clk,reset)  -- assign to H pos (blank included)
