@@ -1,37 +1,77 @@
 -- SRAM controller
 
--- 将SRAM共享给VGA控制器（只读）和渲染器（读写），其中VGA控制器优先。
--- 本模块为同步电路，在每个时钟周期若VGA控制器端产生新的读请求，则执行该请求；
--- 否则执行来自渲染器的读写请求。
+-- share SRAM between VGA controller (read only, prioritized) and renderer
+-- working at 100MHz
 
 library  ieee;
 use      ieee.std_logic_1164.all;
 
 entity sram_controller is
    port(
-      clk: in std_logic; -- 100MHz master clock input
+      clk0: in std_logic; -- 100MHz master clock input
       -- internal ports to VGA
       addr1: in std_logic_vector(19 downto 0);
-      data1: out std_logic_vector(31 downto 0);
+      q1:   out std_logic_vector(31 downto 0);
       -- internal ports to renderer
       addr2: in std_logic_vector(19 downto 0);
-      data2: inout std_logic_vector(31 downto 0);
+      q2:   out std_logic_vector(31 downto 0);
+      data2: in std_logic_vector(31 downto 0);
       wren2: in std_logic;
-      valid2: out std_logic;
-      ...
+      acc2: out std_logic;
       -- external ports to SRAM
-      addr_e: in std_logic_vector(19 downto 0);
+      addr_e: out std_logic_vector(19 downto 0);
       data_e: inout std_logic_vector(31 downto 0);
-      rden_e: out std_logic;
-      wren_e: out std_logic;
-      chsl_e: out std_logic
+      rden_e: out std_logic; -- low valid
+      wren_e: out std_logic; -- low valid
+      chsl_e: out std_logic  -- low valid
    );
 end sram_controller;
 
 architecture behav of sram_controller is
 
-   signal 
+   component wide_gen_pll is -- 8.5ns low, 1.5ns high 
+      port (
+         clk: in std_logic;
+         c0: out std_logic
+      );
+   end component;
+
+   type state_t is (st1, st2);
+   signal state: state_t := st1;
+
+   signal writing: std_logic;
+   signal widepulse: std_logic; -- 8.5ns low, 1.5ns high 
 
 begin
+
+   -- WE pulse
+   wide_gen: wide_gen_pll port map (clk0, widepulse);
+
+   -- SRAM ports
+   rden_e <= writing;
+   wren_e <= widepulse when writing = '1' else '1';
+   data_e <= data2 when writing = '1' else (others => 'Z');
+   chsl_e <= '0';
+
+   -- update state & cache
+   process (clk0)
+   begin
+      if rising_edge(clk0) then
+         -- switch state
+         if state = st1 then
+            q1 <= data_e; -- cache result for VGA
+            state <= st2; -- switch to renderer
+            acc2 <= '1';
+            addr_e <= addr2;
+            writing <= wren2;
+         else
+            q2 <= data_e; -- cache result for renderer
+            state <= st1; -- switch to VGA
+            acc2 <= '0';
+            addr_e <= addr1;
+            writing <= '0';
+         end if;
+      end if;
+   end process;
 
 end architecture ; -- behav

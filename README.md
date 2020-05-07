@@ -64,6 +64,8 @@ data_available: out std_logic;
 
 ## 渲染器
 
+执行2D矩形贴图操作
+
 #### 接口
 
 每次从几何缓冲中接受一系列绘制指令，将渲染得到的所有像素颜色发送给SRAM控制器。
@@ -132,18 +134,21 @@ D  8位无符号整数，该像素的当前深度
 
 将SRAM共享给VGA控制器（只读）和渲染器（读写），其中VGA控制器优先。本模块为同步电路，在每个时钟周期若VGA控制器端产生新的读请求，则执行该请求；否则执行来自渲染器的读写请求。
 
+当某个周期内 `acc2='1'` ，表明渲染器的请求已被处理（如果为读，将会在下一周期给出结果）。
+
+#### 接口
+
 ```vhdl
 clk: in std_logic;
 -- internal ports to VGA
 addr1: in std_logic_vector(19 downto 0);
-data1: out std_logic_vector(31 downto 0);
-...
+q1   : out std_logic_vector(31 downto 0);
 -- internal ports to renderer
 addr2: in std_logic_vector(19 downto 0);
-data2: inout std_logic_vector(31 downto 0);
+q2:   out std_logic_vector(31 downto 0);
+data2: in std_logic_vector(31 downto 0);
 wren2: in std_logic;
-valid2: out std_logic;
-...
+acc2: out std_logic;
 -- external ports to SRAM
 addr_e: in std_logic_vector(19 downto 0);
 data_e: inout std_logic_vector(31 downto 0);
@@ -152,9 +157,22 @@ wren_e: out std_logic;
 chsl_e: out std_logic;
 ```
 
+#### 实现
+
+以100MHz运行，同步选择读写状态。如果addr1与上一周期不同，则执行端口1操作(`valid2=LOW`)，否则执行端口2操作(`valid2=HIGH`)
+
+读：`CE=LOW, OE=LOW, WE=HIGH (10ns)`
+
+写：`CE=LOW, OE=HIGH, WE=(LOW 8.5ns HIGH 1.5ns)`
+
+
 ## VGA控制器
 
 从SRAM控制器读取像素值并显示。
+
+#### 接口
+
+SRAM内帧缓冲格式
 
 ```vhdl
 clk: in std_logic;
@@ -166,3 +184,7 @@ data: in std_logic_vector(31 downto 0);
 r,g,b: out std_logic_vector(2 downto 0);
 hs,vs: out std_logic;
 ```
+
+#### 实现
+
+以25MHz运行，提前半拍从SRAM控制器读取像素值
