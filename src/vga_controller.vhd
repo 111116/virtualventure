@@ -30,7 +30,7 @@ architecture behavior of vga_controller is
    -- 1/4 freq divider (100MHz -> 25MHz)
    component vga_pll is
       port (
-         clk: in std_logic;
+         inclk0: in std_logic;
          c0: out std_logic
       );
    end component;
@@ -134,10 +134,10 @@ begin
          b1 <= "000";   
       elsif rising_edge(clk) then
          -- assign to r1,g1,b1 with pixel values
-         addr <= std_logic_vector(vector_x+vector_y*640);
-         r <= q(2 downto 0);
-         g <= q(5 downto 3);
-         b <= q(8 downto 6);
+         addr <= "00"&std_logic_vector(vector_x+vector_y*640);
+         r1 <= q(2 downto 0);
+         g1 <= q(5 downto 3);
+         b1 <= q(8 downto 6);
       end if;      
    end process;  
 

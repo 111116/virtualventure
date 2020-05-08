@@ -27,7 +27,7 @@ architecture behav of renderer2d is
 
    signal x: integer range 0 to 1000 := 0;
    signal y: integer range 0 to 1000 := 0;
-   signal xyaddr: integer range 0 to 1000000;
+   signal xyaddr: integer range 0 to 1000000 := 0;
 
 begin
 
@@ -40,11 +40,21 @@ begin
       if falling_edge(clk0) and sram_ready = '1' then
          -- update x and y
          if x = 639 then
-            y <= y+1 when y/=479 else 0;
+				if y = 479 then
+					y <= 0;
+				else
+					y <= y+1;
+				end if;
+            x <= 0;
+			else
+				x <= x+1;
          end if;
-         x <= x+1 when x/=639 else 0;
          -- update addr
-         xyaddr <= xyaddr+1 when xyaddr/=640*480-1 else 0;
+			if xyaddr = 640*480-1 then
+				xyaddr <= 0;
+			else
+				xyaddr <= xyaddr + 1;
+			end if;
       end if;
    end process;
 

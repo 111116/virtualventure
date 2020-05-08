@@ -31,7 +31,7 @@ architecture behav of sram_controller is
 
    component wide_gen_pll is -- 8.5ns low, 1.5ns high 
       port (
-         clk: in std_logic;
+         inclk0: in std_logic;
          c0: out std_logic
       );
    end component;
