@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity main_testbench is
 end entity ; -- main_testbench
@@ -8,10 +9,14 @@ architecture arch of main_testbench is
 
    component sram_model is
       port (
-         Address: in std_logic_vector(19 downto 0);
-         DataIO: inout std_logic_vector(15 downto 0);
-         OE_n,CE_n,WE_n, LB_n, UB_n: in std_logic
-      );
+         Address : in unsigned(19 downto 0);
+         CE_n : in std_logic;
+         DataIO : inout unsigned(15 downto 0);
+         LB_n : in std_logic;
+         OE_n : in std_logic;
+         UB_n : in std_logic;
+         WE_n : in std_logic
+		);
    end component sram_model;
 
    component main is
@@ -33,6 +38,8 @@ architecture arch of main_testbench is
    signal clk100: std_logic := '0';
    signal sram_addr: std_logic_vector(19 downto 0);
    signal sram_data: std_logic_vector(31 downto 0);
+   signal sram_data_low: unsigned(15 downto 0);
+   signal sram_data_high: unsigned(15 downto 0);
    signal sram_oe: std_logic;
    signal sram_we: std_logic;
    signal sram_ce: std_logic;
@@ -52,10 +59,13 @@ begin
       vga_hs      => open,
       vga_vs      => open
    );
+	
+	sram_data_low <= unsigned(sram_data(15 downto 0));
+	sram_data_high <= unsigned(sram_data(31 downto 16));
 
    sram1: sram_model port map (
-      Address  => sram_addr,
-      DataIO   => sram_data(15 downto 0),
+      Address  => unsigned(sram_addr),
+      DataIO   => unsigned(sram_data_low),
       OE_n     => sram_oe,
       CE_n     => sram_ce,
       WE_n     => sram_we,
@@ -64,8 +74,8 @@ begin
    );
 
    sram2: sram_model port map (
-      Address  => sram_addr,
-      DataIO   => sram_data(31 downto 16),
+      Address  => unsigned(sram_addr),
+      DataIO   => unsigned(sram_data_high),
       OE_n     => sram_oe,
       CE_n     => sram_ce,
       WE_n     => sram_we,

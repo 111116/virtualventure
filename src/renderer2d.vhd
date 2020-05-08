@@ -35,7 +35,7 @@ begin
    sram_addr <= std_logic_vector(to_unsigned(xyaddr, 20));
    sram_data <= std_logic_vector(to_unsigned(xyaddr, 32));
 
-   process (clk0)
+   process (clk0, sram_ready)
    begin
       if rising_edge(clk0) and sram_ready = '1' then
          -- update x and y
