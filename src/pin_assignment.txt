@@ -1,7 +1,7 @@
 To,                 Location
 
 // 100MHz clock
-clk,                PIN_N2
+clk0,                PIN_N2
 
 // VGA output
 vga_hs,             PIN_U3
@@ -17,9 +17,9 @@ vga_b[1],           PIN_U2
 vga_b[0],           PIN_T4
 
 // external memory
-sram_cs,            PIN_AB21
+sram_ce,            PIN_AB21
 sram_oe,            PIN_AD25
-sram_wE,            PIN_AC25
+sram_we,            PIN_AC25
 sram_addr[19],      PIN_AE23
 sram_addr[18],      PIN_AF23
 sram_addr[17],      PIN_Y23

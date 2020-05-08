@@ -140,16 +140,17 @@ begin
       elsif rising_edge(clk) then
          -- assign to r1,g1,b1 with pixel values
          addr <= "00"&std_logic_vector(vector_x+vector_y*640);
-         r1 <= q(2 downto 0);
-         g1 <= q(5 downto 3);
-         b1 <= q(8 downto 6);
+         -- r1 <= std_logic_vector(vector_x(2 downto 0));
+			r1 <= q(2 downto 0);
+         g1 <= "000";
+         b1 <= "111";
       end if;      
    end process;  
 
    -----------------------------------------------------------------------
-   process (hs1, vs1, r1, g1, b1)   -- output to rgb
+   process (hs1, vs1, r1, g1, b1, vector_x, vector_y)   -- output to rgb
    begin
-      if hs1 = '1' and vs1 = '1' then
+      if vector_x<640 and vector_y<480 then
          r  <= r1;
          g  <= g1;
          b  <= b1;

@@ -33,6 +33,7 @@ architecture behav of sram_controller is
    type state_t is (st1, st2);
    signal state: state_t := st1;
    signal writing: std_logic;
+	signal datacache: std_logic_vector(31 downto 0);
 
 begin
 
@@ -41,7 +42,7 @@ begin
    -- SRAM ports
    rden_e <= writing;
    wren_e <= widepulse when writing = '1' else '1';
-   data_e <= data2 when writing = '1' else (others => 'Z');
+   data_e <= datacache when writing = '1' else (others => 'Z');
    chsl_e <= '0';
 
    -- update state & cache
@@ -55,6 +56,7 @@ begin
             acc2 <= '1';
             addr_e <= addr2;
             writing <= wren2;
+				datacache <= data2;
          else
             q2 <= data_e; -- cache result for renderer
             state <= st1; -- switch to VGA
