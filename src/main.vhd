@@ -21,6 +21,13 @@ end entity main; -- main
 
 architecture arch of main is
 
+   component main_pll is 
+      port (
+         inclk0: in std_logic;
+         c0: out std_logic -- 8.5ns low, 1.5ns high 
+      );
+   end component;
+
    component renderer2d is
       port(
          clk0: in std_logic; -- 100MHz master clock input
@@ -43,6 +50,7 @@ architecture arch of main is
    component sram_controller is
       port (
          clk0: in std_logic; -- 100MHz master clock input
+         widepulse: in std_logic; -- 8.5ns low, 1.5ns high 
          -- internal ports to VGA
          addr1: in std_logic_vector(19 downto 0);
          q1:   out std_logic_vector(31 downto 0);
@@ -75,6 +83,7 @@ architecture arch of main is
       );
    end component vga_controller;
 
+   signal widepulse: std_logic; -- 8.5ns low, 1.5ns high 
    -- internal ports: vga_controller - sram_controller
    signal mem_addr1: std_logic_vector(19 downto 0);
    signal mem_q1:    std_logic_vector(31 downto 0);
@@ -87,6 +96,11 @@ architecture arch of main is
 
 begin
 
+   pll: main_pll port map (
+      inclk0   => clk0,
+      c0       => widepulse
+   );
+
    renderer: renderer2d port map (
       clk0        => clk0,
       sram_addr   => mem_addr2,
@@ -98,6 +112,7 @@ begin
 
    sram: sram_controller port map (
       clk0     => clk0,
+      widepulse=> widepulse,
       -- internal ports to VGA
       addr1    => mem_addr1,
       q1       => mem_q1,

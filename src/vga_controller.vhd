@@ -27,15 +27,8 @@ end vga_controller;
 
 architecture behavior of vga_controller is
 
-   -- 1/4 freq divider (100MHz -> 25MHz)
-   component vga_pll is
-      port (
-         inclk0: in std_logic;
-         c0: out std_logic
-      );
-   end component;
-   
-   signal clk      : std_logic;                   -- cached 25MHz clock
+   signal clk      : std_logic := '0';            -- cached 25MHz clock
+   signal clk50    : std_logic := '0';            -- cached 50MHz clock
    signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color
    signal hs1,vs1  : std_logic;                    -- cached sync
    signal vector_x : unsigned(9 downto 0); -- horizontal position of current scan
@@ -44,8 +37,20 @@ architecture behavior of vga_controller is
 begin
 
  -----------------------------------------------------------------------
-   --clock frequency divider
-   freq_divider: vga_pll port map (clk_0, clk);
+   --clock frequency divider 1/4
+   process(clk_0)
+   begin
+      if rising_edge(clk_0) then
+         clk50 <= not clk50;
+      end if;
+   end process;
+
+   process(clk50)
+   begin
+      if rising_edge(clk50) then
+         clk <= not clk;
+      end if;
+   end process;
 
  -----------------------------------------------------------------------
    process(clk,reset)  -- assign to H pos (blank included)

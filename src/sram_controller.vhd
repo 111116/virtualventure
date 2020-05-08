@@ -9,6 +9,7 @@ use      ieee.std_logic_1164.all;
 entity sram_controller is
    port(
       clk0: in std_logic; -- 100MHz master clock input
+      widepulse: in std_logic; -- 8.5ns low, 1.5ns high 
       -- internal ports to VGA
       addr1: in std_logic_vector(19 downto 0);
       q1:   out std_logic_vector(31 downto 0);
@@ -29,23 +30,13 @@ end sram_controller;
 
 architecture behav of sram_controller is
 
-   component wide_gen_pll is -- 8.5ns low, 1.5ns high 
-      port (
-         inclk0: in std_logic;
-         c0: out std_logic
-      );
-   end component;
-
    type state_t is (st1, st2);
    signal state: state_t := st1;
-
    signal writing: std_logic;
-   signal widepulse: std_logic; -- 8.5ns low, 1.5ns high 
 
 begin
 
    -- WE pulse
-   wide_gen: wide_gen_pll port map (clk0, widepulse);
 
    -- SRAM ports
    rden_e <= writing;
