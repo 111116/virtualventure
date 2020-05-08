@@ -31,8 +31,8 @@ architecture behavior of vga_controller is
    signal clk50    : std_logic := '0';            -- cached 50MHz clock
    signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color
    signal hs1,vs1  : std_logic;                    -- cached sync
-   signal vector_x : unsigned(9 downto 0); -- horizontal position of current scan
-   signal vector_y : unsigned(8 downto 0); -- vertical position of current scan
+   signal vector_x : unsigned(9 downto 0) := (others=>'0'); -- horizontal position of current scan
+   signal vector_y : unsigned(8 downto 0) := (others=>'0'); -- vertical position of current scan
 
 begin
 

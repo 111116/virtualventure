@@ -37,7 +37,7 @@ begin
 
    process (clk0)
    begin
-      if falling_edge(clk0) and sram_ready = '1' then
+      if rising_edge(clk0) and sram_ready = '1' then
          -- update x and y
          if x = 639 then
 				if y = 479 then
