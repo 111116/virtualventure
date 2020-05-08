@@ -30,7 +30,7 @@ architecture arch of main_testbench is
       );
    end component main;
 
-   signal clk100: std_logic;
+   signal clk100: std_logic := '0';
    signal sram_addr: std_logic_vector(19 downto 0);
    signal sram_data: std_logic_vector(31 downto 0);
    signal sram_oe: std_logic;
@@ -72,5 +72,11 @@ begin
       LB_n     => '0',
       UB_n     => '0'
    );
+
+   process
+   begin
+      clk100 <= not clk100;
+      wait for 5 ns;
+   end process;
 
 end architecture ; -- arch
