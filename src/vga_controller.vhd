@@ -29,6 +29,10 @@ architecture behavior of vga_controller is
 
    -- 1/4 freq divider (100MHz -> 25MHz)
    component vga_pll is
+      port (
+         clk: in std_logic;
+         c0: out std_logic
+      );
    end component;
    
    signal clk      : std_logic;                   -- cached 25MHz clock
