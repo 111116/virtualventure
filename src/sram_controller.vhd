@@ -41,8 +41,8 @@ begin
 
    -- SRAM ports
    rden_e <= writing;
-   --wren_e <= widepulse when writing = '1' else '1';
-   wren_e <= not writing;
+   wren_e <= not clk when writing = '1' else '1';
+   -- wren_e <= not writing;
    data_e <= datacache when writing = '1' else (others => 'Z');
    chsl_e <= '0';
 
