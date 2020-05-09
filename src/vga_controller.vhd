@@ -137,13 +137,15 @@ begin
          r1  <= "000";
          g1 <= "000";
          b1 <= "000";   
-      elsif rising_edge(clk) then
-         -- assign to r1,g1,b1 with pixel values
-         addr <= "00"&std_logic_vector(vector_x+vector_y*640);
-         -- r1 <= std_logic_vector(vector_x(2 downto 0));
-			r1 <= q(2 downto 0);
+		elsif rising_edge(clk) and vector_x<640 and vector_y<480 then
+			r1 <= q(5 downto 3);
          g1 <= "000";
          b1 <= "111";
+				--if vector_x=639 and vector_y=479 then
+				--	addr <= (others=>'0');
+				--else
+					addr <= "00"&std_logic_vector(vector_x+vector_y*640);
+				--end if;
       end if;      
    end process;  
 
