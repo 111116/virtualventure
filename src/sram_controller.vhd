@@ -8,7 +8,7 @@ use      ieee.std_logic_1164.all;
 
 entity sram_controller is
    port(
-      clk0: in std_logic; -- 100MHz master clock input
+      clk: in std_logic; -- sram sync clock
       widepulse: in std_logic; -- 8.5ns low, 1.5ns high 
       -- internal ports to VGA
       addr1: in std_logic_vector(19 downto 0);
@@ -41,14 +41,15 @@ begin
 
    -- SRAM ports
    rden_e <= writing;
-   wren_e <= widepulse when writing = '1' else '1';
+   --wren_e <= widepulse when writing = '1' else '1';
+   wren_e <= not writing;
    data_e <= datacache when writing = '1' else (others => 'Z');
    chsl_e <= '0';
 
    -- update state & cache
-   process (clk0)
+   process (clk)
    begin
-      if rising_edge(clk0) then
+      if rising_edge(clk) then
          -- switch state
          if state = st1 then
             q1 <= data_e; -- cache result for VGA

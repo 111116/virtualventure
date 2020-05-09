@@ -49,7 +49,7 @@ architecture arch of main is
 
    component sram_controller is
       port (
-         clk0: in std_logic; -- 100MHz master clock input
+         clk: in std_logic; -- sync clock
          widepulse: in std_logic; -- 8.5ns low, 1.5ns high 
          -- internal ports to VGA
          addr1: in std_logic_vector(19 downto 0);
@@ -93,8 +93,16 @@ architecture arch of main is
    signal mem_data2: std_logic_vector(31 downto 0);
    signal mem_wren2: std_logic;
    signal mem_acc2:  std_logic;
+   signal sram_clk : std_logic := '0';
 
 begin
+
+   process (clk0)
+   begin
+      if rising_edge(clk0) then
+         sram_clk <= not sram_clk;
+      end if;
+   end process;
 
    pll: main_pll port map (
       inclk0   => clk0,
@@ -102,7 +110,7 @@ begin
    );
 
    renderer: renderer2d port map (
-      clk0        => clk0,
+      clk0        => sram_clk,
       sram_addr   => mem_addr2,
       sram_data   => mem_data2,
       sram_q      => mem_q2,
@@ -111,7 +119,7 @@ begin
    );
 
    sram: sram_controller port map (
-      clk0     => clk0,
+      clk      => sram_clk,
       widepulse=> widepulse,
       -- internal ports to VGA
       addr1    => mem_addr1,
