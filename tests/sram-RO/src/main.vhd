@@ -56,6 +56,10 @@ architecture arch of main is
          r,g,b : out std_logic_vector(2 downto 0)
       );
    end component vga_controller;
+	
+	component hyper is
+		port (inclk0: in std_logic; c0: out std_logic);
+	end component;
 
    signal widepulse: std_logic; -- 8.5ns low, 1.5ns high 
    -- internal ports: vga_controller - sram_controller
@@ -68,8 +72,11 @@ architecture arch of main is
    signal mem_wren2: std_logic;
    signal mem_acc2:  std_logic;
    signal sram_clk : std_logic := '0';
+	signal clkk: std_logic;
 
 begin
+
+	wtf: hyper port map (clk0, clkk);
 
    process (clk0)
    begin

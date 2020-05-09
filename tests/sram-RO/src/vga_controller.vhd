@@ -33,6 +33,7 @@ architecture behavior of vga_controller is
    signal hs1,vs1  : std_logic;                    -- cached sync
    signal vector_x : unsigned(9 downto 0) := (others=>'0'); -- horizontal position of current scan
    signal vector_y : unsigned(8 downto 0) := (others=>'0'); -- vertical position of current scan
+	signal valid_px : std_logic;
 
 begin
 
@@ -132,25 +133,21 @@ begin
  -----------------------------------------------------------------------   
    process(reset,clk,vector_x,vector_y) -- drawing
       variable x,y: integer range 0 to 1000;
-   begin  
-      if reset='0' then
-         r1  <= "000";
-         g1 <= "000";
-         b1 <= "000";   
-      elsif rising_edge(clk) then
+   begin
+      if rising_edge(clk) and vector_x<640 and vector_y<480 then
          -- assign to r1,g1,b1 with pixel values
          addr <= "00"&std_logic_vector(vector_x+vector_y*640);
          -- r1 <= std_logic_vector(vector_x(2 downto 0));
 			r1 <= q(2 downto 0);
-         g1 <= "000";
-         b1 <= "111";
-      end if;      
+			g1 <= "000";
+			b1 <= "111";
+     end if;      
    end process;  
 
    -----------------------------------------------------------------------
    process (hs1, vs1, r1, g1, b1, vector_x, vector_y)   -- output to rgb
    begin
-      if vector_x<640 and vector_y<480 then
+      if valid_px='1' then
          r  <= r1;
          g  <= g1;
          b  <= b1;
@@ -160,6 +157,18 @@ begin
          b  <= (others => '0');
       end if;
    end process;
+	
+	-------------------------------------
+	process (clk, vector_x, vector_y)
+	begin
+		if rising_edge(clk) then
+			if (vector_x<640) and (vector_y<480) then
+				valid_px <= '1';
+			else
+				valid_px <= '0';
+			end if;
+		end if;
+	end process;
 
 end behavior;
 

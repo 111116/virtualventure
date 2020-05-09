@@ -51,20 +51,24 @@ begin
    begin
       if rising_edge(clk) then
          -- switch state
-         if state = st1 then
+    --     if state = st1 then
+    --        q1 <= data_e; -- cache result for VGA
+    --        state <= st2; -- switch to renderer
+    --        acc2 <= '1';
+    --        addr_e <= addr2;
+    --        writing <= wren2;
+				--datacache <= data2;
+    --     else
+    --        q2 <= data_e; -- cache result for renderer
+    --        state <= st1; -- switch to VGA
+    --        acc2 <= '0';
+    --        addr_e <= addr1;
+    --        writing <= '0';
+    --     end if;
             q1 <= data_e; -- cache result for VGA
-            state <= st2; -- switch to renderer
-            acc2 <= '1';
-            addr_e <= addr2;
-            writing <= wren2;
-				datacache <= data2;
-         else
-            q2 <= data_e; -- cache result for renderer
-            state <= st1; -- switch to VGA
             acc2 <= '0';
             addr_e <= addr1;
             writing <= '0';
-         end if;
       end if;
    end process;
 
