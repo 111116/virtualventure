@@ -34,3 +34,48 @@ begin
 	y(3) <= a(12)*x(0) + a(13)*x(1) + a(14)*x(2) + a(15)*x(3);
 
 end architecture mul;
+
+
+
+---------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use work.uint32la.all;
+
+
+entity main is
+	port (
+		clk: in std_logic;
+		o: out integer
+	);
+end entity main;
+
+architecture behav of main is
+	component igemv44 is
+		port (
+			a: in imat4;
+			x: in ivec4;
+			y: out ivec4
+		);
+	end component igemv44;
+	signal a:imat4;
+	signal x,y:ivec4;
+	signal cur: integer := 0;
+	signal c: integer := 0;
+begin
+	gemv: igemv44 port map(a,x,y);
+	o <= y(0) + y(1) - y(2) + 3*y(3);
+	process(clk) begin
+		if rising_edge(clk) then
+			a(cur) <= a(cur)+1;
+			if cur < 15 then
+				cur <= cur+1;
+			end if;
+			x(c) <= x(c)+1;
+			if c < 15 then
+				c <= c+1;
+			end if;
+		end if;
+	end process;
+end architecture;
