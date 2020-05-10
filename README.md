@@ -4,6 +4,14 @@
 
 使用的数据类型：范围整数，定点实数，枚举，……
 
+`src` 主项目设计用到的代码（VHDL/Verilog源文件，不要放Quartus生成的文件）
+
+`project` Quartus工作目录（Quartus生成的文件视需要，不一定要加进repo）
+
+`tests` 测试功能/模块等用到的设计
+
+`res` 主项目设计用到的资源文件
+
 ## 概览
 
 ```vhdl
