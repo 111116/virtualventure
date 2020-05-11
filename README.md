@@ -72,12 +72,91 @@ total 300bytes 2400bits
         该障碍消失；
 ---new
       #如果最后一节列车最后一节车厢进入画面，则读取随机数表格并随机生成新的列车、障碍
+
 ## 游戏主逻辑
 
-玩家与列车，金币作碰撞检测。碰撞检测：玩家所在轨道离散
+---玩家与列车，金币作碰撞检测。碰撞检测：玩家所在轨道离散
+
+####port in:
+```
+UD,LR;
+N[3];
+kind[3][4];
+pos_start[3][4];
+num_carriage[3][4];
+slope[3][4];
+num_barrier[3];
+pos_barrier[3][10];
+type_barrier[3][10];
+```
+####signal:
+```
+（pos_x:int，x坐标，常为0）
+pos_y:int，y坐标
+pos_y_discrete:std_logic_vector(2)，由y坐标得到角色属于三条铁路中的哪一条
+pos_h:int，高度坐标，表示角色高度。用于碰撞检测
+pos_h_center:int,重心高度坐标，考虑跳跃/下滑影响后即为高度坐标。用于斜坡对角色的高度影响
+time_mov_y:int，左右移动剩余时间。+表示向左移动，-表示向右移动，不可被打断（不为0时不接受LR对其值的更改）
+time_mov_h:int，上下移动剩余时间。+表示跳起，-表示下滑，可被打断（UD）
+survive:std_logic,角色是否死亡
+```
+####process：
+角色接收指令
+```
+---加速度指令
+UD==00：
+  time_mov_h=10;起跳
+  pos_h=pos_h_center;中断上一次跳跃/下滑的影响
+UD==11：
+  time_mov_h=-10;下滑
+  pos_h=pos_h_center;中断上一次跳跃/下滑的影响
+time_mov_y==0:左右运动结束
+  LR==00:
+    time_mov_y=10;
+  LR==11:
+    time_mov_y=-10;
 
 
-输出：玩家位置 (x:real,h:real)
+---速度指令
+pos_h = pos_h_center + function_h( time_mov_h );
+pos_y = pos_y + function_y( time_mov_y );
+pos_y_discrete = function_yd( pos_y );
+
+```
+状态检测&碰撞检测
+```
+                                                                                                         ---状态检测
+如果角色未死亡：
+                                                                                                         ---碰撞检测
+  根据pos_y_discrete判断角色在哪一条轨道上（在两条轨道中间时只考虑pos_y_discrete确定的轨道的影响）
+  列车碰撞检测：
+    如果pos_h<=列车高度:                                                                                                 ---处于列车上不必碰撞检测
+      如果第一节列车的起点<0且>(-车厢长度）:
+        如果有斜坡：
+          pos_h_center=（0-列车起点）*列车高度/车厢长度；                                                                        ---假设斜坡为三角形
+        没有斜坡：
+          角色死亡，survive=0；
+
+  障碍碰撞检测：
+    如果障碍起点<0且>(-障碍长度）:
+      如果type_barrier为11:
+        角色死亡，survive=0；
+      如果type_barrier为01:
+        如果time_mov_h<5:
+          角色死亡，survive=0；
+      如果type_barrier为10:
+        如果time_mov_h>-5:
+          角色死亡，survive=0；
+      如果type_barrier为00:
+        如果time_mov_h<5且>-5:
+          角色死亡，survive=0；
+```
+
+
+####port out:
+```
+玩家位置 (x:real,h:real)
+```
 
 ## 几何实例化
 
