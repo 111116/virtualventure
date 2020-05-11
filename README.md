@@ -28,8 +28,9 @@ main
 ```
 ## 地形生成器
 
-####port in:clk
-####port out:
+port in:clk
+
+port out:
 每轨道：
 
 ​	列车数量，每列车：种类，起点，车厢数量，有没有斜坡 <=4x(enum+real+short+bool) \~12byte
@@ -55,8 +56,9 @@ total 300bytes 2400bits
 
 \*隧道
 
-####process:
-  每个周期
+process:
+```
+每个周期
     对每个轨道：
 ---maintain
       每节列车：起点--；
@@ -72,12 +74,12 @@ total 300bytes 2400bits
         该障碍消失；
 ---new
       #如果最后一节列车最后一节车厢进入画面，则读取随机数表格并随机生成新的列车、障碍
-
+```
 ## 游戏主逻辑
 
 ---玩家与列车，金币作碰撞检测。碰撞检测：玩家所在轨道离散
 
-####port in:
+port in:
 ```
 UD,LR;
 N[3];
@@ -89,7 +91,7 @@ num_barrier[3];
 pos_barrier[3][10];
 type_barrier[3][10];
 ```
-####signal:
+signal:
 ```
 （pos_x:int，x坐标，常为0）
 pos_y:int，y坐标
@@ -100,7 +102,7 @@ time_mov_y:int，左右移动剩余时间。+表示向左移动，-表示向右�
 time_mov_h:int，上下移动剩余时间。+表示跳起，-表示下滑，可被打断（UD）
 survive:std_logic,角色是否死亡
 ```
-####process：
+process：
 角色接收指令
 ```
 ---加速度指令
