@@ -2,10 +2,15 @@
 -- display pixels from SRAM controller
 
 -- SRAM pixel format:
--- addr #0 to addr #(640x480), row-major
--- r: 2 downto 0
--- g: 5 downto 3
--- b: 8 downto 6
+-- addr #0 to addr #153600, row-major, 2px per word
+-- r0: 2 downto 0
+-- g0: 5 downto 3
+-- b0: 8 downto 6
+-- r1: 11 downto 9
+-- g1: 14 downto 12
+-- b1: 17 downto 15
+
+-- note: at most 1 read is required per 80ns
 
 library  ieee;
 use      ieee.std_logic_1164.all;
@@ -33,6 +38,7 @@ architecture behavior of vga_controller is
    signal hs1,vs1  : std_logic;                    -- cached sync
    signal vector_x : unsigned(9 downto 0) := (others=>'0'); -- horizontal position of current scan
    signal vector_y : unsigned(8 downto 0) := (others=>'0'); -- vertical position of current scan
+   signal q_cached : std_logic_vector(31 downto 0);
 
 begin
 
@@ -130,36 +136,46 @@ begin
    end process;
    
  -----------------------------------------------------------------------   
+   -- sync
    process(reset,clk,vector_x,vector_y) -- drawing
       variable x,y: integer range 0 to 1000;
    begin  
       if reset='0' then
-         r1  <= "000";
+         r1 <= "000";
          g1 <= "000";
          b1 <= "000";   
 		elsif rising_edge(clk) and vector_x<640 and vector_y<480 then
-			r1 <= q(5 downto 3);
-         g1 <= "000";
-         b1 <= "111";
-				--if vector_x=639 and vector_y=479 then
-				--	addr <= (others=>'0');
-				--else
-					addr <= "00"&std_logic_vector(vector_x+vector_y*640);
-				--end if;
+         -- read pixel value
+         if vector_x(0) = '0' then -- even indexed column
+            r1 <= q_cached(2 downto 0);
+            g1 <= q_cached(5 downto 3);
+            b1 <= q_cached(8 downto 6);
+         else -- odd indexed column
+            r1 <= q_cached(11 downto 9);
+            g1 <= q_cached(14 downto 12);
+            b1 <= q_cached(17 downto 15);
+         end if;
+         -- update read addr
+         if vector_x(0) = '1' then -- read data & update addr (every 80ns maybe)
+            q_cached <= q;
+            -- TODO eliminate gap caused by read delay
+            addr <= "00"&std_logic_vector(vector_x/2+vector_y*320);
+         end if;
       end if;      
    end process;  
 
    -----------------------------------------------------------------------
+   -- comb
    process (hs1, vs1, r1, g1, b1, vector_x, vector_y)   -- output to rgb
    begin
       if vector_x<640 and vector_y<480 then
-         r  <= r1;
-         g  <= g1;
-         b  <= b1;
+         r <= r1;
+         g <= g1;
+         b <= b1;
       else
-         r  <= (others => '0');
-         g  <= (others => '0');
-         b  <= (others => '0');
+         r <= (others => '0');
+         g <= (others => '0');
+         b <= (others => '0');
       end if;
    end process;
 
