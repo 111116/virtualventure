@@ -34,7 +34,6 @@ architecture behavior of vga_controller is
 
    signal clk      : std_logic := '0';            -- cached 25MHz clock
    signal clk50    : std_logic := '0';            -- cached 50MHz clock
-   signal r1,g1,b1 : std_logic_vector(2 downto 0); -- cached color
    signal hs1,vs1  : std_logic;                    -- cached sync
    signal vector_x : unsigned(9 downto 0) := (others=>'0'); -- horizontal position of current scan
    signal vector_y : unsigned(8 downto 0) := (others=>'0'); -- vertical position of current scan
@@ -139,45 +138,46 @@ begin
    -- sync
    process(reset,clk,vector_x,vector_y) -- drawing
       variable x,y: integer range 0 to 1000;
+		variable tmpaddr: unsigned(19 downto 0);
    begin  
-      if reset='0' then
-         r1 <= "000";
-         g1 <= "000";
-         b1 <= "000";   
-		elsif rising_edge(clk) and vector_x<640 and vector_y<480 then
-         -- read pixel value
-         if vector_x(0) = '0' then -- even indexed column
-            r1 <= q_cached(2 downto 0);
-            g1 <= q_cached(5 downto 3);
-            b1 <= q_cached(8 downto 6);
-         else -- odd indexed column
-            r1 <= q_cached(11 downto 9);
-            g1 <= q_cached(14 downto 12);
-            b1 <= q_cached(17 downto 15);
-         end if;
-         -- update read addr
+      if rising_edge(clk) and vector_x<640 and vector_y<480 then
          if vector_x(0) = '1' then -- read data & update addr (every 80ns maybe)
             q_cached <= q;
             -- TODO eliminate gap caused by read delay
-            addr <= "00"&std_logic_vector(vector_x/2+vector_y*320);
+				tmpaddr := "00" & (vector_x/2+vector_y*320);
+				if tmpaddr+2 < 320*480 then
+					addr <= std_logic_vector(tmpaddr+2);
+				else
+					addr <= "0000000000000000000" & tmpaddr(0);
+				end if;
          end if;
       end if;      
    end process;  
-
-   -----------------------------------------------------------------------
-   -- comb
-   process (hs1, vs1, r1, g1, b1, vector_x, vector_y)   -- output to rgb
-   begin
-      if vector_x<640 and vector_y<480 then
-         r <= r1;
-         g <= g1;
-         b <= b1;
-      else
-         r <= (others => '0');
-         g <= (others => '0');
-         b <= (others => '0');
-      end if;
-   end process;
+	
+	-------------------------------------
+	process (clk, vector_x, vector_y)
+	begin
+		if rising_edge(clk) then
+			if (vector_x<640) and (vector_y<480) then
+				--valid_px <= '1';
+            -- read pixel value
+            if vector_x(0) = '0' then -- even indexed column
+               r <= q_cached(2 downto 0);
+               g <= q_cached(5 downto 3);
+               b <= q_cached(8 downto 6);
+            else -- odd indexed column
+               r <= q_cached(11 downto 9);
+               g <= q_cached(14 downto 12);
+               b <= q_cached(17 downto 15);
+            end if;
+			else
+				--valid_px <= '0';
+            r  <= (others => '0');
+            g  <= (others => '0');
+            b  <= (others => '0');
+			end if;
+		end if;
+	end process;
 
 end behavior;
 
