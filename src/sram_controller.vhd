@@ -32,8 +32,8 @@ entity sram_controller is
       -- external ports to SRAM
       addr_e: out std_logic_vector(19 downto 0);
       data_e: inout std_logic_vector(31 downto 0);
-      rden_e: out std_logic; -- low valid
-      wren_e: out std_logic; -- low valid
+      rden_e: out std_logic := '1'; -- low valid
+      wren_e: out std_logic := '1'; -- low valid
       chsl_e: out std_logic  -- low valid
    );
 end entity sram_controller;
@@ -41,8 +41,7 @@ end entity sram_controller;
 architecture behav of sram_controller is
 
    signal state: integer range 0 to 7;
-   signal writing: std_logic;
-	signal datacache: std_logic_vector(31 downto 0);
+	signal shiftcache: std_logic_vector(31 downto 0);
 
 begin
 
@@ -75,7 +74,7 @@ begin
                rden_e <= '1';
                wren_e <= '0';
             when others => -- idle
-               addr_e <= addr3;
+               addr_e <= x"CCCCC";
                data_e <= (others => 'Z');
                rden_e <= '1';
                wren_e <= '1';
@@ -85,16 +84,24 @@ begin
    end process;
 
    -- fetch data
-   process (clk_sramsample)
+   process (clk_sramsample, data_e)
    begin
       if rising_edge(clk_sramsample) then
+         shiftcache <= data_e;
+      end if;
+   end process;
+
+   -- output to register
+   process (clk, shiftcache)
+   begin
+      if rising_edge(clk) then
          case state is
             when 4 =>
-               q1 <= data_e;
+               q1 <= shiftcache;
             when 5 =>
-               q2 <= data_e;
+               q2 <= shiftcache;
             when 6 =>
-               q3 <= data_e;
+               q3 <= shiftcache;
             when others =>
                null;
          end case;
