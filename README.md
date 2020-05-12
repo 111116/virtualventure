@@ -8,13 +8,13 @@
 
 ```vhdl
 main
-  input_controller
-  map_gen
-  game_logic
-  geometry
-  renderer
-  sram_controller
-  vga_controller
+  input_controller  进度：
+  map_gen           进度：
+  game_logic        进度：
+  geometry          进度：
+  renderer          进度：
+  sram_controller   进度：已部分测试
+  vga_controller    进度：已完成测试
 ```
 
 ## 传感器控制器
@@ -132,59 +132,8 @@ D  8位无符号整数，该像素的当前深度
 
 ## SRAM控制器
 
-将SRAM共享给VGA控制器（只读）和渲染器（读写），其中VGA控制器优先。本模块为同步电路，在每个时钟周期若VGA控制器端产生新的读请求，则执行该请求；否则执行来自渲染器的读写请求。
-
-当某个周期内 `acc2='1'` ，表明渲染器的请求已被处理（如果为读，将会在下一周期给出结果）。
-
-#### 接口
-
-```vhdl
-clk: in std_logic;
--- internal ports to VGA
-addr1: in std_logic_vector(19 downto 0);
-q1   : out std_logic_vector(31 downto 0);
--- internal ports to renderer
-addr2: in std_logic_vector(19 downto 0);
-q2:   out std_logic_vector(31 downto 0);
-data2: in std_logic_vector(31 downto 0);
-wren2: in std_logic;
-acc2: out std_logic;
--- external ports to SRAM
-addr_e: in std_logic_vector(19 downto 0);
-data_e: inout std_logic_vector(31 downto 0);
-rden_e: out std_logic;
-wren_e: out std_logic;
-chsl_e: out std_logic;
-```
-
-#### 实现
-
-以100MHz运行，同步选择读写状态。如果addr1与上一周期不同，则执行端口1操作(`valid2=LOW`)，否则执行端口2操作(`valid2=HIGH`)
-
-读：`CE=LOW, OE=LOW, WE=HIGH (10ns)`
-
-写：`CE=LOW, OE=HIGH, WE=(LOW 8.5ns HIGH 1.5ns)`
-
+将SRAM共享给VGA控制器（只读）和渲染器（读写）。以80ns周期运行，3读1写，见代码。
 
 ## VGA控制器
 
-从SRAM控制器读取像素值并显示。
-
-#### 接口
-
-SRAM内帧缓冲格式
-
-```vhdl
-clk: in std_logic;
--- internal ports to SRAM controller
-addr: out std_logic_vector(19 downto 0);
-data: in std_logic_vector(31 downto 0);
-...
--- external ports to VGA
-r,g,b: out std_logic_vector(2 downto 0);
-hs,vs: out std_logic;
-```
-
-#### 实现
-
-以25MHz运行，提前半拍从SRAM控制器读取像素值
+从SRAM控制器读取像素值并显示。以25MHz运行，提前2拍从SRAM控制器读取像素值
