@@ -1,0 +1,97 @@
+To,                 Location
+
+// 100MHz clock
+clk0,                PIN_N2
+
+// VGA output
+vga_hs,             PIN_U3
+vga_vs,             PIN_U4
+vga_r[2],           PIN_R4
+vga_r[1],           PIN_R3
+vga_r[0],           PIN_R2
+vga_g[2],           PIN_T3
+vga_g[1],           PIN_T2
+vga_g[0],           PIN_R5
+vga_b[2],           PIN_U1
+vga_b[1],           PIN_U2
+vga_b[0],           PIN_T4
+
+// external memory
+sram_ce,            PIN_AB21
+sram_oe,            PIN_AD25
+sram_we,            PIN_AC25
+sram_addr[19],      PIN_AE23
+sram_addr[18],      PIN_AF23
+sram_addr[17],      PIN_Y23
+sram_addr[16],      PIN_Y24
+sram_addr[15],      PIN_AA25
+sram_addr[14],      PIN_AA26
+sram_addr[13],      PIN_V22
+sram_addr[12],      PIN_AB26
+sram_addr[11],      PIN_AB25
+sram_addr[10],      PIN_AB23
+sram_addr[9],       PIN_AB24
+sram_addr[8],       PIN_AA23
+sram_addr[7],       PIN_AA24
+sram_addr[6],       PIN_Y22
+sram_addr[5],       PIN_AC24
+sram_addr[4],       PIN_AD24
+sram_addr[3],       PIN_AC26
+sram_addr[2],       PIN_AC23
+sram_addr[1],       PIN_N23
+sram_addr[0],       PIN_N24
+sram_data[31],      PIN_M25
+sram_data[30],      PIN_M24
+sram_data[29],      PIN_M23
+sram_data[28],      PIN_M22
+sram_data[27],      PIN_K23
+sram_data[26],      PIN_K22
+sram_data[25],      PIN_K24
+sram_data[24],      PIN_L23
+sram_data[23],      PIN_L24
+sram_data[22],      PIN_P23
+sram_data[21],      PIN_P24
+sram_data[20],      PIN_R25
+sram_data[19],      PIN_R24
+sram_data[18],      PIN_T22
+sram_data[17],      PIN_T23
+sram_data[16],      PIN_T24
+sram_data[15],      PIN_T25
+sram_data[14],      PIN_U26
+sram_data[13],      PIN_U25
+sram_data[12],      PIN_U23
+sram_data[11],      PIN_U24
+sram_data[10],      PIN_V26
+sram_data[9],       PIN_V25
+sram_data[8],       PIN_V24
+sram_data[7],       PIN_V23
+sram_data[6],       PIN_W26
+sram_data[5],       PIN_W25
+sram_data[4],       PIN_W23
+sram_data[3],       PIN_W24
+sram_data[2],       PIN_U22
+sram_data[1],       PIN_Y25
+sram_data[0],       PIN_Y26
+
+// LED digits
+digit0[6],          PIN_AE17
+digit0[5],          PIN_AC17
+digit0[4],          PIN_AD17
+digit0[3],          PIN_AF18
+digit0[2],          PIN_AE18
+digit0[1],          PIN_AF19
+digit0[0],          PIN_AE19
+digit1[6],          PIN_AB18
+digit1[5],          PIN_AD19
+digit1[4],          PIN_AC19
+digit1[3],          PIN_AF20
+digit1[2],          PIN_AE20
+digit1[1],          PIN_AB20
+digit1[0],          PIN_AC20
+digit2[6],          PIN_AF21
+digit2[5],          PIN_AD21
+digit2[4],          PIN_AF22
+digit2[3],          PIN_AC21
+digit2[2],          PIN_AE22
+digit2[1],          PIN_AD22
+digit2[0],          PIN_AD23
