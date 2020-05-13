@@ -26,17 +26,22 @@ end renderer2d;
 
 architecture behav of renderer2d is
 
-   signal x: integer range 0 to 1000 := 0;
-   signal y: integer range 0 to 1000 := 0;
-   signal xyaddr: integer range 0 to 1000000 := 0;
+   -- 80ns cycled clock
+   signal clkslow : std_logic := '0';
+   signal clkcnt : integer range 0 to 3 := 0;
 
-   signal clkslow: std_logic := '0';
-   signal clkcnt: integer range 0 to 3 := 0;
-   signal r0,g0,b0,r1,g1,b1: unsigned(2 downto 0);
+   -- pipeline registers
+   signal x : integer range 0 to 1000 := 0;
+   signal y : integer range 0 to 1000 := 0;
+   signal writeaddr        : std_logic_vector(19 downto 0);
+   signal writeaddr_reg1   : std_logic_vector(19 downto 0);
+   signal sram_q1_reg1     : std_logic_vector(31 downto 0);
+   signal sram_q2_reg1     : std_logic_vector(31 downto 0);
 
 begin
 
    -- clk divider 1/8
+   -- hopefully clk is ahead of SRAM fetch timing
    process (clk0, clkcnt)
    begin
       if rising_edge(clk0) then
@@ -51,20 +56,10 @@ begin
       end if;
    end process;
 
-   sram_addr1 <= x"CCCCC";
-   sram_addr2 <= x"CCCCC";
-   sram_addrw <= std_logic_vector(to_unsigned(xyaddr, 20));
-   sram_dataw <= "00000000000000"&
-                  std_logic_vector(b1)&
-                  std_logic_vector(g1)&
-                  std_logic_vector(r1)&
-                  std_logic_vector(b0)&
-                  std_logic_vector(g0)&
-                  std_logic_vector(r0);
-
+   -- stage 0: update coordinate
    process (clkslow, x, y)
    begin
-      if falling_edge(clkslow) then
+      if rising_edge(clkslow) then
          -- update x and y
          if x = 638 then
 				if y = 479 then
@@ -76,14 +71,50 @@ begin
 			else
 				x <= x+2;
          end if;
-         -- update addr (1 clk behind x,y)
-         xyaddr <= x/2+y*320;
-         r0 <= to_unsigned(x/100, 3);
-         g0 <= to_unsigned(y/100, 3);
-         b0 <= to_unsigned(0, 3);
-         r1 <= to_unsigned(x/100, 3);
-         g1 <= to_unsigned(y/100, 3);
-         b1 <= to_unsigned(0, 3);
+      end if;
+   end process;
+
+   -- stage 1: calc fetch & write addr
+   process (clkslow, x, y)
+      variable x0,y0,x1,y1: integer range 0 to 1000;
+   begin
+      if rising_edge(clkslow) then
+         -- texture coordinate
+         x0 := x;
+         y0 := y + 150;
+         x1 := x + 1;
+         y1 := y + 150;
+         -- texture address
+         sram_addr1 <= std_logic_vector(to_unsigned(x0+y0*1024,20));
+         sram_addr2 <= std_logic_vector(to_unsigned(x1+y1*1024,20));
+         writeaddr  <= std_logic_vector(to_unsigned(x/2+y*320, 20));
+      end if;
+   end process;
+
+   -- stage 2: fetch data
+   process (clkslow, sram_q1, sram_q2, writeaddr)
+   begin
+      if rising_edge(clkslow) then
+         sram_q1_reg1 <= sram_q1;
+         sram_q2_reg1 <= sram_q2;
+         writeaddr_reg1 <= writeaddr;
+      end if;
+   end process;
+
+   -- state 3: calculate quantized color
+   process (clkslow, sram_q1_reg1, sram_q2_reg1, writeaddr_reg1)
+      variable r1,g1,b1,r2,g2,b2: std_logic_vector(2 downto 0); -- to fill
+   begin
+      if rising_edge(clkslow) then
+         -- direct quantize (floor)
+         r1 := sram_q1_reg1(7 downto 5);
+         g1 := sram_q1_reg1(15 downto 13);
+         g1 := sram_q1_reg1(23 downto 21);
+         r2 := sram_q2_reg1(7 downto 5);
+         g2 := sram_q2_reg1(15 downto 13);
+         g2 := sram_q2_reg1(23 downto 21);
+         sram_addrw <= writeaddr_reg1;
+         sram_dataw <= "00000000000000"&b2&g2&r2&b1&g1&r1;
       end if;
    end process;
 
