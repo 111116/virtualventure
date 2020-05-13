@@ -1,2 +1,6 @@
 *.bak
 altera_mf-obj93.cf
+output_files
+incremental_db
+greybox_tmp
+project
