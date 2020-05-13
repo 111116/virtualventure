@@ -118,14 +118,14 @@ begin
       addr1    => mem_addr1,
       q1       => mem_q1,
       -- read port 2 unused
-      addr2    => x"CCCCC",
-      q2       => open,
+      addr2    => mem_addr2,
+      q2       => mem_q2,
       -- read port 3 unused
-      addr3    => x"CCCCC",
-      q3       => open,
+      addr3    => mem_addr3,
+      q3       => mem_q3,
       -- write port unused
-      addrw    => x"CCCCC",
-      dataw    => x"DEADBEEF",
+      addrw    => mem_addrw,
+      dataw    => mem_dataw,
       -- external ports to SRAM
       addr_e   => sram_addr,
       data_e   => sram_data,
