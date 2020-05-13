@@ -77,7 +77,7 @@ begin
 				x <= x+2;
          end if;
          -- update addr (1 clk behind x,y)
-         xyaddr <= x+y*320;
+         xyaddr <= x/2+y*320;
          r0 <= to_unsigned(x/100, 3);
          g0 <= to_unsigned(y/100, 3);
          b0 <= to_unsigned(0, 3);
