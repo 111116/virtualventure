@@ -109,10 +109,10 @@ begin
          -- direct quantize (floor)
          r1 := sram_q1_reg1(7 downto 5);
          g1 := sram_q1_reg1(15 downto 13);
-         g1 := sram_q1_reg1(23 downto 21);
+         b1 := sram_q1_reg1(23 downto 21);
          r2 := sram_q2_reg1(7 downto 5);
          g2 := sram_q2_reg1(15 downto 13);
-         g2 := sram_q2_reg1(23 downto 21);
+         b2 := sram_q2_reg1(23 downto 21);
          sram_addrw <= writeaddr_reg1;
          sram_dataw <= "00000000000000"&b2&g2&r2&b1&g1&r1;
       end if;
