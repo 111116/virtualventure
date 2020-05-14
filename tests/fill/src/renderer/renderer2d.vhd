@@ -46,8 +46,16 @@ architecture behav of renderer2d is
    end component tile_renderer;
 
    component tile_buffer_ram is
-      port (
-         
+      PORT
+      (
+         data        : IN STD_LOGIC_VECTOR (35 DOWNTO 0);
+         rdaddress   : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+         rdclock     : IN STD_LOGIC ;
+         rden        : IN STD_LOGIC  := '1';
+         wraddress   : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+         wrclock     : IN STD_LOGIC  := '1';
+         wren        : IN STD_LOGIC  := '0';
+         q           : OUT STD_LOGIC_VECTOR (35 DOWNTO 0)
       );
    end component tile_buffer_ram;
 
@@ -57,6 +65,7 @@ architecture behav of renderer2d is
          clk0 : in std_logic; -- 100MHz clock
          start_addr : in unsigned(19 downto 0); -- unregistered
          -- ports to tile buffer
+         buf_clk  : out std_logic;
          buf_addr : out std_logic_vector(12 downto 0);
          buf_q    : in  std_logic_vector(35 downto 0);
          -- internal ports to SRAM controller
@@ -80,13 +89,20 @@ architecture behav of renderer2d is
 begin
 
    tilebuf1 : tile_buffer_ram port map (
-      
+      data      => tilebuf_in_data,
+      rdaddress => tilebuf_out_addr,
+      rdclock   => tilebuf_out_clk,
+      rden      => '1',
+      wraddress => tilebuf_in_addr,
+      wrclock   => tilebuf_in_clk,
+      wren      => '1',
+      q         => tilebuf_out_q
    );
 
    renderer : tile_renderer port map (
       clk0   => clk0,
-      startx => 160,
-      starty => 160,
+      startx => to_unsigned(160, 10),
+      starty => to_unsigned(160, 10),
       --start   : in std_logic;
       --busy    : out std_logic;
       -- internal ports to geometry buffer (RAM)
@@ -95,14 +111,15 @@ begin
       --geobuf_q    : in  std_logic_vector();
       -- internal ports to tile buffer (RAM)
       tilebuf_clk  => tilebuf_in_clk,
-      tilebuf_addr => tilebuf_in_data,
-      tilebuf_data => tilebuf_in_addr
+      tilebuf_addr => tilebuf_in_addr,
+      tilebuf_data => tilebuf_in_data
    );
 
    filler : texture_filler port map (
       clk0   => clk0,
-      start_addr => 0,
+      start_addr => to_unsigned(0, 20),
       -- ports to tile buffer
+      buf_clk    => tilebuf_out_clk,
       buf_addr   => tilebuf_out_addr,
       buf_q      => tilebuf_out_q,
       -- internal ports to SRAM controller

@@ -47,6 +47,8 @@ begin
       end if;
    end process;
 
+   tilebuf_clk <= clk0;
+
    process (clk0, x, y)
       variable tx, ty: integer range 0 to 1023;
    begin

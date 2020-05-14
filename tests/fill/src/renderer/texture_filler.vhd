@@ -11,6 +11,7 @@ entity texture_filler is
 		clk0 : in std_logic; -- 100MHz clock
 		start_addr : in unsigned(19 downto 0); -- unregistered
 		-- ports to tile buffer
+      buf_clk  : out std_logic;
 		buf_addr : out std_logic_vector(12 downto 0);
 		buf_q	 	: in  std_logic_vector(35 downto 0);
       -- internal ports to SRAM controller
@@ -34,6 +35,7 @@ architecture behav of texture_filler is
 
    -- 80ns cycled clock
    signal clkslow : std_logic := '0';
+   signal clk1_4 : std_logic := '0';
    signal clkcnt : integer range 0 to 3 := 0;
 
    -- pipeline registers
@@ -62,6 +64,18 @@ begin
          end if;
       end if;
    end process;
+
+   -- clk divider 1/4
+   process (clk0, clkcnt)
+   begin
+      if rising_edge(clk0) then
+         if clkcnt = 0 or clkcnt = 2 then
+            clk1_4 <= not clk1_4;
+         end if;
+      end if;
+   end process;
+
+   buf_clk <= clk1_4;
 
    -- stage 0: update state & current position
    process (clkslow, x, y)
