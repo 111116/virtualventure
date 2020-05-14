@@ -155,6 +155,8 @@ begin
       if rising_edge(clk0) then
          if clkcnt < 90 then
             clkcnt <= clkcnt + 1;
+			elsif busy_filler='0' then
+				clkcnt <= 0;
          end if;
          if clkcnt >= 32 and clkcnt < 64 then
             start_renderer <= '1';

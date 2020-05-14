@@ -37,10 +37,9 @@ architecture behav of texture_filler is
 	--end component dither_buffer;
 
 
-   -- 80ns cycled clock
-   signal clkslow : std_logic := '0';
+   signal clk1_2 : std_logic := '0';
    signal clk1_4 : std_logic := '0';
-   signal clkcnt : integer range 0 to 3 := 0;
+   signal clkst  : std_logic := '0';
 
    -- pipeline registers
    signal x, x_reg : integer range 0 to 79 := 0; -- current position in tile
@@ -58,38 +57,37 @@ architecture behav of texture_filler is
 
 begin
 
-   -- clk divider 1/8
-   -- hopefully clk is ahead of SRAM fetch timing
-   process (clk0, clkcnt)
+   -- clk divider 1/2
+   -- hopefully clk1_4 is ahead of SRAM fetch timing
+   process (clk0)
    begin
       if rising_edge(clk0) then
-         if clkcnt = 0 then
-            clkslow <= not clkslow;
-         end if;
-         if clkcnt = 3 then
-            clkcnt <= 0;
-         else
-            clkcnt <= clkcnt + 1;
-         end if;
+         clk1_2 <= not clk1_2;
       end if;
    end process;
 
    -- clk divider 1/4
-   process (clk0, clkcnt)
+   process (clk1_2)
    begin
-      if rising_edge(clk0) then
-         if clkcnt = 0 or clkcnt = 2 then
-            clk1_4 <= not clk1_4;
-         end if;
+      if rising_edge(clk1_2) then
+         clk1_4 <= not clk1_4;
       end if;
    end process;
 
-   buf_clk <= clk1_4;
+   -- clk divider 1/8  (clkst='0': main op)
+   process (clk1_4)
+   begin
+      if rising_edge(clk1_4) then
+         clkst <= not clkst;
+      end if;
+   end process;
+
+   buf_clk <= clk1_4; -- t = 0.25, 0.75, ...
 
    -- stage 0: update state & current position
-   process (clkslow, x, y, start, state_valid)
+   process (clk1_4, clkst, x, y, start, state_valid)
    begin
-      if rising_edge(clkslow) then
+      if rising_edge(clk1_4) and clkst='0' then -- t=0
          if state_valid = '0' and start = '1' then
             -- initialize
             state_valid <= '1';
@@ -110,26 +108,26 @@ begin
       end if;
    end process;
 
-   -- stage 1 & 1.5: fetch texture address 1 from buffer
-   process (clk0, clkcnt, x, y, buf_q, state_valid)
+   -- stage 1 & 1.5: read addr 1, read addr 2, fetch addr 1
+   process (clk1_4, clkst, x, y, x_reg, y_reg, buf_q, state_valid)
    begin
-      if rising_edge(clk0) and clkcnt=0 then
-      	if clkslow = '1' then -- rising edge of slow clock
+      if rising_edge(clk1_4) then
+         if clkst='0' then -- t=1
 	      	buf_addr <= std_logic_vector(to_unsigned(x+y*80, buf_addr'length));
-	      	x_reg <= x;
-	      	y_reg <= y;
-	      else -- falling edge of slow clock
-	      	texaddr_reg <= buf_q(19 downto 0);
+            x_reg <= x;
+            y_reg <= y;
+            state_valid_reg <= state_valid;
+	      else -- t=1.5
+            texaddr_reg <= buf_q(19 downto 0);
 	      	buf_addr <= std_logic_vector(to_unsigned(x_reg+1+y_reg*80, buf_addr'length));
 	      end if;
-         state_valid_reg <= state_valid;
       end if;
    end process;
 
-   -- stage 2: read texture & calc write addr
-   process (clkslow, buf_q, texaddr_reg, x_reg, y_reg, state_valid_reg)
+   -- stage 2: fetch addr 2 & calc write addr
+   process (clk1_4, clkst, buf_q, texaddr_reg, x_reg, y_reg, state_valid_reg)
    begin
-      if rising_edge(clkslow) then
+      if rising_edge(clk1_4) and clkst='0' then
          -- texture address
          sram_addr1 <= texaddr_reg;
          sram_addr2 <= buf_q(19 downto 0);
@@ -139,9 +137,9 @@ begin
    end process;
 
    -- stage 3: fetch texture data
-   process (clkslow, sram_q1, sram_q2, writeaddr, state_valid_reg2)
+   process (clk1_4, clkst, sram_q1, sram_q2, writeaddr, state_valid_reg2)
    begin
-      if rising_edge(clkslow) then
+      if rising_edge(clk1_4) and clkst='0' then
          sram_q1_reg1 <= sram_q1;
          sram_q2_reg1 <= sram_q2;
          writeaddr_reg1 <= writeaddr;
@@ -150,10 +148,10 @@ begin
    end process;
 
    -- state 4: calculate quantized color
-   process (clkslow, sram_q1_reg1, sram_q2_reg1, writeaddr_reg1, state_valid_reg3)
+   process (clk1_4, clkst, sram_q1_reg1, sram_q2_reg1, writeaddr_reg1, state_valid_reg3)
       variable r1,g1,b1,r2,g2,b2: std_logic_vector(2 downto 0); -- to fill
    begin
-      if rising_edge(clkslow) then
+      if rising_edge(clk1_4) and clkst='0' then
          -- direct quantize (floor)
          r1 := sram_q1_reg1(7 downto 5);
          g1 := sram_q1_reg1(15 downto 13);
