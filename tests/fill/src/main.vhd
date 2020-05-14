@@ -30,7 +30,8 @@ architecture arch of main is
          sram_addr2 : out std_logic_vector(19 downto 0);
          sram_q2    : in  std_logic_vector(31 downto 0);
          sram_addrw : out std_logic_vector(19 downto 0);
-         sram_dataw : out std_logic_vector(31 downto 0)
+         sram_dataw : out std_logic_vector(31 downto 0);
+         sram_wren  : out std_logic
       );
    end component renderer2d;
 
@@ -50,6 +51,7 @@ architecture arch of main is
          -- write port
          addrw: in std_logic_vector(19 downto 0);
          dataw: in std_logic_vector(31 downto 0);
+         wren : in std_logic;
          -- external ports to SRAM
          addr_e: out std_logic_vector(19 downto 0);
          data_e: inout std_logic_vector(31 downto 0);
@@ -87,6 +89,7 @@ architecture arch of main is
    signal mem_q3:    std_logic_vector(31 downto 0);
    signal mem_addrw: std_logic_vector(19 downto 0);
    signal mem_dataw: std_logic_vector(31 downto 0);
+   signal mem_wren : std_logic;
    -- pll output to sram
 	signal srampulse: std_logic;
 
@@ -108,7 +111,8 @@ begin
       sram_addr2  => mem_addr3,
       sram_q2     => mem_q3,
       sram_addrw  => mem_addrw,
-      sram_dataw  => mem_dataw
+      sram_dataw  => mem_dataw,
+      sram_wren   => mem_wren
    );
 
    sram: sram_controller port map (
@@ -126,6 +130,7 @@ begin
       -- write port unused
       addrw    => mem_addrw,
       dataw    => mem_dataw,
+      wren     => mem_wren,
       -- external ports to SRAM
       addr_e   => sram_addr,
       data_e   => sram_data,

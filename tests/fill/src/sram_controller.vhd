@@ -29,6 +29,7 @@ entity sram_controller is
       -- write port
       addrw: in std_logic_vector(19 downto 0);
       dataw: in std_logic_vector(31 downto 0);
+      wren : in std_logic;
       -- external ports to SRAM
       addr_e: out std_logic_vector(19 downto 0);
       data_e: inout std_logic_vector(31 downto 0);
@@ -72,7 +73,7 @@ begin
                addr_e <= addrw;
                data_e <= dataw;
                rden_e <= '1';
-               wren_e <= '0';
+               wren_e <= not wren;
             when others => -- idle
                addr_e <= x"CCCCC";
                data_e <= (others => 'Z');
