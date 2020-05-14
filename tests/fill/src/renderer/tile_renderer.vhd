@@ -49,7 +49,7 @@ begin
 
    tilebuf_clk <= clk0;
 
-   process (clk0, x, y)
+   process (clk0, x, y, startx, starty)
       variable tx, ty: integer range 0 to 1023;
    begin
       tilebuf_addr <= std_logic_vector(to_unsigned(x + y * 80, tilebuf_addr'length));

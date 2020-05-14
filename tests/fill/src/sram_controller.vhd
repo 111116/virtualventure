@@ -49,7 +49,7 @@ begin
    chsl_e <= '0';
 
    -- update state & feed external ports
-   process (clk)
+   process (clk, state)
    begin
       if rising_edge(clk) then
          case state is
@@ -79,7 +79,11 @@ begin
                rden_e <= '1';
                wren_e <= '1';
          end case;
-         state <= state + 1;
+         if state = 7 then
+            state <= 0;
+         else
+            state <= state + 1;
+         end if;
       end if;
    end process;
 

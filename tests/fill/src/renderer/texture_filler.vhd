@@ -96,10 +96,10 @@ begin
    end process;
 
    -- stage 1 & 1.5: fetch texture address 1 from buffer
-   process (clkslow, x, y, buf_q)
+   process (clk0, clkcnt, x, y, buf_q)
    begin
       if rising_edge(clk0) and clkcnt=0 then
-      	if clkslow = '0' then -- rising edge of slow clock
+      	if clkslow = '1' then -- rising edge of slow clock
 	      	buf_addr <= std_logic_vector(to_unsigned(x+y*80, buf_addr'length));
 	      	x_reg <= x;
 	      	y_reg <= y;
