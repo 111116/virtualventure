@@ -109,17 +109,17 @@ begin
    end process;
 
    -- stage 1 & 1.5: read addr 1, read addr 2, fetch addr 1
-   process (clk1_4, clkst, x, y, x_reg, y_reg, buf_q, state_valid)
+   process (clk1_4, clkst, x, y, buf_q, state_valid)
    begin
       if rising_edge(clk1_4) then
-         if clkst='0' then -- t=1
+         if clkst='1' then -- t=0.5, 1.5
 	      	buf_addr <= std_logic_vector(to_unsigned(x+y*80, buf_addr'length));
+            texaddr_reg <= buf_q(19 downto 0);
+	      else -- t=1
             x_reg <= x;
             y_reg <= y;
             state_valid_reg <= state_valid;
-	      else -- t=1.5
-            texaddr_reg <= buf_q(19 downto 0);
-	      	buf_addr <= std_logic_vector(to_unsigned(x_reg+1+y_reg*80, buf_addr'length));
+	      	buf_addr <= std_logic_vector(to_unsigned(x+1+y*80, buf_addr'length));
 	      end if;
       end if;
    end process;
