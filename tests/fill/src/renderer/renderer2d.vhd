@@ -192,8 +192,8 @@ begin
    -- calc submodule control params
    process (progress) -- comb
       variable progress_prev: integer range 0 to 100;
-      variable x,y: integer range 0 to 10;
-      variable x_prev,y_prev: integer range 0 to 10;
+      variable x,y: integer range 0 to 1000;
+      variable x_prev,y_prev: integer range 0 to 1000;
    begin
       if progress = 0 then
          progress_prev := 0;
