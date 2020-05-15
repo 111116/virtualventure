@@ -252,7 +252,7 @@ begin
       else
          renderer_enable <= '0';
       end if;
-      if progress > 1 and progress < 49 then
+      if progress > 0 and progress < 49 then
          filler_enable <= '1';
       else
          filler_enable <= '0';
