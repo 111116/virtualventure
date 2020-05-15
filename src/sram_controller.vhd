@@ -29,6 +29,7 @@ entity sram_controller is
       -- write port
       addrw: in std_logic_vector(19 downto 0);
       dataw: in std_logic_vector(31 downto 0);
+      wren : in std_logic;
       -- external ports to SRAM
       addr_e: out std_logic_vector(19 downto 0);
       data_e: inout std_logic_vector(31 downto 0);
@@ -49,7 +50,7 @@ begin
    chsl_e <= '0';
 
    -- update state & feed external ports
-   process (clk)
+   process (clk, state)
    begin
       if rising_edge(clk) then
          case state is
@@ -68,18 +69,27 @@ begin
                data_e <= (others => 'Z');
                rden_e <= '0';
                wren_e <= '1';
+            when 3 => -- read3 continue
+               addr_e <= addr3;
+               data_e <= (others => 'Z');
+               rden_e <= '0';
+               wren_e <= '1';
             when 6 => -- write
                addr_e <= addrw;
                data_e <= dataw;
                rden_e <= '1';
-               wren_e <= '0';
+               wren_e <= not wren;
             when others => -- idle
                addr_e <= x"CCCCC";
                data_e <= (others => 'Z');
                rden_e <= '1';
                wren_e <= '1';
          end case;
-         state <= state + 1;
+         if state = 7 then
+            state <= 0;
+         else
+            state <= state + 1;
+         end if;
       end if;
    end process;
 
