@@ -232,12 +232,12 @@ begin
       x_prev := 80 * (progress_prev mod 8);
       y_prev := 80 * (progress_prev / 8);
       -- select RAM connection
-      if x mod 2 = 0 then
+      if progress mod 2 = 0 then
          write_buf_select <= '0';
       else
          write_buf_select <= '1';
       end if;
-      if x_prev mod 2 = 0 then
+      if progress_prev mod 2 = 0 then
          read_buf_select <= '0';
       else
          read_buf_select <= '1';
