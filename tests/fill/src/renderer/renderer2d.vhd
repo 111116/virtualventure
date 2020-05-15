@@ -12,8 +12,8 @@ entity renderer2d is
       --ram_addr: out std_logic_vector();
       --ram_q: in std_logic_vector();
       -- internal ports to geometry generator
-      --data_available : in std_logic;
-      --busy : out std_logic;
+      start : in std_logic;
+      busy : out std_logic;
       -- internal ports to SRAM controller
       sram_addr1 : out std_logic_vector(19 downto 0);
       sram_q1    : in  std_logic_vector(31 downto 0);
@@ -100,6 +100,16 @@ architecture behav of renderer2d is
 
    -- slow clock
    signal clkcnt : integer range 0 to 100 := 0;
+   -- progress=0~48: working
+   -- progress=49: idle
+   signal progress : integer range 0 to 100 := 49;
+
+   -- control params
+   signal block_x0 : unsigned (9 downto 0);
+   signal block_y0 : unsigned (9 downto 0);
+   signal framebuf_start_addr : unsigned (19 downto 0);
+   signal renderer_enable : std_logic := '0';
+   signal filler_enable : std_logic := '0';
 
 begin
 
@@ -116,8 +126,8 @@ begin
 
    renderer : tile_renderer port map (
       clk0   => clk0,
-      startx => to_unsigned(160, 10),
-      starty => to_unsigned(160, 10),
+      startx => block_x0,
+      starty => block_y0,
       start  => start_renderer,
       busy   => busy_renderer,
       -- internal ports to geometry buffer (RAM)
@@ -132,10 +142,10 @@ begin
    );
 
    filler : texture_filler port map (
-      clk0   => clk0,
-      start_addr => to_unsigned(0, 20),
-      start  => start_filler,
-      busy   => busy_filler,
+      clk0       => clk0,
+      start_addr => framebuf_start_addr,
+      start      => start_filler,
+      busy       => busy_filler,
       -- ports to tile buffer
       buf_clk    => tilebuf_out_clk,
       buf_addr   => tilebuf_out_addr,
@@ -150,17 +160,74 @@ begin
       sram_wren  => sram_wren
    );
 
+   -- state control
    process (clk0, clkcnt)
    begin
       if rising_edge(clk0) then
          if clkcnt < 90 then
             clkcnt <= clkcnt + 1;
-			elsif busy_filler='0' then
-				clkcnt <= 0;
+			else
+            -- clkcnt>=90: wait for current block to finish
+            if busy_filler='0' and busy_renderer='0' then
+               -- current block finished
+               if progress < 49 then
+                  -- continue work on next block
+                  progress <= progress + 1;
+   			      clkcnt <= 0;
+               else
+                  -- job batch finished, wait for next start signal
+                  if start='1' then
+                     busy <= '1';
+                     progress <= 0;
+                     clkcnt <= 0;
+                  else
+                     busy <= '0';
+                  end if;
+               end if;
+            end if;
          end if;
+      end if;
+   end process;
+
+   -- calc submodule control params
+   process (progress) -- comb
+      variable progress_prev: integer range 0 to 100;
+      variable x,y: integer range 0 to 10;
+      variable x_prev,y_prev: integer range 0 to 10;
+   begin
+      if progress = 0 then
+         progress_prev := 0;
+      else
+         progress_prev := progress-1;
+      end if;
+      x := 80 * (progress mod 8);
+      y := 80 * (progress / 8);
+      x_prev := 80 * (progress_prev mod 8);
+      y_prev := 80 * (progress_prev / 8);
+      -- coordinate signals
+      block_x0 <= to_unsigned(x, block_x0'length);
+      block_y0 <= to_unsigned(y, block_y0'length);
+      framebuf_start_addr <= to_unsigned(x_prev / 2 + y_prev * 320, framebuf_start_addr'length);
+      -- enable signals
+      if progress < 48 then
+         renderer_enable <= '1';
+      else
+         renderer_enable <= '0';
+      end if;
+      if progress > 1 and progress < 49 then
+         filler_enable <= '1';
+      else
+         filler_enable <= '0';
+      end if;
+   end process;
+
+   -- submodule start control
+   process (clk0, clkcnt)
+   begin
+      if rising_edge(clk0) then
          if clkcnt >= 32 and clkcnt < 64 then
-            start_renderer <= '1';
-            start_filler <= '1';
+            start_renderer <= renderer_enable;
+            start_filler <= filler_enable;
          else
             start_renderer <= '0';
             start_filler <= '0';

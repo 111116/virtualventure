@@ -24,6 +24,8 @@ architecture arch of main is
    component renderer2d is
       port(
          clk0: in std_logic; -- 100MHz master clock input
+         start : in std_logic;
+         busy : out std_logic;
          -- internal ports to SRAM controller
          sram_addr1 : out std_logic_vector(19 downto 0);
          sram_q1    : in  std_logic_vector(31 downto 0);
@@ -105,7 +107,9 @@ begin
    --end process;
 
    renderer: renderer2d port map (
-      clk0     => clk0,
+      clk0        => clk0,
+      start       => '1',
+      busy        => open,
       sram_addr1  => mem_addr2,
       sram_q1     => mem_q2,
       sram_addr2  => mem_addr3,
