@@ -68,6 +68,11 @@ begin
                data_e <= (others => 'Z');
                rden_e <= '0';
                wren_e <= '1';
+            when 3 => -- read3 continue
+               addr_e <= addr3;
+               data_e <= (others => 'Z');
+               rden_e <= '0';
+               wren_e <= '1';
             when 6 => -- write
                addr_e <= addrw;
                data_e <= dataw;
