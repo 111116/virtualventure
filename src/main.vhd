@@ -21,45 +21,39 @@ end entity main; -- main
 
 architecture arch of main is
 
-   component main_pll is 
-      port (
-         inclk0: in std_logic;
-         c0: out std_logic -- 8.5ns low, 1.5ns high 
-      );
-   end component;
-
    component renderer2d is
       port(
          clk0: in std_logic; -- 100MHz master clock input
-         -- internal ports to geometry buffer (RAM)
-         --ram_clk: out std_logic;
-         --ram_addr: out std_logic_vector();
-         --ram_q: in std_logic_vector();
-         -- internal ports to geometry generator
-         --data_available : in std_logic;
-         --busy : out std_logic;
+         start : in std_logic;
+         busy : out std_logic;
          -- internal ports to SRAM controller
-         sram_addr  : out std_logic_vector(19 downto 0);
-         sram_data  : out std_logic_vector(31 downto 0);
-         sram_q     : in std_logic_vector(31 downto 0);
-         sram_wren  : out std_logic;
-         sram_ready : in std_logic
+         sram_addr1 : out std_logic_vector(19 downto 0);
+         sram_q1    : in  std_logic_vector(31 downto 0);
+         sram_addr2 : out std_logic_vector(19 downto 0);
+         sram_q2    : in  std_logic_vector(31 downto 0);
+         sram_addrw : out std_logic_vector(19 downto 0);
+         sram_dataw : out std_logic_vector(31 downto 0);
+         sram_wren  : out std_logic
       );
    end component renderer2d;
 
    component sram_controller is
-      port (
-         clk: in std_logic; -- sync clock
-         widepulse: in std_logic; -- 8.5ns low, 1.5ns high 
-         -- internal ports to VGA
+      port(
+         clk: in std_logic; -- sram sync clock
+         clk_sramsample: in std_logic; -- shifted, on rising edge samples sram data
+         -- read port 1
          addr1: in std_logic_vector(19 downto 0);
          q1:   out std_logic_vector(31 downto 0);
-         -- internal ports to renderer
+         -- read port 2
          addr2: in std_logic_vector(19 downto 0);
          q2:   out std_logic_vector(31 downto 0);
-         data2: in std_logic_vector(31 downto 0);
-         wren2: in std_logic;
-         acc2: out std_logic;
+         -- read port 3
+         addr3: in std_logic_vector(19 downto 0);
+         q3:   out std_logic_vector(31 downto 0);
+         -- write port
+         addrw: in std_logic_vector(19 downto 0);
+         dataw: in std_logic_vector(31 downto 0);
+         wren : in std_logic;
          -- external ports to SRAM
          addr_e: out std_logic_vector(19 downto 0);
          data_e: inout std_logic_vector(31 downto 0);
@@ -82,54 +76,65 @@ architecture arch of main is
          r,g,b : out std_logic_vector(2 downto 0)
       );
    end component vga_controller;
+	
+	component main_pll is
+		port (inclk0: in std_logic; c0: out std_logic);
+	end component;
 
-   signal widepulse: std_logic; -- 8.5ns low, 1.5ns high 
    -- internal ports: vga_controller - sram_controller
    signal mem_addr1: std_logic_vector(19 downto 0);
    signal mem_q1:    std_logic_vector(31 downto 0);
    -- internal ports: renderer - sram_controller
    signal mem_addr2: std_logic_vector(19 downto 0);
    signal mem_q2:    std_logic_vector(31 downto 0);
-   signal mem_data2: std_logic_vector(31 downto 0);
-   signal mem_wren2: std_logic;
-   signal mem_acc2:  std_logic;
-   signal sram_clk : std_logic := '0';
+   signal mem_addr3: std_logic_vector(19 downto 0);
+   signal mem_q3:    std_logic_vector(31 downto 0);
+   signal mem_addrw: std_logic_vector(19 downto 0);
+   signal mem_dataw: std_logic_vector(31 downto 0);
+   signal mem_wren : std_logic;
+   -- pll output to sram
+	signal srampulse: std_logic;
 
 begin
 
-   process (clk0)
-   begin
-      if rising_edge(clk0) then
-         sram_clk <= not sram_clk;
-      end if;
-   end process;
+	pll: main_pll port map (clk0, srampulse);
 
-   pll: main_pll port map (
-      inclk0   => clk0,
-      c0       => widepulse
-   );
+   --process (clk0)
+   --begin
+   --   if rising_edge(clk0) then
+   --      sram_clk <= not sram_clk;
+   --   end if;
+   --end process;
 
    renderer: renderer2d port map (
-      clk0        => sram_clk,
-      sram_addr   => mem_addr2,
-      sram_data   => mem_data2,
-      sram_q      => mem_q2,
-      sram_wren   => mem_wren2,
-      sram_ready  => mem_acc2
+      clk0        => clk0,
+      start       => '1',
+      busy        => open,
+      sram_addr1  => mem_addr2,
+      sram_q1     => mem_q2,
+      sram_addr2  => mem_addr3,
+      sram_q2     => mem_q3,
+      sram_addrw  => mem_addrw,
+      sram_dataw  => mem_dataw,
+      sram_wren   => mem_wren
    );
 
    sram: sram_controller port map (
-      clk      => sram_clk,
-      widepulse=> widepulse,
-      -- internal ports to VGA
+      clk      => clk0,
+      clk_sramsample => srampulse,
+      -- read port 1 to VGA
       addr1    => mem_addr1,
       q1       => mem_q1,
-      -- internal ports to renderer
+      -- read port 2 unused
       addr2    => mem_addr2,
-      data2    => mem_data2,
       q2       => mem_q2,
-      wren2    => mem_wren2,
-      acc2     => mem_acc2,
+      -- read port 3 unused
+      addr3    => mem_addr3,
+      q3       => mem_q3,
+      -- write port unused
+      addrw    => mem_addrw,
+      dataw    => mem_dataw,
+      wren     => mem_wren,
       -- external ports to SRAM
       addr_e   => sram_addr,
       data_e   => sram_data,
