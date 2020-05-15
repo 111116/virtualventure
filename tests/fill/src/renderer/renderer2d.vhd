@@ -84,6 +84,13 @@ architecture behav of renderer2d is
    end component texture_filler;
 
    -- ports of tile buffer
+   signal tilebuf1_out_rden : std_logic;
+   signal tilebuf2_out_rden : std_logic;
+   signal tilebuf1_in_wren : std_logic;
+   signal tilebuf2_in_wren : std_logic;
+   signal tilebuf1_out_q : std_logic_vector(35 downto 0);
+   signal tilebuf2_out_q : std_logic_vector(35 downto 0);
+   -- shared ports
    signal tilebuf_in_clk  : std_logic;
    signal tilebuf_in_wren : std_logic;
    signal tilebuf_in_addr : std_logic_vector(12 downto 0);
@@ -111,18 +118,38 @@ architecture behav of renderer2d is
    signal renderer_enable : std_logic := '0';
    signal filler_enable : std_logic := '0';
 
+   signal write_buf_select : std_logic := '0';
+   signal read_buf_select : std_logic := '0';
+
 begin
 
    tilebuf1 : tile_buffer_ram port map (
       data      => tilebuf_in_data,
       rdaddress => tilebuf_out_addr,
       rdclock   => tilebuf_out_clk,
-      rden      => '1',
+      rden      => tilebuf1_out_rden,
       wraddress => tilebuf_in_addr,
       wrclock   => tilebuf_in_clk,
-      wren      => tilebuf_in_wren,
-      q         => tilebuf_out_q
+      wren      => tilebuf1_in_wren,
+      q         => tilebuf1_out_q
    );
+
+   tilebuf2 : tile_buffer_ram port map (
+      data      => tilebuf_in_data,
+      rdaddress => tilebuf_out_addr,
+      rdclock   => tilebuf_out_clk,
+      rden      => tilebuf2_out_rden,
+      wraddress => tilebuf_in_addr,
+      wrclock   => tilebuf_in_clk,
+      wren      => tilebuf2_in_wren,
+      q         => tilebuf2_out_q
+   );
+
+   tilebuf1_out_rden <= '1' when read_buf_select='0' else '0';
+   tilebuf2_out_rden <= '1' when read_buf_select='1' else '0';
+   tilebuf_out_q <= tilebuf1_out_q when read_buf_select='0' else tilebuf2_out_q;
+   tilebuf1_in_wren <= tilebuf_in_wren when write_buf_select='0' else '0';
+   tilebuf2_in_wren <= tilebuf_in_wren when write_buf_select='1' else '0';
 
    renderer : tile_renderer port map (
       clk0   => clk0,
@@ -204,6 +231,17 @@ begin
       y := 80 * (progress / 8);
       x_prev := 80 * (progress_prev mod 8);
       y_prev := 80 * (progress_prev / 8);
+      -- select RAM connection
+      if x mod 2 = 0 then
+         write_buf_select <= '0';
+      else
+         write_buf_select <= '1';
+      end if;
+      if x_prev mod 2 = 0 then
+         read_buf_select <= '0';
+      else
+         read_buf_select <= '1';
+      end if;
       -- coordinate signals
       block_x0 <= to_unsigned(x, block_x0'length);
       block_y0 <= to_unsigned(y, block_y0'length);
