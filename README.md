@@ -209,25 +209,28 @@ D 16位无符号整数，所绘制矩形的深度（深度小的矩形覆盖深�
 -  8位占位符，会被忽略
 ```
 
-每条指令共96位，几何缓冲数据位宽24位，地址位宽为12位（最多1365条指令）。
+每条指令共96位，几何缓冲数据位宽24位，地址位宽为12位（最多1024条指令）。
 
 具体地，当输入 `data_available` 为高时，将 `busy` 置为高并开始工作，不断从几何缓冲中读取绘图指令进行渲染，直到渲染完成并全部写入SRAM后，将 `busy` 置为低，等待下一次 `data_available` 的信号。
 
 ```vhdl
-clk: in std_logic;
+clk0: in std_logic; -- 100MHz master clock input
 -- internal ports to geometry buffer (RAM)
-ram_clk: out std_logic;
-ram_addr: out std_logic_vector();
-ram_q: in std_logic_vector();
--- internal ports to geometry generator
-data_available: in std_logic;
-busy: out std_logic;
+n_element   : in unsigned(11 downto 0); -- number of rectangles to draw
+geobuf_clk  : out std_logic;
+geobuf_addr : out std_logic_vector(11 downto 0);
+geobuf_q    : in  std_logic_vector(23 downto 0);
+-- controls
+start : in std_logic; -- set to HIGH to start
+busy : out std_logic;
 -- internal ports to SRAM controller
-sram_addr  : out std_logic_vector(19 downto 0);
-sram_data  : out std_logic_vector(31 downto 0);
-sram_q     : in  std_logic_vector(31 downto 0);
-sram_wren  : out std_logic;
-sram_ready : in  std_logic
+sram_addr1 : out std_logic_vector(19 downto 0);
+sram_q1    : in  std_logic_vector(31 downto 0);
+sram_addr2 : out std_logic_vector(19 downto 0);
+sram_q2    : in  std_logic_vector(31 downto 0);
+sram_addrw : out std_logic_vector(19 downto 0);
+sram_dataw : out std_logic_vector(31 downto 0);
+sram_wren  : out std_logic
 ```
 
 #### 实现
@@ -262,3 +265,4 @@ sram_ready : in  std_logic
 ## VGA控制器
 
 从SRAM控制器读取像素值并显示。以25MHz运行，提前2拍从SRAM控制器读取像素值
+
