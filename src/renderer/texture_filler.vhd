@@ -42,11 +42,10 @@ architecture behav of texture_filler is
    signal clkst  : std_logic := '0';
 
    -- pipeline registers
-   signal x, x_reg : integer range 0 to 79 := 0; -- current position in tile
-   signal y, y_reg : integer range 0 to 79 := 0; -- current position in tile
+   signal x, x_reg, x_reg2, x_reg3 : integer range 0 to 79 := 0; -- current position in tile
+   signal y, y_reg, y_reg2, y_reg3 : integer range 0 to 79 := 0; -- current position in tile
    signal texaddr_reg      : std_logic_vector(19 downto 0); -- registered of even-indexed px
    signal writeaddr        : std_logic_vector(19 downto 0);
-   signal writeaddr_reg1   : std_logic_vector(19 downto 0);
    signal sram_q1_reg1     : std_logic_vector(31 downto 0);
    signal sram_q2_reg1     : std_logic_vector(31 downto 0);
 
@@ -54,6 +53,8 @@ architecture behav of texture_filler is
    signal state_valid_reg  : std_logic := '0';
    signal state_valid_reg2 : std_logic := '0';
    signal state_valid_reg3 : std_logic := '0';
+
+   signal dr,dg,db : integer range -32 to 31 := 0;
 
 begin
 
@@ -124,42 +125,86 @@ begin
       end if;
    end process;
 
-   -- stage 2: fetch addr 2 & calc write addr
+   -- stage 2: fetch addr 2
    process (clk1_4, clkst, buf_q, texaddr_reg, x_reg, y_reg, state_valid_reg)
    begin
       if rising_edge(clk1_4) and clkst='0' then
          -- texture address
          sram_addr1 <= texaddr_reg;
          sram_addr2 <= buf_q(19 downto 0);
-         writeaddr  <= std_logic_vector(to_unsigned(x_reg/2 + y_reg*320 + to_integer(start_addr), 20));
+         x_reg2     <= x_reg;
+         y_reg2     <= y_reg;
          state_valid_reg2 <= state_valid_reg;
       end if;
    end process;
 
-   -- stage 3: fetch texture data
-   process (clk1_4, clkst, sram_q1, sram_q2, writeaddr, state_valid_reg2)
+   -- stage 3: fetch texture data & calc write addr
+   process (clk1_4, clkst, sram_q1, sram_q2, state_valid_reg2)
    begin
       if rising_edge(clk1_4) and clkst='0' then
          sram_q1_reg1 <= sram_q1;
          sram_q2_reg1 <= sram_q2;
-         writeaddr_reg1 <= writeaddr;
+         writeaddr  <= std_logic_vector(to_unsigned(x_reg2/2 + y_reg2*320 + to_integer(start_addr), 20));
+         x_reg3     <= x_reg2;
+         y_reg3     <= y_reg2;
          state_valid_reg3 <= state_valid_reg2;
       end if;
    end process;
 
    -- state 4: calculate quantized color
-   process (clk1_4, clkst, sram_q1_reg1, sram_q2_reg1, writeaddr_reg1, state_valid_reg3)
+   process (clk1_4, clkst, sram_q1_reg1, sram_q2_reg1, writeaddr, state_valid_reg3, x_reg3, y_reg3)
+      variable or1,og1,ob1,or2,og2,ob2: integer; -- original color
+      variable mr1,mg1,mb1,mr2,mg2,mb2: integer; -- mixed: color plus delta
+      variable qr1,qg1,qb1,qr2,qg2,qb2: integer; -- quantized to 3bit
+      variable resr1,resg1,resb1,resr2,resg2,resb2: integer; -- quantized scaled
       variable r1,g1,b1,r2,g2,b2: std_logic_vector(2 downto 0); -- to fill
    begin
       if rising_edge(clk1_4) and clkst='0' then
-         -- direct quantize (floor)
-         r1 := sram_q1_reg1(7 downto 5);
-         g1 := sram_q1_reg1(15 downto 13);
-         b1 := sram_q1_reg1(23 downto 21);
-         r2 := sram_q2_reg1(7 downto 5);
-         g2 := sram_q2_reg1(15 downto 13);
-         b2 := sram_q2_reg1(23 downto 21);
-         sram_addrw <= writeaddr_reg1;
+         -- get original color of two pixels
+         or1 := to_integer(unsigned(sram_q1_reg1(7 downto 0)));
+         og1 := to_integer(unsigned(sram_q1_reg1(15 downto 8)));
+         ob1 := to_integer(unsigned(sram_q1_reg1(23 downto 16)));
+         or2 := to_integer(unsigned(sram_q2_reg1(7 downto 0)));
+         og2 := to_integer(unsigned(sram_q2_reg1(15 downto 8)));
+         ob2 := to_integer(unsigned(sram_q2_reg1(23 downto 16)));
+         -- calculate first pixel
+         mr1 := or1 + dr;
+         mg1 := og1 + dg;
+         mb1 := ob1 + db;
+         qr1 := (mr1 + 15) / 32;
+         qg1 := (mg1 + 15) / 32;
+         qb1 := (mb1 + 15) / 32;
+         r1 := std_logic_vector(to_unsigned(qr1,3));
+         g1 := std_logic_vector(to_unsigned(qg1,3));
+         b1 := std_logic_vector(to_unsigned(qb1,3));
+         resr1 := qr1 * 32;
+         resg1 := qg1 * 32;
+         resb1 := qb1 * 32;
+         -- calculate second pixel
+         mr2 := or2 + (mr1 - resr1);
+         mg2 := og2 + (mg1 - resg1);
+         mb2 := ob2 + (mb1 - resb1);
+         qr2 := (mr2 + 15) / 32;
+         qg2 := (mg2 + 15) / 32;
+         qb2 := (mb2 + 15) / 32;
+         r2 := std_logic_vector(to_unsigned(qr2,3));
+         g2 := std_logic_vector(to_unsigned(qg2,3));
+         b2 := std_logic_vector(to_unsigned(qb2,3));
+         resr2 := qr2 * 32;
+         resg2 := qg2 * 32;
+         resb2 := qb2 * 32;
+         -- store horizontal delta
+         if x_reg3 = 78 then
+            dr <= 0;
+            dg <= 0;
+            db <= 0;
+         else
+            dr <= mr2 - resr2;
+            dg <= mg2 - resg2;
+            db <= mb2 - resb2;
+         end if;
+         -- write color to framebuffer
+         sram_addrw <= writeaddr;
          sram_dataw <= "00000000000000"&b2&g2&r2&b1&g1&r1;
          sram_wren  <= state_valid_reg3;
       end if;
