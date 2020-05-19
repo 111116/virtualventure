@@ -32,19 +32,19 @@ architecture arch of main is
          geobuf_clk  : out std_logic;
          geobuf_wren : out std_logic;
          geobuf_addr : out std_logic_vector(11 downto 0);
-         geobuf_data : out std_logic_vector(23 downto 0)
+         geobuf_data : out std_logic_vector(31 downto 0)
       );
    end component geometry_demo;
 
    component geometry_buffer_ram is
       port (
-         data        : IN STD_LOGIC_VECTOR (23 DOWNTO 0);
+         data        : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
          rdaddress   : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
          rdclock     : IN STD_LOGIC ;
          wraddress   : IN STD_LOGIC_VECTOR (11 DOWNTO 0);
          wrclock     : IN STD_LOGIC  := '1';
          wren        : IN STD_LOGIC  := '0';
-         q           : OUT STD_LOGIC_VECTOR (23 DOWNTO 0)
+         q           : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
       );
    end component geometry_buffer_ram;
 
@@ -57,7 +57,7 @@ architecture arch of main is
          n_element   : in unsigned(11 downto 0);
          geobuf_clk  : out std_logic;
          geobuf_addr : out std_logic_vector(11 downto 0);
-         geobuf_q    : in  std_logic_vector(23 downto 0);
+         geobuf_q    : in  std_logic_vector(31 downto 0);
          -- internal ports to SRAM controller
          sram_addr1 : out std_logic_vector(19 downto 0);
          sram_q1    : in  std_logic_vector(31 downto 0);
@@ -133,10 +133,10 @@ architecture arch of main is
    signal geobuf_in_clk  : std_logic;
    signal geobuf_in_wren : std_logic;
    signal geobuf_in_addr : std_logic_vector(11 downto 0);
-   signal geobuf_in_data : std_logic_vector(23 downto 0);
+   signal geobuf_in_data : std_logic_vector(31 downto 0);
    signal geobuf_out_clk  : std_logic;
    signal geobuf_out_addr : std_logic_vector(11 downto 0);
-   signal geobuf_out_q    : std_logic_vector(23 downto 0);
+   signal geobuf_out_q    : std_logic_vector(31 downto 0);
 
 begin
 

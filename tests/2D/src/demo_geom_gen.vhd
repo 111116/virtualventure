@@ -14,7 +14,7 @@ entity geometry_demo is
       geobuf_clk  : out std_logic;
       geobuf_wren : out std_logic;
       geobuf_addr : out std_logic_vector(11 downto 0);
-      geobuf_data : out std_logic_vector(23 downto 0)
+      geobuf_data : out std_logic_vector(31 downto 0)
 	);
 end entity geometry_demo;
 
@@ -26,6 +26,7 @@ begin
 	n_element <= to_unsigned(2, n_element'length);
 	render_start <= '1';
 	geobuf_clk <= clk0;
+	geobuf_data(31 downto 24) <= (others => '0');
 
 	-- update state
 	process (clk0, state)

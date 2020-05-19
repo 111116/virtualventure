@@ -22,7 +22,7 @@ entity tile_renderer is
       n_element   : in unsigned(11 downto 0);
       geobuf_clk  : out std_logic;
       geobuf_addr : out std_logic_vector(11 downto 0);
-      geobuf_q    : in  std_logic_vector(23 downto 0);
+      geobuf_q    : in  std_logic_vector(31 downto 0);
       -- internal ports to tile output buffer (RAM)
       tilebuf_clk  : out std_logic;
       tilebuf_wren : out std_logic;
