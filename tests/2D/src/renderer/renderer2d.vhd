@@ -11,7 +11,7 @@ entity renderer2d is
       n_element   : in unsigned(11 downto 0);
       geobuf_clk  : out std_logic;
       geobuf_addr : out std_logic_vector(11 downto 0);
-      geobuf_q    : in  std_logic_vector(23 downto 0);
+      geobuf_q    : in  std_logic_vector(31 downto 0);
       -- controls
       start : in std_logic; -- set HIGH to start
       busy : out std_logic; -- HIGH when busy
@@ -40,7 +40,7 @@ architecture behav of renderer2d is
          n_element   : in unsigned(11 downto 0);
          geobuf_clk  : out std_logic;
          geobuf_addr : out std_logic_vector(11 downto 0);
-         geobuf_q    : in  std_logic_vector(23 downto 0);
+         geobuf_q    : in  std_logic_vector(31 downto 0);
          -- internal ports to tile buffer (RAM)
          tilebuf_clk  : out std_logic;
          tilebuf_wren : out std_logic;
