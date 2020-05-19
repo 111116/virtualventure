@@ -40,15 +40,15 @@ architecture behav of tile_renderer is
    signal state : state_t := st_idle;
    signal element_id : integer range 0 to 1023; -- outer loop variable: which element is being drawed
 
-   signal param_x, param_y : integer range -2048 to 2047;
-   signal param_u, param_v : integer range 0 to 4095;
-   signal param_w, param_h : integer range 0 to 4095;
+   signal param_x, param_y : integer range -2048 to 2047 := 0;
+   signal param_u, param_v : integer range 0 to 4095 := 0;
+   signal param_w, param_h : integer range 0 to 4095 := 0;
    signal param_d : unsigned (15 downto 0);
 
    signal rel_x, rel_y : integer range -2048 to 2047; -- position of drawed rectangle relative to current block
    signal rel_u, rel_v : integer range -2048 to 2047; -- texture coordinate of topleft corner of current block as if it's drawed
    signal rel_xend, rel_yend : integer range -2048 to 2047; -- end position of drawed rectangle relative to current block
-   signal loop_xbegin, loop_ybegin, loop_xend, loop_yend : integer range 0 to 80; -- range of loop
+   signal loop_xbegin, loop_ybegin, loop_xend, loop_yend : integer range -2048 to 2047; -- range of loop
    signal loop_empty : std_logic;
    signal cur_valid : std_logic;
 
@@ -176,7 +176,7 @@ begin
       if rel_yend>=80 then
          loop_yend <= 80;
       else
-         loop_yend <= rel_xend;
+         loop_yend <= rel_yend;
       end if;
       -- check if loop is empty
       if loop_xbegin >= loop_xend or loop_ybegin >= loop_yend then
