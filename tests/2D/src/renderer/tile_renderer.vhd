@@ -88,13 +88,14 @@ begin
                if loop_empty = '1' then
                   state <= st_0;
                   element_id <= element_id + 1;
+						cur_valid <= '0';
                else
                   state <= st_work;
+						cur_valid <= '1';
                end if;
                -- start x-y loop
                x <= loop_xbegin;
                y <= loop_ybegin;
-               cur_valid <= '1';
             when st_work =>
                -- loop control
                if x+1=loop_xend then
@@ -146,7 +147,7 @@ begin
    end process;
 
    -- comb: calculate overlapped bounding box
-   process (param_x, param_y, param_w, param_h, startx, starty, rel_x, rel_y, rel_xend, rel_yend, loop_xbegin, loop_xend, loop_ybegin, loop_yend)
+   process (param_x, param_y, param_w, param_h, param_u, param_v, startx, starty, rel_x, rel_y, rel_xend, rel_yend, loop_xbegin, loop_xend, loop_ybegin, loop_yend)
    begin
       rel_x <= param_x - to_integer(startx);
       rel_y <= param_y - to_integer(starty);
@@ -189,7 +190,7 @@ begin
    tilebuf_clk <= clk0;
 
    -- stage 1: fill tile buffer
-   process (clk0, x, y, startx, starty)
+   process (clk0, x, y, cur_valid, rel_u, rel_v)
       variable tx, ty: integer range 0 to 1023;
    begin
       tilebuf_wren <= cur_valid;
