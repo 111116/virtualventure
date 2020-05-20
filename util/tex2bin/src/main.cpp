@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "stb_image.h"
+#include "lib/stb_image.h"
 
 
 int main(int argc, char* argv[])

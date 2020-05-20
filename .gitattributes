@@ -1,1 +1,4 @@
-*/lib/* linguist-vendored
+tests/2D-prototype/src/lib/* linguist-vendored
+tests/3D-prototype/src/lib/* linguist-vendored
+tests/scanline/src/lib/* linguist-vendored
+util/tex2bin/src/lib/* linguist-vendored

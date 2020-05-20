@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "stb_image.h"
-#include "writebmp.h"
+#include "lib/stb_image.h"
+#include "lib/writebmp.h"
 
 
 int main(int argc, char* argv[])
