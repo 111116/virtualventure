@@ -16,9 +16,9 @@
 
 ```vhdl
 main
-  input_controller  进度：待整合编译+陀螺仪TX通讯口未知
-  map_gen           进度：待整合编译
-  game_logic        进度：完成中
+  input_controller  进度：TX->角度待实现，角度->指令已完成
+  map_gen           进度：待联合编译
+  game_logic        进度：待联合编译
   geometry          进度：
   renderer          进度：2D开发中
   sram_controller   进度：已完成测试
