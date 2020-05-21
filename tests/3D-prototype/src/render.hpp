@@ -4,14 +4,47 @@
 #include "data_types.hpp"
 #include "lib/consolelog.hpp"
 
+real r_inx_max;
+real r_inx_min;
+real r_iny_max;
+real r_iny_min;
+real r_inz_max;
+real r_inz_min;
+real r_inw_max;
+real r_inw_min;
+real r_outx_max;
+real r_outx_min;
+real r_outy_max;
+real r_outy_min;
+real r_outz_max;
+real r_outz_min;
+real r_outw_max;
+real r_outw_min;
 
 Vertex perVertex(mat4 in_view, Vertex in)
 {
+
 	Vertex out;
 	out.x = in_view[0][0] * in.x + in_view[0][1] * in.y + in_view[0][2] * in.z + in_view[0][3];
 	out.y = in_view[1][0] * in.x + in_view[1][1] * in.y + in_view[1][2] * in.z + in_view[1][3];
 	out.z = in_view[2][0] * in.x + in_view[2][1] * in.y + in_view[2][2] * in.z + in_view[2][3];
 	out.w = in_view[3][0] * in.x + in_view[3][1] * in.y + in_view[3][2] * in.z + in_view[3][3];
+	r_inx_max = max(r_inx_max, in.x);
+	r_inx_min = min(r_inx_min, in.x);
+	r_iny_max = max(r_iny_max, in.y);
+	r_iny_min = min(r_iny_min, in.y);
+	r_inz_max = max(r_inz_max, in.z);
+	r_inz_min = min(r_inz_min, in.z);
+	r_inw_max = max(r_inw_max, in.w);
+	r_inw_min = min(r_inw_min, in.w);
+	r_outx_max = max(r_outx_max, out.x);
+	r_outx_min = min(r_outx_min, out.x);
+	r_outy_max = max(r_outy_max, out.y);
+	r_outy_min = min(r_outy_min, out.y);
+	r_outz_max = max(r_outz_max, out.z);
+	r_outz_min = min(r_outz_min, out.z);
+	r_outw_max = max(r_outw_max, out.w);
+	r_outw_min = min(r_outw_min, out.w);
 	// perspective division
 	out.w = real(1) / out.w;
 	out.x *= out.w;
@@ -108,4 +141,14 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	for (int i=0; i<w; ++i)
 	for (int j=0; j<h; ++j)
 		memcpy(out_color+(i+j*w)*3, colorbuffer[i]+j, 3);
+
+	// print stats
+	console.log("inx", r_inx_min, r_inx_max);
+	console.log("iny", r_iny_min, r_iny_max);
+	console.log("inz", r_inz_min, r_inz_max);
+	console.log("inw", r_inw_min, r_inw_max);
+	console.log("outx", r_outx_min, r_outx_max);
+	console.log("outy", r_outy_min, r_outy_max);
+	console.log("outz", r_outz_min, r_outz_max);
+	console.log("outw", r_outw_min, r_outw_max);
 }
