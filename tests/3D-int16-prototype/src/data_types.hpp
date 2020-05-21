@@ -56,7 +56,7 @@ mat4 operator* (mat4 a, mat4 b)
 struct Vertex
 {
 	real x,y,z,w; // position
-	real u,v; // texture coord
+	short u,v; // texture coord
 };
 
 

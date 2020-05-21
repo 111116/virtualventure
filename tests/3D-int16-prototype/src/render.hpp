@@ -4,6 +4,7 @@
 #include <map>
 #include "data_types.hpp"
 #include "lib/consolelog.hpp"
+#include "fixed_point.hpp"
 
 std::map<std::string, std::pair<real, real>> rec;
 
@@ -93,11 +94,11 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
 			real inv_w = 1/w;
-			real psp1 = inv_w * bary1 * sv1.w;
-			real psp2 = inv_w * bary2 * sv2.w;
-			real psp3 = inv_w * bary3 * sv3.w;
-			real u = psp1 * sv1.u + psp2 * sv2.u + psp3 * sv3.u;
-			real v = psp1 * sv1.v + psp2 * sv2.v + psp3 * sv3.v;
+			short psp1 = float2fixed(inv_w * bary1 * sv1.w);
+			short psp2 = float2fixed(inv_w * bary2 * sv2.w);
+			short psp3 = float2fixed(inv_w * bary3 * sv3.w);
+			short u = fmul(psp1, sv1.u) + fmul(psp2, sv2.u) + fmul(psp3, sv3.u);
+			short v = fmul(psp1, sv1.v) + fmul(psp2, sv2.v) + fmul(psp3, sv3.v);
 			// check depth buffer
 			bool overwrite = zbuffer[i][j] > z;
 			// write color
