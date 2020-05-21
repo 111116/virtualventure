@@ -10,8 +10,8 @@ unsigned char* texturePixels;
 
 Color getTexture(real u, real v)
 {
-	int i = intfloor(u*1024);
-	int j = intfloor(v*1024);
+	int i = intfloor(u*64);
+	int j = intfloor(v*64);
 	int pxoff = 3*(j*1024 + i);
 	Color t;
 	t.r = texturePixels[pxoff+0];
@@ -46,6 +46,7 @@ int main()
 	vec3 up(0,0.953939,0.3);
 	vec3 right(-1,0,0);
 	mat4 view = perspective(0.37,1.33333,0.1,20) * lookAt(pos, dir, up, right);
+	console.log(view);
 	// load texture
 	int texw, texh, texn;
 	texturePixels = stbi_load("../texture.png", &texw, &texh, &texn, 3);

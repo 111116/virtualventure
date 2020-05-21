@@ -21,22 +21,24 @@ Vertex perVertex(mat4 in_view, Vertex in)
 	record(in.y);
 	record(in.z);
 	record(in.w);
-	record(out.x);
-	record(out.y);
-	record(out.z);
-	record(out.w);
 	// perspective division
 	out.w = real(1) / out.w;
 	out.x *= out.w;
 	out.y *= out.w;
 	out.z *= out.w;
 	// viewport
-	out.x = (out.x+1) * 320;
-	out.y = (-out.y+1) * 240;
+	out.x = (out.x+1) * 10;
+	out.y = (-out.y+1) * 7.5;
 	out.z = (out.z+1) * 0.5;
 	// texture coord
 	out.u = in.u;
 	out.v = in.v;
+	record(out.x);
+	record(out.y);
+	record(out.z);
+	record(out.w);
+	record(out.u);
+	record(out.v);
 	return out;
 }
 
@@ -76,7 +78,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	        denom * (sv2.x*sv3.y - sv3.x*sv2.y),
 	       	denom * (sv3.x*sv1.y - sv1.x*sv3.y),
 	        denom * (sv1.x*sv2.y - sv2.x*sv1.y)
-	    );
+	    ); // this must be stored in higher precision
 	    record(bary_x.x);
 	    record(bary_x.y);
 	    record(bary_x.z);
@@ -87,16 +89,16 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	    record(bary_c.y);
 	    record(bary_c.z);
 		// calculate bounding box
-		int lbound = max(0, min(intfloor(sv1.x), min(intfloor(sv2.x), intfloor(sv3.x))));
-		int rbound = min(w, max(intfloor(sv1.x), max(intfloor(sv2.x), intfloor(sv3.x)))+1);
-		int ubound = max(0, min(intfloor(sv1.y), min(intfloor(sv2.y), intfloor(sv3.y))));
-		int dbound = min(h, max(intfloor(sv1.y), max(intfloor(sv2.y), intfloor(sv3.y)))+1);
+		int lbound = max(0, min(intfloor(32*sv1.x), min(intfloor(32*sv2.x), intfloor(32*sv3.x))));
+		int rbound = min(w, max(intfloor(32*sv1.x), max(intfloor(32*sv2.x), intfloor(32*sv3.x)))+1);
+		int ubound = max(0, min(intfloor(32*sv1.y), min(intfloor(32*sv2.y), intfloor(32*sv3.y))));
+		int dbound = min(h, max(intfloor(32*sv1.y), max(intfloor(32*sv2.y), intfloor(32*sv3.y)))+1);
 		// loop over all pixels in bounding box
 		for (int i=lbound; i<rbound; ++i)
 		for (int j=ubound; j<dbound; ++j)
 		{
-			real x = i;
-			real y = j;
+			real x = (real)i/32;
+			real y = (real)j/32;
 			// barycentric coordinate
         	const vec3 bary = vec3(
         		x * bary_x.x + y * bary_y.x + bary_c.x,
@@ -111,6 +113,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			// perspective interpolation
 			real z = dot(bary, vec3(sv1.z, sv2.z, sv3.z));
 			real w = dot(bary, vec3(sv1.w, sv2.w, sv3.w));
+			record(w);
 			// near/far plane clip
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
