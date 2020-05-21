@@ -1,25 +1,13 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include "data_types.hpp"
 #include "lib/consolelog.hpp"
 
-real r_inx_max;
-real r_inx_min;
-real r_iny_max;
-real r_iny_min;
-real r_inz_max;
-real r_inz_min;
-real r_inw_max;
-real r_inw_min;
-real r_outx_max;
-real r_outx_min;
-real r_outy_max;
-real r_outy_min;
-real r_outz_max;
-real r_outz_min;
-real r_outw_max;
-real r_outw_min;
+std::map<std::string, std::pair<real, real>> rec;
+
+#define record(x) {rec[#x].first=min(rec[#x].first,(x));rec[#x].second=max(rec[#x].second,(x));}
 
 Vertex perVertex(mat4 in_view, Vertex in)
 {
@@ -29,22 +17,14 @@ Vertex perVertex(mat4 in_view, Vertex in)
 	out.y = in_view[1][0] * in.x + in_view[1][1] * in.y + in_view[1][2] * in.z + in_view[1][3];
 	out.z = in_view[2][0] * in.x + in_view[2][1] * in.y + in_view[2][2] * in.z + in_view[2][3];
 	out.w = in_view[3][0] * in.x + in_view[3][1] * in.y + in_view[3][2] * in.z + in_view[3][3];
-	r_inx_max = max(r_inx_max, in.x);
-	r_inx_min = min(r_inx_min, in.x);
-	r_iny_max = max(r_iny_max, in.y);
-	r_iny_min = min(r_iny_min, in.y);
-	r_inz_max = max(r_inz_max, in.z);
-	r_inz_min = min(r_inz_min, in.z);
-	r_inw_max = max(r_inw_max, in.w);
-	r_inw_min = min(r_inw_min, in.w);
-	r_outx_max = max(r_outx_max, out.x);
-	r_outx_min = min(r_outx_min, out.x);
-	r_outy_max = max(r_outy_max, out.y);
-	r_outy_min = min(r_outy_min, out.y);
-	r_outz_max = max(r_outz_max, out.z);
-	r_outz_min = min(r_outz_min, out.z);
-	r_outw_max = max(r_outw_max, out.w);
-	r_outw_min = min(r_outw_min, out.w);
+	record(in.x);
+	record(in.y);
+	record(in.z);
+	record(in.w);
+	record(out.x);
+	record(out.y);
+	record(out.z);
+	record(out.w);
 	// perspective division
 	out.w = real(1) / out.w;
 	out.x *= out.w;
@@ -87,7 +67,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 		Vertex sv1 = perVertex(in_view, v1);
 		Vertex sv2 = perVertex(in_view, v2);
 		Vertex sv3 = perVertex(in_view, v3);
-		// backface culling
+		// backface culling: none
 		// precompute barycentric coefficients
 		const real denom = real(1) / ((sv1.x-sv3.x) * (sv2.y-sv1.y) - (sv1.x-sv2.x) * (sv3.y-sv1.y));
 		const vec3 bary_x = vec3( denom * (sv2.y - sv3.y), denom * (sv3.y - sv1.y), denom * (sv1.y - sv2.y) );
@@ -97,6 +77,15 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	       	denom * (sv3.x*sv1.y - sv1.x*sv3.y),
 	        denom * (sv1.x*sv2.y - sv2.x*sv1.y)
 	    );
+	    record(bary_x.x);
+	    record(bary_x.y);
+	    record(bary_x.z);
+	    record(bary_y.x);
+	    record(bary_y.y);
+	    record(bary_y.z);
+	    record(bary_c.x);
+	    record(bary_c.y);
+	    record(bary_c.z);
 		// calculate bounding box
 		int lbound = max(0, min(intfloor(sv1.x), min(intfloor(sv2.x), intfloor(sv3.x))));
 		int rbound = min(w, max(intfloor(sv1.x), max(intfloor(sv2.x), intfloor(sv3.x)))+1);
@@ -114,6 +103,9 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
         		x * bary_x.y + y * bary_y.y + bary_c.y,
         		x * bary_x.z + y * bary_y.z + bary_c.z
         	);
+        	record(bary.x);
+        	record(bary.y);
+        	record(bary.z);
 			// determine if pixel is inside triangle
         	bool inside = bary.x>=0 && bary.y>=0 && bary.z>=0;
 			// perspective interpolation
@@ -143,12 +135,6 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 		memcpy(out_color+(i+j*w)*3, colorbuffer[i]+j, 3);
 
 	// print stats
-	console.log("inx", r_inx_min, r_inx_max);
-	console.log("iny", r_iny_min, r_iny_max);
-	console.log("inz", r_inz_min, r_inz_max);
-	console.log("inw", r_inw_min, r_inw_max);
-	console.log("outx", r_outx_min, r_outx_max);
-	console.log("outy", r_outy_min, r_outy_max);
-	console.log("outz", r_outz_min, r_outz_max);
-	console.log("outw", r_outw_min, r_outw_max);
+	for (auto p: rec)
+		console.log(p.first, ' ', p.second.first, '~', p.second.second);
 }
