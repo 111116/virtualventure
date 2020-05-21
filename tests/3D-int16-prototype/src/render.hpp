@@ -70,6 +70,15 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	       	denom * (sv3.x*sv1.y - sv1.x*sv3.y),
 	        denom * (sv1.x*sv2.y - sv2.x*sv1.y)
 	    ); // this must be stored in higher precision
+	    short bary_x_x = float2fixed(bary_x.x);
+	    short bary_x_y = float2fixed(bary_x.y);
+	    short bary_x_z = float2fixed(bary_x.z);
+	    short bary_y_x = float2fixed(bary_y.x);
+	    short bary_y_y = float2fixed(bary_y.y);
+	    short bary_y_z = float2fixed(bary_y.z);
+	    int bary_c_x = round(bary_c.x*256);
+	    int bary_c_y = round(bary_c.y*256);
+	    int bary_c_z = round(bary_c.z*256);
 		// calculate bounding box
 		int lbound = max(0, min(intfloor(32*sv1.x), min(intfloor(32*sv2.x), intfloor(32*sv3.x))));
 		int rbound = min(w, max(intfloor(32*sv1.x), max(intfloor(32*sv2.x), intfloor(32*sv3.x)))+1);
@@ -94,9 +103,11 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
 			real inv_w = 1/w;
-			short psp1 = float2fixed(inv_w * bary1 * sv1.w);
-			short psp2 = float2fixed(inv_w * bary2 * sv2.w);
-			short psp3 = float2fixed(inv_w * bary3 * sv3.w);
+			// console.log(bary2, inv_w, sv2.w);
+			// usable
+			short psp1 = float2fixed(errorf(inv_w/4) * errorf(bary1) * errorf(sv1.w*4));
+			short psp2 = float2fixed(errorf(inv_w/4) * errorf(bary2) * errorf(sv2.w*4));
+			short psp3 = float2fixed(errorf(inv_w/4) * errorf(bary3) * errorf(sv3.w*4));
 			short u = fmul(psp1, sv1.u) + fmul(psp2, sv2.u) + fmul(psp3, sv3.u);
 			short v = fmul(psp1, sv1.v) + fmul(psp2, sv2.v) + fmul(psp3, sv3.v);
 			// check depth buffer
