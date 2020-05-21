@@ -18,18 +18,18 @@ Color getTexture(real u, real v)
 	t.g = texturePixels[pxoff+1];
 	t.b = texturePixels[pxoff+2];
 	// add coordinate hint (plaided)
-	if (intfloor(49*u)%6==0)
-	{
-		t.r *= 0.7;
-		t.g *= 0.7;
-		t.b *= 0.7;
-	}
-	if (intfloor(49*v)%6==0)
-	{
-		t.r *= 0.7;
-		t.g *= 0.7;
-		t.b *= 0.7;
-	}
+	// if (intfloor(49*u)%6==0)
+	// {
+	// 	t.r *= 0.7;
+	// 	t.g *= 0.7;
+	// 	t.b *= 0.7;
+	// }
+	// if (intfloor(49*v)%6==0)
+	// {
+	// 	t.r *= 0.7;
+	// 	t.g *= 0.7;
+	// 	t.b *= 0.7;
+	// }
 	return t;
 }
 
@@ -41,9 +41,9 @@ int main()
 	Vertex* v;
 	genmodel(n_trig, v);
 	// calculate transform matrix
-	vec3 pos(2.78, 2.73, -8);
-	vec3 dir(0,0,1);
-	vec3 up(0,1,0);
+	vec3 pos(0, 5, -6);
+	vec3 dir(0,-0.3,0.953939);
+	vec3 up(0,0.953939,0.3);
 	vec3 right(-1,0,0);
 	mat4 view = perspective(0.37,1.33333,0.1,20) * lookAt(pos, dir, up, right);
 	// load texture

@@ -27,15 +27,6 @@ Vertex perVertex(mat4 in_view, Vertex in)
 	return out;
 }
 
-// bool insideTriangle(real x, real y, Vertex v1, Vertex v2, Vertex v3)
-// {
-// 	// using cross products to determine if (x,y) is inside
-// 	// a triangle of counter-clockwise ordered vertices
-// 	return (v2.x-v1.x)*(y-v1.y) >= (v2.y-v1.y)*(x-v1.x)
-// 		&& (v3.x-v2.x)*(y-v2.y) >= (v3.y-v2.y)*(x-v2.x)
-// 		&& (v1.x-v3.x)*(y-v3.y) >= (v1.y-v3.y)*(x-v3.x);
-// }
-
 // perspective interpolation https://stackoverflow.com/a/24460895/7884249
 void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color, std::function<Color(real,real)> getTexture)
 {
@@ -47,7 +38,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 	// clear buffers
 	for (int i=0; i<w; ++i)
 	for (int j=0; j<h; ++j) {
-		zbuffer[i][j] = 1;
+		zbuffer[i][j] = 100; // max value possible
 		colorbuffer[i][j].r = 0;
 		colorbuffer[i][j].g = 0;
 		colorbuffer[i][j].b = 0;
@@ -96,7 +87,7 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			real z = dot(bary, vec3(sv1.z, sv2.z, sv3.z));
 			real w = dot(bary, vec3(sv1.w, sv2.w, sv3.w));
 			// near/far plane clip
-			bool insideclip = z>=0 && z<=1;
+			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
 			const vec3 perspective = vec3(
 				1/w * bary.x * sv1.w,

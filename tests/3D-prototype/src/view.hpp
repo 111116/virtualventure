@@ -60,29 +60,29 @@ mat4 lookAt
 	return Result;
 }
 
-mat4 viewport(int w, int h, int d)
-{
-	mat4 Result;
-	// first row
-	Result[0][0] = real(0.5*w);
-	Result[0][1] = real(0);
-	Result[0][2] = real(0);
-	Result[0][3] = real(0.5*w);
+// mat4 viewport(int w, int h, int d)
+// {
+// 	mat4 Result;
+// 	// first row
+// 	Result[0][0] = real(0.5*w);
+// 	Result[0][1] = real(0);
+// 	Result[0][2] = real(0);
+// 	Result[0][3] = real(0.5*w);
 
-	Result[1][0] = real(0);
-	Result[1][1] = real(0.5*h);
-	Result[1][2] = real(0);
-	Result[1][3] = real(0.5*h);
+// 	Result[1][0] = real(0);
+// 	Result[1][1] = real(0.5*h);
+// 	Result[1][2] = real(0);
+// 	Result[1][3] = real(0.5*h);
 
-	Result[2][0] = real(0);
-	Result[2][1] = real(0);
-	Result[2][2] = real(0.5*d);
-	Result[2][3] = real(0.5*d);
+// 	Result[2][0] = real(0);
+// 	Result[2][1] = real(0);
+// 	Result[2][2] = real(0.5*d);
+// 	Result[2][3] = real(0.5*d);
 
-	Result[3][0] = real(0);
-	Result[3][1] = real(0);
-	Result[3][2] = real(0);
-	Result[3][3] = real(1);
+// 	Result[3][0] = real(0);
+// 	Result[3][1] = real(0);
+// 	Result[3][2] = real(0);
+// 	Result[3][3] = real(1);
 
-	return Result;
-}
+// 	return Result;
+// }
