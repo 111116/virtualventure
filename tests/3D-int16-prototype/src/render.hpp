@@ -82,9 +82,9 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			real x = (real)i/32;
 			real y = (real)j/32;
 			// barycentric coordinate
-        	real bary1 = x * bary_x.x + y * bary_y.x + bary_c.x;
-        	real bary2 = x * bary_x.y + y * bary_y.y + bary_c.y;
-        	real bary3 = x * bary_x.z + y * bary_y.z + bary_c.z;
+        	real bary1 = x * error24(bary_x.x) + y * error24(bary_y.x) + error24(bary_c.x);
+        	real bary2 = x * error24(bary_x.y) + y * error24(bary_y.y) + error24(bary_c.y);
+        	real bary3 = x * error24(bary_x.z) + y * error24(bary_y.z) + error24(bary_c.z);
 			// determine if pixel is inside triangle
         	bool inside = bary1>=0 && bary2>=0 && bary3>=0;
 			// perspective interpolation
@@ -93,7 +93,8 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			// near/far plane clip
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
-			real inv_w = 1/w;
+			// console.log(w);
+			real inv_w = errorf(32/errorf(w*32));
 			short psp1 = float2fixed(inv_w * bary1 * sv1.w);
 			short psp2 = float2fixed(inv_w * bary2 * sv2.w);
 			short psp3 = float2fixed(inv_w * bary3 * sv3.w);

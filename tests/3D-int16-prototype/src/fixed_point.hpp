@@ -21,6 +21,26 @@ short float2fixed(float x)
 	return short(round(x*256));
 }
 
+float fixed2float(short x)
+{
+	return float(x)/256;
+}
+
+float errorf(float a)
+{
+	return fixed2float(float2fixed(a));
+}
+
+float error32(float a)
+{
+	return float(int(round(a*256)))/256;
+}
+
+float error24(float a)
+{
+	return float((int(round(a*32768))<<8)>>8)/32768;
+}
+
 short inv(short x)
 {
 	if (x == 0) return 0;
