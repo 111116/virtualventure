@@ -91,11 +91,16 @@ void genmodel(int& n_triangle, Vertex*& vertices)
 	}
 	add(gencar(-2,0,-5.5));
 	add(gencar(-2,0,0));
+	add(gencar(2,0,3));
 	add(gencar(-2,0,5.5));
 	add(gencar(2,0,11));
 	add(gencar(2,0,16.5));
 	add(gencar(0,0,20));
 	add(gencar(0,0,25.5));
+	add(gencar(-2,0,22.5));
+	add(gencar(-2,0,28));
+	add(gencar(2,0,32));
+	add(gencar(0,0,44));
 
 	vertices = new Vertex[n_triangle*3];
 	for (int i=0; i<n_triangle*3; ++i)

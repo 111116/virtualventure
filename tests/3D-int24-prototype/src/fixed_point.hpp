@@ -9,7 +9,8 @@ typedef int fixed;
 // 	return int(((long long)a*b) >> 24)<<8;
 // }
 
-const int ratio = 16384;
+const int trail = 15;
+const int ratio = 1<<trail;
 
 fixed float2fixed(float x)
 {
@@ -21,6 +22,24 @@ float errorf(float x)
 	return float(float2fixed(x)>>8)/ratio;
 }
 
+short inv12(short x)
+{
+	x = (x<<4)>>4;
+	if (x == 0) return 0;
+	return 4096/x;
+}
+
+fixed inv(fixed x)
+{
+	return ((1<<(2*trail))/(x>>8))<<8;
+}
+
+float errinv(float x)
+{
+	int a = float2fixed(x);
+	a = inv(a);
+	return float(a>>8)/ratio;
+}
 // short inv(short x)
 // {
 // 	if (x == 0) return 0;
