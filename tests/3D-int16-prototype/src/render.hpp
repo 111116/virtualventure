@@ -34,7 +34,7 @@ Vertex perVertex(mat4 in_view, Vertex in)
 }
 
 // perspective interpolation https://stackoverflow.com/a/24460895/7884249
-void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color, std::function<Color(real,real)> getTexture)
+void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color, std::function<Color(short,short)> getTexture)
 {
 	// screen resolution
 	const int w = 640;
@@ -94,17 +94,17 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
 			// console.log(w);
-			real inv_w = errorf(32/errorf(w*32));
-			short psp1 = float2fixed(inv_w * bary1 * sv1.w);
-			short psp2 = float2fixed(inv_w * bary2 * sv2.w);
-			short psp3 = float2fixed(inv_w * bary3 * sv3.w);
-			short u = fmul(psp1, sv1.u) + fmul(psp2, sv2.u) + fmul(psp3, sv3.u);
-			short v = fmul(psp1, sv1.v) + fmul(psp2, sv2.v) + fmul(psp3, sv3.v);
+			real inv_w = error24(1.0/error24(w));
+			fixed psp1 = float2fixed(inv_w * bary1 * sv1.w);
+			fixed psp2 = float2fixed(inv_w * bary2 * sv2.w);
+			fixed psp3 = float2fixed(inv_w * bary3 * sv3.w);
+			fixed u = fmul(psp1, int(sv1.u)<<15) + fmul(psp2, int(sv2.u)<<15) + fmul(psp3, int(sv3.u)<<15);
+			fixed v = fmul(psp1, int(sv1.v)<<15) + fmul(psp2, int(sv2.v)<<15) + fmul(psp3, int(sv3.v)<<15);
 			// check depth buffer
 			bool overwrite = zbuffer[i][j] > z;
 			// write color
 			if (inside && overwrite && insideclip) {
-				colorbuffer[i][j] = getTexture(u,v);
+				colorbuffer[i][j] = getTexture(u>>15,v>>15);
 				zbuffer[i][j] = z;
 			}
 		}
