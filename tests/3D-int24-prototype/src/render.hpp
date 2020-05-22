@@ -24,9 +24,9 @@ Vertex perVertex(mat4 in_view, Vertex in)
 	out.y *= out.w;
 	out.z *= out.w;
 	// viewport
-	out.x = (out.x+1) * 5;
-	out.y = (-out.y+1) * 3.75;
-	out.z = (out.z+1) * 0.5;
+	out.x = errorf((out.x+1) * 5);
+	out.y = errorf((-out.y+1) * 3.75);
+	out.z = errorf((out.z+1) * 0.5);
 	// texture coord
 	out.u = in.u;
 	out.v = in.v;
@@ -82,26 +82,23 @@ void render(const mat4& in_view, int in_ntrig, Vertex* in_trigs, char* out_color
 			real x = (real)i/64;
 			real y = (real)j/64;
 			// barycentric coordinate
-        	const vec3 bary = vec3(
-        		x * errorf(bary_x.x) + y * errorf(bary_y.x) + errorf(bary_c.x) + 0.0004,
-        		x * errorf(bary_x.y) + y * errorf(bary_y.y) + errorf(bary_c.y) + 0.0004,
-        		x * errorf(bary_x.z) + y * errorf(bary_y.z) + errorf(bary_c.z) + 0.0004
-        	);
+        	real bary1 = x * errorf(bary_x.x) + y * errorf(bary_y.x) + errorf(bary_c.x) + 0.0004;
+        	real bary2 = x * errorf(bary_x.y) + y * errorf(bary_y.y) + errorf(bary_c.y) + 0.0004;
+        	real bary3 = x * errorf(bary_x.z) + y * errorf(bary_y.z) + errorf(bary_c.z) + 0.0004;
 			// determine if pixel is inside triangle
-        	bool inside = bary.x>=0 && bary.y>=0 && bary.z>=0;
+        	bool inside = bary1>=0 && bary2>=0 && bary3>=0;
 			// perspective interpolation
-			real z = dot(bary, vec3(sv1.z, sv2.z, sv3.z));
-			real w = dot(bary, vec3(sv1.w, sv2.w, sv3.w));
+			real z = bary1 * sv1.z + bary2 * sv2.z + bary3 * sv3.z;
+			real w = bary1 * sv1.w + bary2 * sv2.w + bary3 * sv3.w;
 			// near/far plane clip
 			bool insideclip = z>=0 /*&& z<=1*/;
 			// convert to perspective correct (clip-space) barycentric
-			const vec3 perspective = vec3(
-				1/w * bary.x * sv1.w,
-				1/w * bary.y * sv2.w,
-				1/w * bary.z * sv3.w
-			);
-			real u = dot(perspective, vec3(sv1.u, sv2.u, sv3.u));
-			real v = dot(perspective, vec3(sv1.v, sv2.v, sv3.v));
+			real inv_w = errorf(1/errorf(w));
+			real psp1 = errorf(inv_w * bary1 * sv1.w);
+			real psp2 = errorf(inv_w * bary2 * sv2.w);
+			real psp3 = errorf(inv_w * bary3 * sv3.w);
+			real u = psp1 * sv1.u + psp2 * sv2.u + psp3 * sv3.u;
+			real v = psp1 * sv1.v + psp2 * sv2.v + psp3 * sv3.v;
 			// check depth buffer
 			bool overwrite = zbuffer[i][j] > z;
 			// write color
