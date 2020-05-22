@@ -6,7 +6,7 @@
 using std::min;
 using std::max;
 
-typedef float real;
+typedef double real;
 
 int intfloor(real a)
 {
