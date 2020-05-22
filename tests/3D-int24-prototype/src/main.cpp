@@ -12,6 +12,7 @@ Color getTexture(real u, real v)
 {
 	int i = intfloor(u*64);
 	int j = intfloor(v*64);
+	if (i<0 || i>=1024 || j<0 || j>=1024) return {255,255,255};
 	int pxoff = 3*(j*1024 + i);
 	Color t;
 	t.r = texturePixels[pxoff+0];
