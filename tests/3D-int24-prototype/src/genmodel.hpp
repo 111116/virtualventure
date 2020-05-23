@@ -45,8 +45,8 @@ std::vector<Vertex> gencar(real ox, real oy, real oz)
 	d.u /= 64; d.v /= 64;
 	// top face uv: 268,759 - 600,814
 	Vertex t1 = {-topw + ox, toph + oy,   0 + oz, 1, 268, 759};
-	Vertex t2 = {-topw + ox, toph + oy, len + oz, 1, 268, 814};
-	Vertex t3 = { topw + ox, toph + oy,   0 + oz, 1, 600, 759};
+	Vertex t2 = {-topw + ox, toph + oy, len + oz, 1, 600, 759};
+	Vertex t3 = { topw + ox, toph + oy,   0 + oz, 1, 268, 814};
 	Vertex t4 = { topw + ox, toph + oy, len + oz, 1, 600, 814};
 	t1.u /= 64, t1.v /= 64;
 	t2.u /= 64, t2.v /= 64;
@@ -91,11 +91,16 @@ void genmodel(int& n_triangle, Vertex*& vertices)
 	}
 	add(gencar(-2,0,-5.5));
 	add(gencar(-2,0,0));
+	add(gencar(2,0,3));
 	add(gencar(-2,0,5.5));
 	add(gencar(2,0,11));
 	add(gencar(2,0,16.5));
 	add(gencar(0,0,20));
 	add(gencar(0,0,25.5));
+	add(gencar(-2,0,22.5));
+	add(gencar(-2,0,28));
+	add(gencar(2,0,32));
+	add(gencar(0,0,44));
 
 	vertices = new Vertex[n_triangle*3];
 	for (int i=0; i<n_triangle*3; ++i)

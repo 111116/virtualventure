@@ -8,28 +8,15 @@
 
 unsigned char* texturePixels;
 
-Color getTexture(real u, real v)
+Color getTexture(short u, short v)
 {
-	int i = intfloor(u*64);
-	int j = intfloor(v*64);
+	int i = u>>2;
+	int j = v>>2;
 	int pxoff = 3*(j*1024 + i);
 	Color t;
 	t.r = texturePixels[pxoff+0];
 	t.g = texturePixels[pxoff+1];
 	t.b = texturePixels[pxoff+2];
-	// add coordinate hint (plaided)
-	// if (intfloor(49*u)%6==0)
-	// {
-	// 	t.r *= 0.7;
-	// 	t.g *= 0.7;
-	// 	t.b *= 0.7;
-	// }
-	// if (intfloor(49*v)%6==0)
-	// {
-	// 	t.r *= 0.7;
-	// 	t.g *= 0.7;
-	// 	t.b *= 0.7;
-	// }
 	return t;
 }
 
