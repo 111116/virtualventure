@@ -256,44 +256,45 @@ begin
 	od: input_controller port map(angle_lr,angle_ud,clk,UD,LR);
 	a_r:async_receiver port map(clk,Rx,async_ready,Rd_clear,async_buff);
 -------------------------------------------------------------------------------------------------------------------------------------------	
-	process(async_buff,async_ready)
+	process(async_buff,async_ready，clk)
 	begin
-	if(async_ready = '1')then
-		case state_buffer is
-		when 0 =>
-			if(async_buff = "01010101") then
-				my_buffer(0) <= async_buff;
-				state_buffer <= 1;
-				Rd_clear <= '1';
-			else 
-				Rd_clear <= '1';
-			end if;
-		when 12 =>
-			if(my_buffer(1)="01010011") then
-				if(my_buffer(10)=my_buffer(0)+my_buffer(1)+my_buffer(2)+my_buffer(3)+my_buffer(4)+my_buffer(5)+my_buffer(6)+my_buffer(7)+my_buffer(8)+my_buffer(9))then
-					temp0(15 downto 8) <= my_buffer(3);
-					temp0(7 downto 0) <=my_buffer(2);
-					temp1 <= to_integer(unsigned(temp0))*180;
-					temp2 <= std_logic_vector(to_unsigned(temp1,16));
-					angle_lr<=temp2(15 downto 8);
-					temp3(15 downto 8) <= my_buffer(5);
-					temp3(7 downto 0) <=my_buffer(4);
-					temp4 <= to_integer(unsigned(temp3))*180;
-					temp5 <= std_logic_vector(to_unsigned(temp4,16));
-					angle_ud<=temp5(15 downto 8);
-					state_buffer <= 0;
+	if(risingedge(clk))then
+		if(async_ready = '1')then
+			case state_buffer is
+			when 0 =>
+				if(async_buff = "01010101") then
+					my_buffer(0) <= async_buff;
+					state_buffer <= 1;
+					Rd_clear <= '1';
+				else 
+					Rd_clear <= '1';
 				end if;
+			when 12 =>
+				if(my_buffer(1)="01010011") then
+					if(my_buffer(10)=my_buffer(0)+my_buffer(1)+my_buffer(2)+my_buffer(3)+my_buffer(4)+my_buffer(5)+my_buffer(6)+my_buffer(7)+my_buffer(8)+my_buffer(9))then
+						temp0(15 downto 8) <= my_buffer(3);
+						temp0(7 downto 0) <=my_buffer(2);
+						temp1 <= to_integer(unsigned(temp0))*180;
+						temp2 <= std_logic_vector(to_unsigned(temp1,16));
+						angle_lr<=temp2(15 downto 8);
+						temp3(15 downto 8) <= my_buffer(5);
+						temp3(7 downto 0) <=my_buffer(4);
+						temp4 <= to_integer(unsigned(temp3))*180;
+						temp5 <= std_logic_vector(to_unsigned(temp4,16));
+						angle_ud<=temp5(15 downto 8);
+						state_buffer <= 0;
+					end if;
+					Rd_clear <= '1';
+				else 
+					Rd_clear <= '1';
+				end if;
+				state_buffer <= 0;
+			when others =>
+				my_buffer(state_buffer-1) <= async_buff;
+				state_buffer <= state_buffer+1;
 				Rd_clear <= '1';
-			else 
-				Rd_clear <= '1';
-			end if;
-			state_buffer <= 0;
-		when others =>
-			my_buffer(state_buffer-1) <= async_buff;
-			state_buffer <= state_buffer+1;
-			Rd_clear <= '1';
-		end case;
-		
+			end case;
+		end if;
 	end if;
 	end process;
 -------------------------------------------------------------------------------------------------------------------------------------------
