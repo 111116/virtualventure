@@ -16,18 +16,16 @@
 
 ```vhdl
 main
-  input_controller  进度：TX->角度待实现，角度->指令已完成
+  input_controller  进度：待联合编译
   map_gen           进度：待联合编译
   game_logic        进度：待联合编译
   geometry          进度：
   renderer          进度：2D开发中
   sram_controller   进度：已完成测试
   vga_controller    进度：已完成测试
-```
 
 ## 传感器控制器
-输入：（串口通信）
-  角度、重力加速度
+输入：clk,Rx
 输出：
   （跳起/落下/无命令）+（向左/向右/无命令）
 
@@ -35,11 +33,11 @@ main
   UD: 2位无符整型，00表示跳起，11表示向下滑，01、10表示上下无操作
   LR：2位无符整型，00表示向左，11表示向右，01、10表示左右无操作
 ```
-## 地形生成器
+## 地形生成器+游戏主逻辑
 
-port in:clk
+port in:clk，UD,LR,rst
 
-port out:
+port out:type_carriage,pos_carriage,num_carriage,type_barrier,pos_barrier,character_y,character_h
 每轨道：
 
 ​	列车数量，每列车：种类，起点，车厢数量，有没有斜坡 <=4x(enum+real+short+bool) \~12byte
@@ -84,22 +82,11 @@ process:
 ---new
       #如果最后一节列车最后一节车厢进入画面，则读取随机数表格并随机生成新的列车、障碍
 ```
-## 游戏主逻辑
+
 
 ---玩家与列车，金币作碰撞检测。碰撞检测：玩家所在轨道离散
 
-port in:
-```
-UD,LR;
-N[3];
-kind[3][4];
-pos_start[3][4];
-num_carriage[3][4];
-slope[3][4];
-num_barrier[3];
-pos_barrier[3][10];
-type_barrier[3][10];
-```
+
 signal:
 ```
 （pos_x:int，x坐标，常为0）
@@ -177,6 +164,14 @@ pos_y_discrete = function_yd( pos_y );
 
 ```vhdl
 clk: in std_logic;
+type_carriage: out std_logic_vector(11 downto 0);
+pos_carriage:out std_logic_vector(71 downto 0);
+num_carriage:out std_logic_vector(17 downto 0);
+pos_barrier:out std_logic_vector(71 downto 0);
+type_barrier:out std_logic_vector(11 downto 0);
+character_y:out std_logic_vector(11 downto 0);
+character_h:out std_logic_vector(11 downto 0);
+
 -- internal ports to main game logic
 ...
 -- internal ports to geometry buffer (RAM)
