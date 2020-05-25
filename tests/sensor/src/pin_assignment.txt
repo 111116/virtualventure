@@ -98,3 +98,9 @@ digit2[0],          PIN_AD23
 
 // sensor input
 RX,					PIN_A17
+
+// test
+UD[1],				PIN_AE17
+UD[0],				PIN_AC17
+LR[1],				PIN_AB18
+LR[0],				PIN_AD19
