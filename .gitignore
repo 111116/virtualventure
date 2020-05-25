@@ -4,3 +4,5 @@ output_files
 incremental_db
 greybox_tmp
 project
+*.bmp
+*.dSYM
