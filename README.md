@@ -254,12 +254,7 @@ sram_wren  : out std_logic
         向SRAM写入像素颜色
 ```
 
-块缓冲格式：80x80 words ，行优先，数据位宽36位，其中
-
-```plain
-19 downto 0 : UV 20位无符号整数，该像素的贴图地址（即SRAM上的地址）
-35 downto 20: DEP 16位无符号整数，该像素的当前深度
-```
+块缓冲格式：80x80 words ，行优先，数据位宽36位，其中RGB888,
 
 ## SRAM控制器
 

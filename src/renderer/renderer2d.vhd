@@ -61,7 +61,7 @@ architecture behav of renderer2d is
       );
    end component tile_buffer_ram;
 
-   component texture_filler is
+   component fb_filler is
       port (
          -- control signals
          clk0       : in std_logic; -- 100MHz clock
@@ -81,7 +81,7 @@ architecture behav of renderer2d is
          sram_dataw : out std_logic_vector(31 downto 0); -- write
          sram_wren  : out std_logic
       );
-   end component texture_filler;
+   end component fb_filler;
 
    -- ports of tile buffer
    signal tilebuf1_out_rden : std_logic;
@@ -165,10 +165,15 @@ begin
       tilebuf_clk  => tilebuf_in_clk,
       tilebuf_wren => tilebuf_in_wren,
       tilebuf_addr => tilebuf_in_addr,
-      tilebuf_data => tilebuf_in_data
+      tilebuf_data => tilebuf_in_data,
+      -- internal ports to SRAM controller
+      sram_addr1 => sram_addr1,
+      sram_q1    => sram_q1,
+      sram_addr2 => sram_addr2,
+      sram_q2    => sram_q2
    );
 
-   filler : texture_filler port map (
+   filler : fb_filler port map (
       clk0       => clk0,
       start_addr => framebuf_start_addr,
       start      => start_filler,
@@ -178,10 +183,6 @@ begin
       buf_addr   => tilebuf_out_addr,
       buf_q      => tilebuf_out_q,
       -- internal ports to SRAM controller
-      sram_addr1 => sram_addr1,
-      sram_q1    => sram_q1,
-      sram_addr2 => sram_addr2,
-      sram_q2    => sram_q2,
       sram_addrw => sram_addrw,
       sram_dataw => sram_dataw,
       sram_wren  => sram_wren

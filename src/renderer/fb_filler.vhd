@@ -1,11 +1,11 @@
--- fill framebuffer given tiles of texture coordinates
+-- fill framebuffer given tiled buffer of color
 
 library  ieee;
 use      ieee.std_logic_1164.all;
 use      ieee.numeric_std.all;
 
 
-entity texture_filler is
+entity fb_filler is
 	port (
 		-- control signals
 		clk0 : in std_logic; -- 100MHz clock
@@ -17,18 +17,14 @@ entity texture_filler is
 		buf_addr : out std_logic_vector(12 downto 0);
 		buf_q	 	: in  std_logic_vector(35 downto 0);
       -- internal ports to SRAM controller
-      sram_addr1 : out std_logic_vector(19 downto 0); -- read1
-      sram_q1    : in  std_logic_vector(31 downto 0); -- read1
-      sram_addr2 : out std_logic_vector(19 downto 0); -- read2
-      sram_q2    : in  std_logic_vector(31 downto 0); -- read2
       sram_addrw : out std_logic_vector(19 downto 0); -- write
       sram_dataw : out std_logic_vector(31 downto 0); -- write
       sram_wren  : out std_logic
 	);
-end entity texture_filler;
+end entity fb_filler;
 
 
-architecture behav of texture_filler is
+architecture behav of fb_filler is
 
 	--component dither_buffer is
 	--	port (
@@ -42,17 +38,13 @@ architecture behav of texture_filler is
    signal clkst  : std_logic := '0';
 
    -- pipeline registers
-   signal x, x_reg, x_reg2, x_reg3 : integer range 0 to 79 := 0; -- current position in tile
-   signal y, y_reg, y_reg2, y_reg3 : integer range 0 to 79 := 0; -- current position in tile
-   signal texaddr_reg      : std_logic_vector(19 downto 0); -- registered of even-indexed px
+   signal x, x_reg : integer range 0 to 79 := 0; -- current position in tile
+   signal y, y_reg : integer range 0 to 79 := 0; -- current position in tile
+   signal clr_reg          : std_logic_vector(23 downto 0); -- registered of even-indexed px
    signal writeaddr        : std_logic_vector(19 downto 0);
-   signal sram_q1_reg1     : std_logic_vector(31 downto 0);
-   signal sram_q2_reg1     : std_logic_vector(31 downto 0);
 
    signal state_valid      : std_logic := '0';
    signal state_valid_reg  : std_logic := '0';
-   signal state_valid_reg2 : std_logic := '0';
-   signal state_valid_reg3 : std_logic := '0';
 
    signal dr,dg,db : integer range -32 to 31 := 0;
 
@@ -115,7 +107,7 @@ begin
       if rising_edge(clk1_4) then
          if clkst='1' then -- t=0.5, 1.5
 	      	buf_addr <= std_logic_vector(to_unsigned(x+y*80, buf_addr'length));
-            texaddr_reg <= buf_q(19 downto 0);
+            clr_reg <= buf_q(23 downto 0);
 	      else -- t=1
             x_reg <= x;
             y_reg <= y;
@@ -125,34 +117,10 @@ begin
       end if;
    end process;
 
-   -- stage 2: fetch addr 2
-   process (clk1_4, clkst, buf_q, texaddr_reg, x_reg, y_reg, state_valid_reg)
-   begin
-      if rising_edge(clk1_4) and clkst='0' then
-         -- texture address
-         sram_addr1 <= texaddr_reg;
-         sram_addr2 <= buf_q(19 downto 0);
-         x_reg2     <= x_reg;
-         y_reg2     <= y_reg;
-         state_valid_reg2 <= state_valid_reg;
-      end if;
-   end process;
-
-   -- stage 3: fetch texture data & calc write addr
-   process (clk1_4, clkst, sram_q1, sram_q2, state_valid_reg2)
-   begin
-      if rising_edge(clk1_4) and clkst='0' then
-         sram_q1_reg1 <= sram_q1;
-         sram_q2_reg1 <= sram_q2;
-         writeaddr  <= std_logic_vector(to_unsigned(x_reg2/2 + y_reg2*320 + to_integer(start_addr), 20));
-         x_reg3     <= x_reg2;
-         y_reg3     <= y_reg2;
-         state_valid_reg3 <= state_valid_reg2;
-      end if;
-   end process;
+   writeaddr  <= std_logic_vector(to_unsigned(x_reg/2 + y_reg*320 + to_integer(start_addr), 20));
 
    -- state 4: calculate quantized color
-   process (clk1_4, clkst, sram_q1_reg1, sram_q2_reg1, writeaddr, state_valid_reg3, x_reg3, y_reg3)
+   process (clk1_4, clkst, clr_reg, buf_q, writeaddr, state_valid_reg, x_reg)
       variable or1,og1,ob1,or2,og2,ob2: integer; -- original color
       variable mr1,mg1,mb1,mr2,mg2,mb2: integer; -- mixed: color plus delta
       variable qr1,qg1,qb1,qr2,qg2,qb2: integer; -- quantized to 3bit
@@ -161,12 +129,12 @@ begin
    begin
       if rising_edge(clk1_4) and clkst='0' then
          -- get original color of two pixels
-         or1 := to_integer(unsigned(sram_q1_reg1(7 downto 0)));
-         og1 := to_integer(unsigned(sram_q1_reg1(15 downto 8)));
-         ob1 := to_integer(unsigned(sram_q1_reg1(23 downto 16)));
-         or2 := to_integer(unsigned(sram_q2_reg1(7 downto 0)));
-         og2 := to_integer(unsigned(sram_q2_reg1(15 downto 8)));
-         ob2 := to_integer(unsigned(sram_q2_reg1(23 downto 16)));
+         or1 := to_integer(unsigned(clr_reg(7 downto 0)));
+         og1 := to_integer(unsigned(clr_reg(15 downto 8)));
+         ob1 := to_integer(unsigned(clr_reg(23 downto 16)));
+         or2 := to_integer(unsigned(buf_q(7 downto 0)));
+         og2 := to_integer(unsigned(buf_q(15 downto 8)));
+         ob2 := to_integer(unsigned(buf_q(23 downto 16)));
          -- calculate first pixel
          mr1 := or1 + dr;
          mg1 := og1 + dg;
@@ -194,7 +162,7 @@ begin
          resg2 := qg2 * 32;
          resb2 := qb2 * 32;
          -- store horizontal delta
-         if x_reg3 = 78 then
+         if x_reg = 78 then
             dr <= 0;
             dg <= 0;
             db <= 0;
@@ -206,10 +174,10 @@ begin
          -- write color to framebuffer
          sram_addrw <= writeaddr;
          sram_dataw <= "00000000000000"&b2&g2&r2&b1&g1&r1;
-         sram_wren  <= state_valid_reg3;
+         sram_wren  <= state_valid_reg;
       end if;
    end process;
 
-   busy <= state_valid or state_valid_reg3;
+   busy <= state_valid or state_valid_reg;
 
 end architecture ; -- behav
