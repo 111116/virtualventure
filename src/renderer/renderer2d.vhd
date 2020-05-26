@@ -8,12 +8,13 @@ entity renderer2d is
    port(
       clk0: in std_logic; -- 100MHz master clock input
       -- internal ports to geometry buffer (RAM)
-      --ram_clk: out std_logic;
-      --ram_addr: out std_logic_vector();
-      --ram_q: in std_logic_vector();
-      -- internal ports to geometry generator
-      start : in std_logic;
-      busy : out std_logic;
+      n_element   : in unsigned(11 downto 0);
+      geobuf_clk  : out std_logic;
+      geobuf_addr : out std_logic_vector(11 downto 0);
+      geobuf_q    : in  std_logic_vector(31 downto 0);
+      -- controls
+      start : in std_logic; -- set HIGH to start
+      busy : out std_logic; -- HIGH when busy
       -- internal ports to SRAM controller
       sram_addr1 : out std_logic_vector(19 downto 0);
       sram_q1    : in  std_logic_vector(31 downto 0);
@@ -36,14 +37,20 @@ architecture behav of renderer2d is
          start  : in std_logic;
          busy   : out std_logic;
          -- internal ports to geometry buffer (RAM)
-         --geobuf_clk  : out std_logic;
-         --geobuf_addr : out std_logic_vector();
-         --geobuf_q    : in  std_logic_vector();
+         n_element   : in unsigned(11 downto 0);
+         geobuf_clk  : out std_logic;
+         geobuf_addr : out std_logic_vector(11 downto 0);
+         geobuf_q    : in  std_logic_vector(31 downto 0);
          -- internal ports to tile buffer (RAM)
          tilebuf_clk  : out std_logic;
          tilebuf_wren : out std_logic;
          tilebuf_addr : out std_logic_vector(12 downto 0);
-         tilebuf_data : out std_logic_vector(35 downto 0)
+         tilebuf_data : out std_logic_vector(35 downto 0);
+         -- internal ports to SRAM controller
+         sram_addr1 : out std_logic_vector(19 downto 0); -- read1
+         sram_q1    : in  std_logic_vector(31 downto 0); -- read1
+         sram_addr2 : out std_logic_vector(19 downto 0); -- read2
+         sram_q2    : in  std_logic_vector(31 downto 0)  -- read2
       );
    end component tile_renderer;
 
@@ -73,10 +80,6 @@ architecture behav of renderer2d is
          buf_addr : out std_logic_vector(12 downto 0);
          buf_q    : in  std_logic_vector(35 downto 0);
          -- internal ports to SRAM controller
-         sram_addr1 : out std_logic_vector(19 downto 0); -- read1
-         sram_q1    : in  std_logic_vector(31 downto 0); -- read1
-         sram_addr2 : out std_logic_vector(19 downto 0); -- read2
-         sram_q2    : in  std_logic_vector(31 downto 0); -- read2
          sram_addrw : out std_logic_vector(19 downto 0); -- write
          sram_dataw : out std_logic_vector(31 downto 0); -- write
          sram_wren  : out std_logic
@@ -158,9 +161,10 @@ begin
       start  => start_renderer,
       busy   => busy_renderer,
       -- internal ports to geometry buffer (RAM)
-      --geobuf_clk  : out std_logic;
-      --geobuf_addr : out std_logic_vector();
-      --geobuf_q    : in  std_logic_vector();
+      n_element   => n_element,
+      geobuf_clk  => geobuf_clk,
+      geobuf_addr => geobuf_addr,
+      geobuf_q    => geobuf_q,
       -- internal ports to tile buffer (RAM)
       tilebuf_clk  => tilebuf_in_clk,
       tilebuf_wren => tilebuf_in_wren,
