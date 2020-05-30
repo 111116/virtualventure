@@ -95,7 +95,7 @@ begin
          when others =>
             null;
       end case;
-      tilebuf_data <= "00000000"
+      tilebuf_data <= "000000000000"
          & std_logic_vector(to_unsigned(b,8))
          & std_logic_vector(to_unsigned(g,8))
          & std_logic_vector(to_unsigned(r,8));
