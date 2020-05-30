@@ -111,10 +111,13 @@ begin
 
    -- stage 1: request data
    process (clk0, clkcnt8, x, y)
+      variable u,v: integer range 0 to 1023;
    begin
       if rising_edge(clk0) and clkcnt8=0 then
-         sram_addr1 <= std_logic_vector(to_unsigned(x/2 + y*40 + 0, 20));
-         sram_addr2 <= std_logic_vector(to_unsigned(x/2 + y*40 + 1, 20));
+         u := x + to_integer(startx);
+         v := y + to_integer(starty);
+         sram_addr1 <= std_logic_vector(to_unsigned(u/2 + v*40 + 0, 20));
+         sram_addr2 <= std_logic_vector(to_unsigned(u/2 + v*40 + 1, 20));
          sram1l_id <= std_logic_vector(to_unsigned(y * 80 + x + 0, 13));
          sram1h_id <= std_logic_vector(to_unsigned(y * 80 + x + 1, 13));
          sram2l_id <= std_logic_vector(to_unsigned(y * 80 + x + 2, 13));
