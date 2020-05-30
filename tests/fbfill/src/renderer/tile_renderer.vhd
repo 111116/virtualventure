@@ -44,6 +44,8 @@ architecture behav of tile_renderer is
    signal x, x_reg : integer range 0 to 79 := 0; -- current position in tile
    signal y, y_reg : integer range 0 to 79 := 0; -- current position in tile
    signal state_busy : std_logic := '0';
+   signal state_busy_r1 : std_logic := '0';
+   signal state_busy_r2 : std_logic := '0';
 
    -- cached sram data, 12.5MHz
    signal sram1h_cache : std_logic_vector(15 downto 0);
@@ -107,12 +109,12 @@ begin
       end if;
    end process;
 	
-	busy <= state_busy;
+	busy <= state_busy or state_busy_r1 or state_busy_r2;
 
    tilebuf_clk <= clk0;
 
    -- stage 1: request data
-   process (clk0, clkcnt8, x, y)
+   process (clk0, clkcnt8, x, y, state_busy)
       variable u,v: integer range 0 to 1023;
    begin
       if rising_edge(clk0) and clkcnt8=0 then
@@ -128,11 +130,12 @@ begin
          sram1l_valid <= state_busy;
          sram2h_valid <= state_busy;
          sram2l_valid <= state_busy;
+			state_busy_r1 <= state_busy;
       end if;
    end process;
 
    -- stage 2: receive data
-   process (clk0, clkcnt8, sram_q1, sram_q2, sram1h_id, sram1l_id, sram2h_id, sram2l_id, sram1h_valid, sram1l_valid, sram2h_valid, sram2l_valid)
+   process (clk0, clkcnt8, state_busy_r1, sram_q1, sram_q2, sram1h_id, sram1l_id, sram2h_id, sram2l_id, sram1h_valid, sram1l_valid, sram2h_valid, sram2l_valid)
    begin
       if rising_edge(clk0) and clkcnt8=0 then
          sram1l_cache <= sram_q1(15 downto 0);
@@ -147,6 +150,7 @@ begin
          sram1l_valid_reg <= sram1l_valid;
          sram2h_valid_reg <= sram2h_valid;
          sram2l_valid_reg <= sram2l_valid;
+			state_busy_r2 <= state_busy_r1;
       end if;
    end process;
 
