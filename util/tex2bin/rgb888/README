@@ -1,0 +1,3 @@
+accepts image of size 1024x1024
+format: little endian, row major, top to bottom
+rrrrrrrrggggggggbbbbbbbb00000000
