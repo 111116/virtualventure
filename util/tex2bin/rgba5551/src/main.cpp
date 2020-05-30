@@ -33,9 +33,9 @@ int main(int argc, char* argv[])
 		int b = pixels[4*i+2];
 		int a = pixels[4*i+3];
 		// map [0,255] to [0,28]
-		r = r * 28 / 255;
-		g = g * 28 / 255;
-		b = b * 28 / 255;
+		r = r * 28 / 247;
+		g = g * 28 / 247;
+		b = b * 28 / 247;
 		a = a > 0;
 		opaque_cnt += a;
 		fout << char(r | ((g & 7) << 5)) << char((g>>3) | (b<<2) | (a<<7));
