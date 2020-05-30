@@ -130,17 +130,6 @@ begin
    end process;
 
    -- stage 2: receive data
-   process (clk0, clkcnt8, sram_q1, sram_q2)
-   begin
-      if rising_edge(clk0) and clkcnt8=0 then
-         sram1l_cache <= sram_q1(15 downto 0);
-         sram1h_cache <= sram_q1(31 downto 16);
-         sram2l_cache <= sram_q2(15 downto 0);
-         sram2h_cache <= sram_q2(31 downto 16);
-      end if;
-   end process;
-
-   -- stage 3: write content
    process (clk0, clkcnt8, sram_q1, sram_q2, sram1h_id, sram1l_id, sram2h_id, sram2l_id, sram1h_valid, sram1l_valid, sram2h_valid, sram2l_valid)
    begin
       if rising_edge(clk0) and clkcnt8=0 then
@@ -188,9 +177,9 @@ begin
                tilebuf_addr <= (others => '0');
                tilebuf_wren <= '0';
          end case;
-         r := 4*to_integer(unsigned(sram1l_cache(4 downto 0)));
-         g := 4*to_integer(unsigned(sram1l_cache(9 downto 5)));
-         b := 4*to_integer(unsigned(sram1l_cache(14 downto 10)));
+         r := 4*to_integer(unsigned(cache(4 downto 0)));
+         g := 4*to_integer(unsigned(cache(9 downto 5)));
+         b := 4*to_integer(unsigned(cache(14 downto 10)));
          tilebuf_data <= "000000000000"
             & std_logic_vector(to_unsigned(b,8))
             & std_logic_vector(to_unsigned(g,8))
