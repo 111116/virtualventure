@@ -39,26 +39,61 @@ end entity tile_renderer;
 
 architecture behav of tile_renderer is
 
+   signal clkcnt8 : integer range 0 to 7 := 0;
+
    signal x, x_reg : integer range 0 to 79 := 0; -- current position in tile
    signal y, y_reg : integer range 0 to 79 := 0; -- current position in tile
    signal state_busy : std_logic := '0';
 
+   -- cached sram data, 12.5MHz
+   signal sram1h_cache : std_logic_vector(15 downto 0);
+   signal sram1l_cache : std_logic_vector(15 downto 0);
+   signal sram2h_cache : std_logic_vector(15 downto 0);
+   signal sram2l_cache : std_logic_vector(15 downto 0);
+   -- task (addr to save data, wren), 12.5MHz
+   signal sram1h_id : std_logic_vector(12 downto 0);
+   signal sram1l_id : std_logic_vector(12 downto 0);
+   signal sram2h_id : std_logic_vector(12 downto 0);
+   signal sram2l_id : std_logic_vector(12 downto 0);
+   signal sram1h_valid : std_logic := '0';
+   signal sram1l_valid : std_logic := '0';
+   signal sram2h_valid : std_logic := '0';
+   signal sram2l_valid : std_logic := '0';
+   -- task pipelined register, 12.5MHz
+   signal sram1h_id_reg : std_logic_vector(12 downto 0);
+   signal sram1l_id_reg : std_logic_vector(12 downto 0);
+   signal sram2h_id_reg : std_logic_vector(12 downto 0);
+   signal sram2l_id_reg : std_logic_vector(12 downto 0);
+   signal sram1h_valid_reg : std_logic := '0';
+   signal sram1l_valid_reg : std_logic := '0';
+   signal sram2h_valid_reg : std_logic := '0';
+   signal sram2l_valid_reg : std_logic := '0';
+
 begin
 
-   sram_addr1 <= x"CCCCC";
-   sram_addr2 <= x"CCCCC";
+   -- 12.5MHz counter
+   process (clk0, clkcnt8)
+   begin
+      if rising_edge(clk0) then
+         if clkcnt8 = 7 then
+            clkcnt8 <= 0;
+         else
+            clkcnt8 <= clkcnt8 + 1;
+         end if;
+      end if;
+   end process;
    
    -- stage 0: update state & current position
    process (clk0, x, y, start, state_busy)
    begin
-      if rising_edge(clk0) then
+      if rising_edge(clk0) and clkcnt8=0 then
          if state_busy = '0' and start = '1' then
             -- initialize
             state_busy <= '1';
             x <= 0;
             y <= 0;
          -- otherwise continue update x and y in [0..79]^2
-         elsif x = 79 then
+         elsif x = 76 then
             if y = 79 then
                -- finished
                state_busy <= '0';
@@ -67,38 +102,97 @@ begin
             end if;
             x <= 0;
          else
-            x <= x+1;
+            x <= x+4;
          end if;
       end if;
    end process;
 
    tilebuf_clk <= clk0;
 
-   -- stage 1: fill tile buffer
-   process (clk0, x, y, startx, starty, state_busy)
-      variable r,g,b: integer range 0 to 255;
+   -- stage 1: request data
+   process (clk0, clkcnt8, x, y)
    begin
-      tilebuf_wren <= state_busy;
-      busy <= state_busy;
-      tilebuf_addr <= std_logic_vector(to_unsigned(x + y * 80, tilebuf_addr'length));
-      -- texture address
-      r := 0;
-      g := 0;
-      b := 0;
-      case x mod 3 is
-         when 0 =>
-            r := 224;
-         when 1 =>
-            g := 224;
-         when 2 =>
-            b := 224;
-         when others =>
-            null;
-      end case;
-      tilebuf_data <= "000000000000"
-         & std_logic_vector(to_unsigned(b,8))
-         & std_logic_vector(to_unsigned(g,8))
-         & std_logic_vector(to_unsigned(r,8));
+      if rising_edge(clk0) and clkcnt8=0 then
+         sram_addr1 <= std_logic_vector(to_unsigned(x/2 + y*40 + 0, 20));
+         sram_addr2 <= std_logic_vector(to_unsigned(x/2 + y*40 + 1, 20));
+         sram1l_id <= std_logic_vector(to_unsigned(y * 80 + x + 0, 13));
+         sram1h_id <= std_logic_vector(to_unsigned(y * 80 + x + 1, 13));
+         sram2l_id <= std_logic_vector(to_unsigned(y * 80 + x + 2, 13));
+         sram2h_id <= std_logic_vector(to_unsigned(y * 80 + x + 3, 13));
+         sram1h_valid <= '1';
+         sram1l_valid <= '1';
+         sram2h_valid <= '1';
+         sram2l_valid <= '1';
+      end if;
+   end process;
+
+   -- stage 2: receive data
+   process (clk0, clkcnt8, sram_q1, sram_q2)
+   begin
+      if rising_edge(clk0) and clkcnt8=0 then
+         sram1l_cache <= sram_q1(15 downto 0);
+         sram1h_cache <= sram_q1(31 downto 16);
+         sram2l_cache <= sram_q2(15 downto 0);
+         sram2h_cache <= sram_q2(31 downto 16);
+      end if;
+   end process;
+
+   -- stage 3: write content
+   process (clk0, clkcnt8, sram_q1, sram_q2, sram1h_id, sram1l_id, sram2h_id, sram2l_id, sram1h_valid, sram1l_valid, sram2h_valid, sram2l_valid)
+   begin
+      if rising_edge(clk0) and clkcnt8=0 then
+         sram1l_cache <= sram_q1(15 downto 0);
+         sram1h_cache <= sram_q1(31 downto 16);
+         sram2l_cache <= sram_q2(15 downto 0);
+         sram2h_cache <= sram_q2(31 downto 16);
+         sram1l_id_reg <= sram1l_id;
+         sram1h_id_reg <= sram1h_id;
+         sram2l_id_reg <= sram2l_id;
+         sram2h_id_reg <= sram2h_id;
+         sram1h_valid_reg <= sram1h_valid;
+         sram1l_valid_reg <= sram1l_valid;
+         sram2h_valid_reg <= sram2h_valid;
+         sram2l_valid_reg <= sram2l_valid;
+      end if;
+   end process;
+
+   -- write pixel 1h
+   process (clk0, clkcnt8, sram1l_cache, sram1h_cache, sram2l_cache, sram2h_cache, sram1h_id_reg, sram1l_id_reg, sram2h_id_reg, sram2l_id_reg, sram1h_valid_reg, sram1l_valid_reg, sram2h_valid_reg, sram2l_valid_reg)
+      variable cache : std_logic_vector(15 downto 0);
+      variable r,g,b : integer range 0 to 255;
+      variable a : std_logic; -- opaque
+   begin
+      if rising_edge(clk0) then
+         case clkcnt8 is
+            when 1 =>
+               cache := sram1l_cache;
+               tilebuf_addr <= sram1l_id_reg;
+               tilebuf_wren <= sram1l_valid_reg;
+            when 2 =>
+               cache := sram1h_cache;
+               tilebuf_addr <= sram1h_id_reg;
+               tilebuf_wren <= sram1h_valid_reg;
+            when 3 =>
+               cache := sram2l_cache;
+               tilebuf_addr <= sram2l_id_reg;
+               tilebuf_wren <= sram2l_valid_reg;
+            when 4 =>
+               cache := sram2h_cache;
+               tilebuf_addr <= sram2h_id_reg;
+               tilebuf_wren <= sram2h_valid_reg;
+            when others =>
+               cache := (others => '0');
+               tilebuf_addr <= (others => '0');
+               tilebuf_wren <= '0';
+         end case;
+         r := 4*to_integer(unsigned(sram1l_cache(4 downto 0)));
+         g := 4*to_integer(unsigned(sram1l_cache(9 downto 5)));
+         b := 4*to_integer(unsigned(sram1l_cache(14 downto 10)));
+         tilebuf_data <= "000000000000"
+            & std_logic_vector(to_unsigned(b,8))
+            & std_logic_vector(to_unsigned(g,8))
+            & std_logic_vector(to_unsigned(r,8));
+      end if;
    end process;
    
 end architecture behav;
