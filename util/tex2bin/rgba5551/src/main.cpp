@@ -32,6 +32,10 @@ int main(int argc, char* argv[])
 		int g = pixels[4*i+1];
 		int b = pixels[4*i+2];
 		int a = pixels[4*i+3];
+		// add noise
+		r = std::max(0, std::min(255, r + rand()%7 - 3));
+		g = std::max(0, std::min(255, g + rand()%7 - 3));
+		b = std::max(0, std::min(255, b + rand()%7 - 3));
 		// map [0,255] to [0,28]
 		r = r * 28 / 247;
 		g = g * 28 / 247;
