@@ -106,6 +106,8 @@ begin
          end if;
       end if;
    end process;
+	
+	busy <= state_busy;
 
    tilebuf_clk <= clk0;
 
@@ -122,10 +124,10 @@ begin
          sram1h_id <= std_logic_vector(to_unsigned(y * 80 + x + 1, 13));
          sram2l_id <= std_logic_vector(to_unsigned(y * 80 + x + 2, 13));
          sram2h_id <= std_logic_vector(to_unsigned(y * 80 + x + 3, 13));
-         sram1h_valid <= '1';
-         sram1l_valid <= '1';
-         sram2h_valid <= '1';
-         sram2l_valid <= '1';
+         sram1h_valid <= state_busy;
+         sram1l_valid <= state_busy;
+         sram2h_valid <= state_busy;
+         sram2l_valid <= state_busy;
       end if;
    end process;
 
@@ -177,9 +179,9 @@ begin
                tilebuf_addr <= (others => '0');
                tilebuf_wren <= '0';
          end case;
-         r := 4*to_integer(unsigned(cache(4 downto 0)));
-         g := 4*to_integer(unsigned(cache(9 downto 5)));
-         b := 4*to_integer(unsigned(cache(14 downto 10)));
+         r := 8*to_integer(unsigned(cache(4 downto 0)));
+         g := 8*to_integer(unsigned(cache(9 downto 5)));
+         b := 8*to_integer(unsigned(cache(14 downto 10)));
          tilebuf_data <= "000000000000"
             & std_logic_vector(to_unsigned(b,8))
             & std_logic_vector(to_unsigned(g,8))
