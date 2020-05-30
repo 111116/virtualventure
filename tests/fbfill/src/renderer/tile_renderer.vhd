@@ -115,7 +115,7 @@ begin
    begin
       if rising_edge(clk0) and clkcnt8=0 then
          u := x + to_integer(startx);
-         v := y + to_integer(starty);
+         v := y + to_integer(starty) + 300;
          sram_addr1 <= std_logic_vector(to_unsigned(u/2 + v*40 + 0, 20));
          sram_addr2 <= std_logic_vector(to_unsigned(u/2 + v*40 + 1, 20));
          sram1l_id <= std_logic_vector(to_unsigned(y * 80 + x + 0, 13));
