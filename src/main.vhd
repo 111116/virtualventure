@@ -7,6 +7,9 @@ entity main is
    port (
       -- 100MHz master clock input
       clk0 : in std_logic;
+      -- player input
+      UD: in std_logic_vector(1 downto 0);
+      LR: in std_logic_vector(1 downto 0);
       -- external ports to SRAM
       sram_addr: out std_logic_vector(19 downto 0);
       sram_data: inout std_logic_vector(31 downto 0);
@@ -22,19 +25,57 @@ end entity main; -- main
 
 architecture arch of main is
 
-   component geometry_demo is
+   component game
       port (
-         -- control signals
-         clk0   : in std_logic;              -- must not exceed max freq of RAM
-         render_start : out std_logic;
-         -- internal ports to geometry input buffer (RAM)
-         n_element   : out unsigned(11 downto 0);
-         geobuf_clk  : out std_logic;
-         geobuf_wren : out std_logic;
-         geobuf_addr : out std_logic_vector(11 downto 0);
-         geobuf_data : out std_logic_vector(31 downto 0)
+         UD: in std_logic_vector(1 downto 0);
+         LR: in std_logic_vector(1 downto 0);
+         clk:in std_logic;
+         type_carriage: out std_logic_vector(11 downto 0);
+         pos_carriage:out std_logic_vector(71 downto 0);
+         num_carriage:out std_logic_vector(17 downto 0);
+         pos_barrier:out std_logic_vector(71 downto 0);
+         type_barrier:out std_logic_vector(11 downto 0);
+         character_y:out std_logic_vector(11 downto 0);
+         character_h:out std_logic_vector(11 downto 0);
+         character_state:out std_logic_vector(1 downto 0);
+         survive_sign :out std_logic;
+         data_ready:out std_logic;
+         reset : in std_logic
       );
-   end component geometry_demo;
+   end component;
+
+   signal data_ready:  std_logic;
+   signal type_carriage: std_logic_vector(11 downto 0);
+   signal pos_carriage :std_logic_vector(71 downto 0);
+   signal num_carriage: std_logic_vector(17 downto 0);
+   signal pos_barrier: std_logic_vector(71 downto 0);
+   signal type_barrier: std_logic_vector(11 downto 0);
+   signal character_y: std_logic_vector(11 downto 0);
+   signal character_h: std_logic_vector(11 downto 0);
+   signal character_state: std_logic_vector(1 downto 0);
+   signal survive : std_logic:='1';
+
+   component geometry 
+      port (
+         clk: in std_logic;
+         render_busy: in std_logic;
+         data_ready: in std_logic;
+         type_carriage:in std_logic_vector(11 downto 0);
+         pos_carriage:in std_logic_vector(71 downto 0);
+         num_carriage:in std_logic_vector(17 downto 0);
+         pos_barrier:in std_logic_vector(71 downto 0);
+         type_barrier:in std_logic_vector(11 downto 0);
+         character_y:in std_logic_vector(11 downto 0);
+         character_h:in std_logic_vector(11 downto 0);
+         character_state:in std_logic_vector(1 downto 0);
+         survive_signal :in std_logic;
+         ram_clk: out std_logic;
+         ram_addr: out std_logic_vector(11 downto 0);
+         ram_data: out std_logic_vector(31 downto 0);
+         wren: out std_logic;
+         start:out std_logic
+      );
+   end component;
 
    component geometry_buffer_ram is
       port (
@@ -129,6 +170,7 @@ architecture arch of main is
 
    signal render_n_element: unsigned(11 downto 0);
    signal render_start : std_logic;
+   signal render_busy : std_logic;
    -- ports of geometry buffers
    signal geobuf_in_clk  : std_logic;
    signal geobuf_in_wren : std_logic;
@@ -142,23 +184,20 @@ begin
 
 	pll: main_pll port map (clk0, srampulse);
 
-   --process (clk0)
-   --begin
-   --   if rising_edge(clk0) then
-   --      sram_clk <= not sram_clk;
-   --   end if;
-   --end process;
+   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,'0');
+   ge: geometry port map(clk0,render_busy,data_ready,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,
+         geobuf_in_clk,geobuf_in_addr,geobuf_in_data,geobuf_in_wren,render_start);
 
    -- genmetry instantiation module
-   demo: geometry_demo port map (
-      clk0         => clk0,
-      render_start => render_start,
-      n_element    => render_n_element,
-      geobuf_clk   => geobuf_in_clk,
-      geobuf_wren  => geobuf_in_wren,
-      geobuf_addr  => geobuf_in_addr,
-      geobuf_data  => geobuf_in_data
-   );
+   --demo: geometry_demo port map (
+   --   clk0         => clk0,
+   --   render_start => render_start,
+   --   n_element    => render_n_element,
+   --   geobuf_clk   => geobuf_in_clk,
+   --   geobuf_wren  => geobuf_in_wren,
+   --   geobuf_addr  => geobuf_in_addr,
+   --   geobuf_data  => geobuf_in_data
+   --);
 
    geometry_buffer : geometry_buffer_ram port map (
       data      => geobuf_in_data,
@@ -173,7 +212,7 @@ begin
    renderer: renderer2d port map (
       clk0        => clk0,
       start       => render_start,
-      busy        => open,
+      busy        => render_busy,
       -- geometry info
       n_element   => render_n_element,
       geobuf_clk  => geobuf_out_clk,
