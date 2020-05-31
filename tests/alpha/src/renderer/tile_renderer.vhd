@@ -149,7 +149,7 @@ begin
    -- fetch parameters of primitive
    process (clk0, state, element_id, geobuf_q)
    begin
-      if rising_edge(clk0) then
+      if rising_edge(clk0) and state = st_fetch then
          case clkcnt8 is
             when 1 =>
                -- fetch param X,Y
@@ -224,6 +224,7 @@ begin
 	
    busy <= '1' when state /= st_idle else '0';
    tilebuf_clk <= clk0;
+   geobuf_clk <= clk0;
 
    -- stage 1: request data
    process (clk0, clkcnt8, blockx, y)
