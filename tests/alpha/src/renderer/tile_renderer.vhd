@@ -45,7 +45,7 @@ architecture behav of tile_renderer is
    signal state : state_t := st_idle;
    signal element_id : integer range 0 to 1023; -- outer loop variable: which element is being drawed
 
-   signal param_x, param_y : integer range -2048 to 2047 := 0;
+   signal param_x, param_y : integer range -4096 to 4095 := 0;
    signal param_u, param_v : integer range 0 to 4095 := 0;
    signal param_w, param_h : integer range 0 to 4095 := 0;
    signal param_d : unsigned (15 downto 0);
@@ -54,11 +54,11 @@ architecture behav of tile_renderer is
    signal y : integer range 0 to 79 := 0; -- current position in tile
    signal cur_valid : std_logic;
 
-   signal rel_x, rel_y : integer range -2048 to 2047; -- position of drawed rectangle relative to current block
-   signal rel_u, rel_v : integer range -2048 to 2047; -- texture coordinate of topleft corner of current block as if it's drawed
-   signal rel_xend, rel_yend : integer range -2048 to 2047; -- end position of drawed rectangle relative to current block
-   signal loop_xbegin, loop_ybegin, loop_xend, loop_yend : integer range -2048 to 2047; -- range of pixel loop
-   signal loop_blockxbegin, loop_blockxend : integer range -2048 to 2047; -- range of block (actual) loop
+   signal rel_x, rel_y : integer range -4096 to 4095; -- position of drawed rectangle relative to current block
+   signal rel_u, rel_v : integer range -4096 to 4095; -- texture coordinate of topleft corner of current block as if it's drawed
+   signal rel_xend, rel_yend : integer range -4096 to 4095; -- end position of drawed rectangle relative to current block
+   signal loop_xbegin, loop_ybegin, loop_xend, loop_yend : integer range -4096 to 4095; -- range of pixel loop
+   signal loop_blockxbegin, loop_blockxend : integer range -4096 to 4095; -- range of block (actual) loop
    signal loop_empty : std_logic;
 
    -- cached sram data, 12.5MHz
@@ -228,22 +228,23 @@ begin
 
    -- stage 1: request data
    process (clk0, clkcnt8, blockx, y)
-      variable u1,u2,v: integer range 0 to 1023;
+      variable u1,u2,v: integer range 0 to 4095;
    begin
       if rising_edge(clk0) and clkcnt8=0 then
-         u1 := blockx*4 + to_integer(startx);
-         u2 := blockx*4 + to_integer(startx) + 2;
-         v := y + to_integer(starty) + 300;
+         u1 := blockx*4 + rel_u;
+         u2 := blockx*4 + rel_u + 2;
+         v := y + rel_v;
          sram_addr1 <= std_logic_vector(to_unsigned(u1/2 + v*512, 20));
          sram_addr2 <= std_logic_vector(to_unsigned(u2/2 + v*512, 20));
          sram1l_id <= std_logic_vector(to_unsigned(y * 80 + 4*blockx + 0, 13));
          sram1h_id <= std_logic_vector(to_unsigned(y * 80 + 4*blockx + 1, 13));
          sram2l_id <= std_logic_vector(to_unsigned(y * 80 + 4*blockx + 2, 13));
          sram2h_id <= std_logic_vector(to_unsigned(y * 80 + 4*blockx + 3, 13));
-         if cur_valid = '1' and 4*blockx + 0 >= loop_xbegin and 4*blockx + 0 < loop_xend then sram1h_valid <= '1'; else sram1h_valid <= '0'; end if;
-         if cur_valid = '1' and 4*blockx + 1 >= loop_xbegin and 4*blockx + 1 < loop_xend then sram1l_valid <= '1'; else sram1l_valid <= '0'; end if;
-         if cur_valid = '1' and 4*blockx + 2 >= loop_xbegin and 4*blockx + 2 < loop_xend then sram2h_valid <= '1'; else sram2h_valid <= '0'; end if;
-         if cur_valid = '1' and 4*blockx + 3 >= loop_xbegin and 4*blockx + 3 < loop_xend then sram2l_valid <= '1'; else sram2l_valid <= '0'; end if;
+         if cur_valid = '1' and 4*blockx + 0 >= loop_xbegin and 4*blockx + 0 < loop_xend then sram1l_valid <= '1'; else sram1l_valid <= '0'; end if;
+         if cur_valid = '1' and 4*blockx + 1 >= loop_xbegin and 4*blockx + 1 < loop_xend then sram1h_valid <= '1'; else sram1h_valid <= '0'; end if;
+         if cur_valid = '1' and 4*blockx + 2 >= loop_xbegin and 4*blockx + 2 < loop_xend then sram2l_valid <= '1'; else sram2l_valid <= '0'; end if;
+         if cur_valid = '1' and 4*blockx + 3 >= loop_xbegin and 4*blockx + 3 < loop_xend then sram2h_valid <= '1'; else sram2h_valid <= '0'; end if;
+         -- FIXME
       end if;
    end process;
 
