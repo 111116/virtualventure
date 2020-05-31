@@ -88,8 +88,8 @@ begin
 					geobuf_data(23 downto 12) <= std_logic_vector(to_unsigned(v, 12));
 					geobuf_wren <= '1';
 				when 6 =>
-					w := 30;
-					h := 43;
+					w := 500;
+					h := 400;
 					geobuf_addr <= std_logic_vector(to_unsigned(6, geobuf_addr'length));
 					geobuf_data(11 downto 0)  <= std_logic_vector(to_unsigned(w, 12));
 					geobuf_data(23 downto 12) <= std_logic_vector(to_unsigned(h, 12));

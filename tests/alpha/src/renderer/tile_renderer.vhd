@@ -222,7 +222,7 @@ begin
       loop_blockxend <= (loop_xend + 3) / 4;
    end process;
 	
-   busy <= '1' when state /= st_idle else '0';
+   busy <= '1' when state /= st_idle or sram1l_valid_reg='1' or sram1h_valid_reg='1' or sram2l_valid_reg='1' or sram2h_valid_reg='1' else '0';
    tilebuf_clk <= clk0;
    geobuf_clk <= clk0;
 
