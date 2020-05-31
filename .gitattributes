@@ -1,5 +1,1 @@
-tests/2D-prototype/src/lib/* linguist-vendored
-tests/3D-prototype/src/lib/* linguist-vendored
-tests/scanline/src/lib/* linguist-vendored
-util/tex2bin/rgb888/src/lib/* linguist-vendored
-util/tex2bin/rgba5551/src/lib/* linguist-vendored
+*/src/lib/* linguist-vendored
