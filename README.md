@@ -23,6 +23,7 @@ main
   renderer          进度：2D开发中
   sram_controller   进度：已完成测试
   vga_controller    进度：已完成测试
+```
 
 ## 传感器控制器
 输入：clk,Rx
@@ -151,7 +152,7 @@ pos_y_discrete = function_yd( pos_y );
 ```
 
 
-####port out:
+#### port out:
 ```
 玩家位置 (x:real,h:real)
 ```
