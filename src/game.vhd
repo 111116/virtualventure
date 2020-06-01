@@ -476,12 +476,12 @@ end process;
 			for i in 0 to 2 loop
 				type_carriage(2*i+1 downto 2*i) <= std_logic_vector(to_unsigned(tc1(i),2));
 				type_carriage(7+2*i downto 6+2*i) <= std_logic_vector(to_unsigned(tc2(i),2));
-				pos_carriage(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pc1(i),12));
-				pos_carriage(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pc2(i),12));
+				pos_carriage(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pc1(i)-500,12));
+				pos_carriage(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pc2(i)-500,12));
 				num_carriage(3*i+2 downto 3*i)<= std_logic_vector(to_unsigned(nc1(i),3));
 				num_carriage(3*i+11 downto 3*i+9)<= std_logic_vector(to_unsigned(nc2(i),3));
-				pos_barrier(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pb1(i),12));
-				pos_barrier(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pb2(i),12));
+				pos_barrier(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pb1(i)-500,12));
+				pos_barrier(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pb2(i)-500,12));
 				type_barrier(2*i+1 downto 2*i) <= std_logic_vector(to_unsigned(tb1(i),2));
 				type_barrier(7+2*i downto 6+2*i) <= std_logic_vector(to_unsigned(tb2(i),2));
 			end loop;
