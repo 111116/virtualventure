@@ -19,8 +19,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 -- Generated from Verilog module async_receiver (async.v:75)
---   Baud = 115200
---   ClkFrequency = 25000000
+--   Baud = 9600
+--   ClkFrequency = 100000000
 --   Oversampling = 8
 --   l2o = 4
 entity async_receiver is
@@ -34,8 +34,8 @@ entity async_receiver is
 end entity; 
 
 -- Generated from Verilog module async_receiver (async.v:75)
---   Baud = 115200
---   ClkFrequency = 25000000
+--   Baud = 9600
+--   ClkFrequency = 100000000
 --   Oversampling = 8
 --   l2o = 4
 architecture from_verilog of async_receiver is
@@ -277,12 +277,12 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 -- Generated from Verilog module BaudTickGen (async.v:191)
---   AccWidth = 16
---   Baud = 115200
---   ClkFrequency = 25000000
---   Inc = 2416
+--   AccWidth = 22
+--   Baud = 9600
+--   ClkFrequency = 100000000
+--   Inc = 3221
 --   Oversampling = 8
---   ShiftLimiter = 5
+--   ShiftLimiter = 8
 entity BaudTickGen is
   port (
     clk : in std_logic;
@@ -292,16 +292,16 @@ entity BaudTickGen is
 end entity; 
 
 -- Generated from Verilog module BaudTickGen (async.v:191)
---   AccWidth = 16
---   Baud = 115200
---   ClkFrequency = 25000000
---   Inc = 2416
+--   AccWidth = 22
+--   Baud = 9600
+--   ClkFrequency = 100000000
+--   Inc = 3221
 --   Oversampling = 8
---   ShiftLimiter = 5
+--   ShiftLimiter = 8
 architecture from_verilog of BaudTickGen is
-  signal Acc : unsigned(16 downto 0) := "00000000000000000";  -- Declared at async.v:201
+  signal Acc : unsigned(22 downto 0) := "00000000000000000000000";  -- Declared at async.v:201
 begin
-  tick <= Acc(16);
+  tick <= Acc(22);
   -- Removed one empty process
   
   
@@ -310,9 +310,9 @@ begin
   begin
     if rising_edge(clk) then
       if enable = '1' then
-        Acc <= Resize(Acc(0 + 15 downto 0), 17) + "00000100101110000";
+        Acc <= Resize(Acc(0 + 21 downto 0), 23) + "00000000000110010010101";
       else
-        Acc <= "00000100101110000";
+        Acc <= "00000000000110010010101";
       end if;
     end if;
   end process;
@@ -323,8 +323,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 -- Generated from Verilog module async_transmitter (async.v:14)
---   Baud = 115200
---   ClkFrequency = 25000000
+--   Baud = 9600
+--   ClkFrequency = 100000000
 entity async_transmitter is
   port (
     TxD : out std_logic;
@@ -336,8 +336,8 @@ entity async_transmitter is
 end entity; 
 
 -- Generated from Verilog module async_transmitter (async.v:14)
---   Baud = 115200
---   ClkFrequency = 25000000
+--   Baud = 9600
+--   ClkFrequency = 100000000
 architecture from_verilog of async_transmitter is
   signal BitTick : std_logic;  -- Declared at async.v:36
   signal TxD_ready : std_logic;  -- Declared at async.v:41
@@ -458,12 +458,12 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 -- Generated from Verilog module BaudTickGen (async.v:191)
---   AccWidth = 16
---   Baud = 115200
---   ClkFrequency = 25000000
---   Inc = 302
+--   AccWidth = 22
+--   Baud = 9600
+--   ClkFrequency = 100000000
+--   Inc = 403
 --   Oversampling = 1
---   ShiftLimiter = 2
+--   ShiftLimiter = 5
 entity BaudTickGen1 is
   port (
     clk : in std_logic;
@@ -473,16 +473,16 @@ entity BaudTickGen1 is
 end entity; 
 
 -- Generated from Verilog module BaudTickGen (async.v:191)
---   AccWidth = 16
---   Baud = 115200
---   ClkFrequency = 25000000
---   Inc = 302
+--   AccWidth = 22
+--   Baud = 9600
+--   ClkFrequency = 100000000
+--   Inc = 403
 --   Oversampling = 1
---   ShiftLimiter = 2
+--   ShiftLimiter = 5
 architecture from_verilog of BaudTickGen1 is
-  signal Acc : unsigned(16 downto 0) := "00000000000000000";  -- Declared at async.v:201
+  signal Acc : unsigned(22 downto 0) := "00000000000000000000000";  -- Declared at async.v:201
 begin
-  tick <= Acc(16);
+  tick <= Acc(22);
   -- Removed one empty process
   
   
@@ -491,9 +491,9 @@ begin
   begin
     if rising_edge(clk) then
       if enable = '1' then
-        Acc <= Resize(Acc(0 + 15 downto 0), 17) + "00000000100101110";
+        Acc <= Resize(Acc(0 + 21 downto 0), 23) + "00000000000000110010011";
       else
-        Acc <= "00000000100101110";
+        Acc <= "00000000000000110010011";
       end if;
     end if;
   end process;
