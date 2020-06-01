@@ -48,11 +48,11 @@ architecture geo of geometry is
 	signal object_state : integer range 0 to 26:=0;
 	signal word_state : integer range 0 to 3:=0;
 	
-	signal tc:array1;---0娌℃湁锛娌℃湁鏂滃潯锛鏈夋枩鍧
+	signal tc:array1;---0没有，1没有斜坡，2有斜坡	
 	signal pc:array1;
 	signal nc:array1;
 	
-	signal tb:array1;---0娌℃湁锛涓婅繃锛涓嬭繃锛涓婁笅閮借繃
+	signal tb:array1;---0没有，1上过，2下过，3上下都过
 	signal pb:array1;
 	
 	signal state_busy: std_logic :='0';
@@ -75,24 +75,18 @@ begin
 	ram_clk <=clk;
 	wren <= not data_available_in;
 
----signal X :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鍦ㄥ睆骞曚笂鐨勫乏涓婅妯潗鏍囷紝灞忓箷鏈€宸﹀垪涓
----signal Y :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鍦ㄥ睆骞曚笂鐨勫乏涓婅绾靛潗鏍囷紝灞忓箷鏈€涓婅涓
----  8浣嶅崰浣嶇锛屼細琚拷鐣
----signal U :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鍦ㄨ创鍥句笂鐨勫乏涓婅妯潗鏍囷紝璐村浘鏈€宸﹀垪涓
----signal V :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鍦ㄨ创鍥句笂鐨勫乏涓婅绾靛潗鏍囷紝璐村浘鏈€涓婅涓
----  8浣嶅崰浣嶇锛屼細琚拷鐣
----signal W :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鐨勫搴︼紙妯悜鍍忕礌鏁伴噺锛
----signal H :std_logic_vector(11 downto 0);---鎵€缁樺埗鐭╁舰鐨勯珮搴︼紙绾靛悜鍍忕礌鏁伴噺锛
----  8浣嶅崰浣嶇锛屼細琚拷鐣
----signal D: std_logic_vector(15 downto 0);---鎵€缁樺埗鐭╁舰鐨勬繁搴︼紙娣卞害灏忕殑鐭╁舰瑕嗙洊娣卞害澶х殑鐭╁舰锛
---- 16浣嶅崰浣嶇锛屼細琚拷鐣
+---signal X :std_logic_vector(11 downto 0);---所绘制矩形在屏幕上的左上角横坐标，屏幕最左列为0
+---signal Y :std_logic_vector(11 downto 0);---所绘制矩形在屏幕上的左上角纵坐标，屏幕最上行为0
+---  8位占位符，会被忽略
+---signal U :std_logic_vector(11 downto 0);---所绘制矩形在贴图上的左上角横坐标，贴图最左列为0
+---signal V :std_logic_vector(11 downto 0);---所绘制矩形在贴图上的左上角纵坐标，贴图最上行为0
+---  8位占位符，会被忽略
+---signal W :std_logic_vector(11 downto 0);---所绘制矩形的宽度（横向像素数量）
+---signal H :std_logic_vector(11 downto 0);---所绘制矩形的高度（纵向像素数量）
+---  8位占位符，会被忽略
+---signal D: std_logic_vector(15 downto 0);---所绘制矩形的深度（深度小的矩形覆盖深度大的矩形）
+--- 16位占位符，会被忽略
 	
-	
-				pos_y_center<=to_integer(signed(pyc));
-				pos_h_center<=to_integer(signed(phc));
-				time_mov_y<=to_integer(signed(tmy));
-				time_mov_h<=to_integer(signed(tmh));
-				
 	process(clk,object_state,word_state,tc,pc,nc,pb,tb,pos_y,pos_h,data_ready)---trans
 	begin
 		if(rising_edge(clk)) then
@@ -113,6 +107,10 @@ begin
 				survive_sign <= survive_signal;
 				object_state <= 0;
 				word_state  <= 0;
+				pos_y_center<=to_integer(signed(pyc));
+				pos_h_center<=to_integer(signed(phc));
+				time_mov_y<=to_integer(signed(tmy));
+				time_mov_h<=to_integer(signed(tmh));
 
 			end if;
 
@@ -436,9 +434,9 @@ begin
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
-							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(25,12));
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (25,12));
-							ram_data(31 downto 24) <= "00000000";
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(25,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (25,12));
+						ram_data(31 downto 24) <= "00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
 					else
