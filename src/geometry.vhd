@@ -288,7 +288,7 @@ begin
 						if(tb(object_state - 13) = 0)then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(10,12));
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(50,12));
 							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
 							ram_data(31 downto 24) <= "00000000";
 						end if;
