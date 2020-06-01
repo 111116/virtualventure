@@ -264,19 +264,19 @@ begin
 								if(((tc(0)/=0) and (pc(0)<pb(object_state - 13)) and (pc(0)+nc(0)*120+40 >pb(object_state - 13))) or ((tc(1)/=0) and (pc(1)<pb(object_state - 13)) and (pc(1)+nc(1)*120+40 >pb(object_state - 13)))) then
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(20,12));
 								else
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(50,12));
 								end if;
 							elsif(object_state = 15 or object_state = 16) then
 								if(((tc(2)/=0) and (pc(2)<pb(object_state - 13)) and (pc(2)+nc(2)*120+40 >pb(object_state - 13))) or ((tc(3)/=0) and (pc(3)<pb(object_state - 13)) and (pc(3)+nc(3)*120+40 >pb(object_state - 13)))) then
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(160,12));
 								else
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(210,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(190,12));
 								end if;
 							else
 								if(((tc(4)/=0) and (pc(4)<pb(object_state - 13)) and (pc(4)+nc(4)*120+40 >pb(object_state - 13))) or ((tc(5)/=0) and (pc(5)<pb(object_state - 13)) and (pc(5)+nc(5)*120+40 >pb(object_state - 13)))) then
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(300,12));
 								else
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(350,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(330,12));
 								end if;
 							end if;
 							ram_data(31 downto 24) <= "00000000";
