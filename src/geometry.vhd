@@ -111,21 +111,21 @@ begin
 				when 0|1|2 =>
 					--------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(31 downto 20) <= "000000000000";
-						ram_data(19 downto 8) <=std_logic_vector(to_unsigned((120+140*object_state),12));
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= "000000000000";
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned((120+140*object_state),12));
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(550,12));
-						ram_data(19 downto 8) <="000000000000";
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(700,12));
+						ram_data(23 downto 12) <="000000000000";
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(19 downto 8) <=std_logic_vector(to_unsigned(40,12));
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(40,12));
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
 					else
@@ -141,21 +141,21 @@ begin
 				when 3|4|5 =>
 					--------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(31 downto 20) <= "000000000000";
-						ram_data(19 downto 8) <=std_logic_vector(to_unsigned((30+140*object_state),12));
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= "000000000000";
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned((30+140*object_state),12));
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(590,12));
-						ram_data(19 downto 8) <="000000000000";
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(740,12));
+						ram_data(23 downto 12) <="000000000000";
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(19 downto 8) <=std_logic_vector(to_unsigned(60,12));
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(60,12));
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
 					else
@@ -171,21 +171,21 @@ begin
 				when 6 =>
 					--------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(31 downto 20) <= "000000000000";
-						ram_data(19 downto 8) <= "000000000000";
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= "000000000000";
+						ram_data(23 downto 12) <= "000000000000";
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(650,12));
-						ram_data(19 downto 8) <="000000000000";
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(800,12));
+						ram_data(23 downto 12) <="000000000000";
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
-						ram_data(31 downto 20) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(19 downto 8) <=std_logic_vector(to_unsigned(60,12));
-						ram_data(7 downto 0) <="00000000";
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(60,12));
+						ram_data(31 downto 24) <="00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
 					else
@@ -199,51 +199,51 @@ begin
 						if(tc(object_state - 7) = 0) then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned((tc(object_state - 7) - 500),12));
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned((tc(object_state - 7) - 500),12));
 							if(object_state  = 7 or object_state  = 8) then-----------y
-								ram_data(19 downto 8) <= std_logic_vector(to_unsigned(70,12));
+								ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
 							elsif(object_state  = 9 or object_state  = 10) then
-								ram_data(19 downto 8) <= std_logic_vector(to_unsigned(210,12));
+								ram_data(23 downto 12) <= std_logic_vector(to_unsigned(210,12));
 							else
-								ram_data(19 downto 8) <= std_logic_vector(to_unsigned(350,12));
+								ram_data(23 downto 12) <= std_logic_vector(to_unsigned(350,12));
 							end if;
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
 						if(tc(object_state - 7) = 1 and nc(object_state - 7) = 1) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(150,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(0,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(300,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(0,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 1 and nc(object_state - 7) = 2) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(150,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(160,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(300,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(160,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 1 and nc(object_state - 7) = 3) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(150,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(440,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(300,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(440,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 1 and nc(object_state - 7) = 4) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(350,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(0,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(500,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(0,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 2 and nc(object_state - 7) = 1) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(250,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(0,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(400,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(0,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 2 and nc(object_state - 7) = 2) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(250,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(160,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(400,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(160,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 2 and nc(object_state - 7) = 3) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(250,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(440,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(400,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(440,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 2 and nc(object_state - 7) = 4) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(450,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(0,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(400,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(0,12));
+							ram_data(31 downto 24) <="00000000";
 						end if;
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
@@ -251,9 +251,9 @@ begin
 						if(tc(object_state - 7) = 0)then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned((40+nc(object_state - 7)*120),12));
-							ram_data(19 downto 8) <= std_logic_vector(to_unsigned(100,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned((40+nc(object_state - 7)*120),12));
+							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(100,12));
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
@@ -274,43 +274,43 @@ begin
 						if(tb(object_state - 13) = 0) then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned((tb(object_state - 13) - 500),12));
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned((tb(object_state - 13) - 500),12));
 							if(object_state = 13 or object_state = 14) then-----------y
 								if(((tc(0)/=0) and (pc(0)<pb(object_state - 13)) and (pc(0)+nc(0)*120 >pb(object_state - 13))) or ((tc(1)/=0) and (pc(1)<pb(object_state - 13)) and (pc(1)+nc(1)*120 >pb(object_state - 13)))) then
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(20,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(20,12));
 								else
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(70,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
 								end if;
 							elsif(object_state = 15 or object_state = 16) then
 								if(((tc(2)/=0) and (pc(2)<pb(object_state - 13)) and (pc(2)+nc(2)*120 >pb(object_state - 13))) or ((tc(3)/=0) and (pc(3)<pb(object_state - 13)) and (pc(3)+nc(3)*120 >pb(object_state - 13)))) then
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(160,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(160,12));
 								else
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(210,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(210,12));
 								end if;
 							else
 								if(((tc(4)/=0) and (pc(4)<pb(object_state - 13)) and (pc(4)+nc(4)*120 >pb(object_state - 13))) or ((tc(5)/=0) and (pc(5)<pb(object_state - 13)) and (pc(5)+nc(5)*120 >pb(object_state - 13)))) then
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(300,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(300,12));
 								else
-									ram_data(19 downto 8) <= std_logic_vector(to_unsigned(350,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(350,12));
 								end if;
 							end if;
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
 						if(tc(object_state - 13) = 1 ) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(350,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(520,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(500,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(520,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 13) = 2) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(350,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(570,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(500,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(570,12));
+							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 13) = 3) then
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(550,12));
-							ram_data(19 downto 8) <=std_logic_vector(to_unsigned(520,12));
-							ram_data(7 downto 0) <="00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(700,12));
+							ram_data(23 downto 12) <=std_logic_vector(to_unsigned(520,12));
+							ram_data(31 downto 24) <="00000000";
 						end if;
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
@@ -318,9 +318,9 @@ begin
 						if(tb(object_state - 13) = 0)then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(31 downto 20) <= std_logic_vector(to_unsigned(10,12));
-							ram_data(19 downto 8) <= std_logic_vector(to_unsigned(70,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(10,12));
+							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
@@ -338,40 +338,40 @@ begin
 				when 19 =>
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(31 downto 20)<=std_logic_vector(to_unsigned(150+pos_h,12));
-						ram_data(19 downto 8)<=std_logic_vector(to_unsigned (pos_y+60,12));
-						ram_data(7 downto 0) <= "00000000";
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150+pos_h,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+60,12));
+						ram_data(31 downto 24) <= "00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
 						if(char_state =  "00")then
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(590,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (680,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (680,12));
+							ram_data(31 downto 24) <= "00000000";
 						elsif(char_state =  "11")then
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(590,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (740,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (740,12));
+							ram_data(31 downto 24) <= "00000000";
 						else
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(590,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (640,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (640,12));
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
 						if(char_state =  "00")then
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(60,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (30,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(60,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (30,12));
+							ram_data(31 downto 24) <= "00000000";
 						elsif(char_state =  "11")then
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(40,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (50,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(40,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (50,12));
+							ram_data(31 downto 24) <= "00000000";
 						else
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(40,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (60,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(40,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (60,12));
+							ram_data(31 downto 24) <= "00000000";
 						end if;
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
@@ -389,22 +389,22 @@ begin
 				when 20 =>
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(31 downto 20)<=std_logic_vector(to_unsigned(180,12));
-						ram_data(19 downto 8)<=std_logic_vector(to_unsigned (240,12));
-						ram_data(7 downto 0) <= "00000000";
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(180,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240,12));
+						ram_data(31 downto 24) <= "00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						ram_data(31 downto 20)<=std_logic_vector(to_unsigned(710,12));
-						ram_data(19 downto 8)<=std_logic_vector(to_unsigned (0,12));
-						ram_data(7 downto 0) <= "00000000";
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(860,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (0,12));
+						ram_data(31 downto 24) <= "00000000";
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
 						if(survive_sign =  '0')then
-							ram_data(31 downto 20)<=std_logic_vector(to_unsigned(200,12));
-							ram_data(19 downto 8)<=std_logic_vector(to_unsigned (100,12));
-							ram_data(7 downto 0) <= "00000000";
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(200,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (100,12));
+							ram_data(31 downto 24) <= "00000000";
 						else
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						end if;
