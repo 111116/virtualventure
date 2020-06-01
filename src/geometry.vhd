@@ -262,19 +262,19 @@ begin
 							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(pb(object_state - 13),12));
 							if(object_state = 13 or object_state = 14) then-----------y
 								if(((tc(0)/=0) and (pc(0)<pb(object_state - 13)) and (pc(0)+nc(0)*120+40 >pb(object_state - 13))) or ((tc(1)/=0) and (pc(1)<pb(object_state - 13)) and (pc(1)+nc(1)*120+40 >pb(object_state - 13)))) then
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(10,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(5,12));
 								else
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
 								end if;
 							elsif(object_state = 15 or object_state = 16) then
 								if(((tc(2)/=0) and (pc(2)<pb(object_state - 13)) and (pc(2)+nc(2)*120+40 >pb(object_state - 13))) or ((tc(3)/=0) and (pc(3)<pb(object_state - 13)) and (pc(3)+nc(3)*120+40 >pb(object_state - 13)))) then
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(150,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(145,12));
 								else
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(210,12));
 								end if;
 							else
 								if(((tc(4)/=0) and (pc(4)<pb(object_state - 13)) and (pc(4)+nc(4)*120+40 >pb(object_state - 13))) or ((tc(5)/=0) and (pc(5)<pb(object_state - 13)) and (pc(5)+nc(5)*120+40 >pb(object_state - 13)))) then
-									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(290,12));
+									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(285,12));
 								else
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(350,12));
 								end if;
