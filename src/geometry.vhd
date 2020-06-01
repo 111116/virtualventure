@@ -211,7 +211,7 @@ begin
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(440,12));
 							ram_data(31 downto 24) <="00000000";
 						elsif(tc(object_state - 7) = 2 and nc(object_state - 7) = 4) then
-							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(400,12));
+							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(600,12));
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(0,12));
 							ram_data(31 downto 24) <="00000000";
 						end if;
