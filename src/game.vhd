@@ -92,7 +92,12 @@ entity game is
 		character_state:out std_logic_vector(1 downto 0);
 		survive_sign :out std_logic;
 		data_ready:out std_logic;
-		reset : in std_logic
+		reset : in std_logic;
+		
+		pyc: out std_logic_vector(9 downto 0);
+		phc: out std_logic_vector(9 downto 0);
+		tmy: out std_logic_vector(9 downto 0);
+		tmh: out std_logic_vector(9 downto 0)
 		);
 
 	type array1 is array(2 downto 0) of integer range 0 to 2047;
@@ -347,98 +352,125 @@ if(rising_edge(clk)) then
 -------------------------------------------------------------------------------------------------------------------------------------------	
 ---game logic
 
----a:
-		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
-			if(time_mov_h>0) then
-				time_mov_h <= time_mov_h+60;
-			else
-				time_mov_h <= 60;
-			end if;	
-		else
-			if((UD = "00" and (time_mov_h = 0 or time_mov_h < 0))) then
-				time_mov_h <= 40;
-			elsif(UD = "11") then
-				time_mov_h <= -20;
-			end if;	
-		end if;
-	
----		if(time_mov_y = 0)then
----			if((LR = "00") and (pos_y > 160)) then
----				time_mov_y <= 70;
----			elsif((LR = "11") and (pos_y <440)) then
----				time_mov_y <= -70;
----			end if;
----		end if;
-	
----v:
-		
-		if(time_mov_h>0 ) then
-			pos_h <= pos_h_center + time_mov_h;
-			time_mov_h <= time_mov_h - 1;
-		elsif (time_mov_h < 0) then
-			pos_h <= pos_h_center;
-			time_mov_h <= time_mov_h + 1;
-		else
-			pos_h <= pos_h_center;
-		end if;
-	
-		if(time_mov_y>0 )then
+---impact:
+		if(time_mov_y = 0)then
+			if((LR = "00") and (pos_y > 160)) then
+				time_mov_y <= 70;
+			elsif((LR = "11") and (pos_y <440)) then
+				time_mov_y <= -70;
+			end if;
+		elsif(time_mov_y>0 )then
 			time_mov_y <= time_mov_y -1;
 			pos_y <=pos_y -2;
 		elsif(time_mov_y <0) then 
 			time_mov_y <= time_mov_y +1;
 			pos_y <=pos_y +2;
 		end if;
-	
+		
+		if((pc1(pos_y_center)+120*nc1(pos_y_center)= 608) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 608)) then
+		------在列车尾部要跳下列车时
+			if(time_mov_h>0 ) then
+				if(UD = "11") then
+					time_mov_h <= -120;
+				else
+					pos_h <= 0-pos_h_center - time_mov_h;
+					time_mov_h <= time_mov_h + 60;
+				end if;
+			elsif (time_mov_h < 0) then
+				if(UD = "00") then
+					time_mov_h <= 110;
+				else
+					pos_h <= 0-pos_h_center - 60;
+					time_mov_h <= 50;
+				end if;
+			else
+				if(UD = "00") then
+					time_mov_h <= 110;
+				elsif(UD = "11") then
+					time_mov_h <= -120;
+				end if;
+			end if;	
+		else
+		------在路面上/列车上（中间部分）
+			if(time_mov_h>0 ) then
+				if(UD = "11") then
+					time_mov_h <= -120;
+				else
+					pos_h <= 0-pos_h_center - time_mov_h;
+					time_mov_h <= time_mov_h - 1;
+				end if;
+			elsif (time_mov_h < 0) then
+				if(UD = "00") then
+					time_mov_h <= 50;
+				else
+					pos_h <= 0-pos_h_center;
+					time_mov_h <= time_mov_h + 1;
+				end if;
+			else
+				if(UD = "00") then
+					time_mov_h <= 50;
+				elsif(UD = "11") then
+					time_mov_h <= -120;
+				end if;	
+			end if;
+		end if;
+
 ---collision detection
 	---collision
-		if((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+60 > 650) and (pc1(pos_y_center) < 650) and (pos_h<60)) then
+	
+	------上车
+		if((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+60 > 650) and (pc1(pos_y_center) < 650)) then
 			pos_h_center<=650 - pc1(pos_y_center);
-		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+60 > 650) and (pc2(pos_y_center) < 650) and (pos_h<60)) then
+		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+60 > 650) and (pc2(pos_y_center) < 650)) then
 			pos_h_center<=650 - pc2(pos_y_center);
+	------1型车碰撞检测
 		elsif((tc1(pos_y_center) = 1)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 650)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 1)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 650)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 590)) then
-			if(pos_h > 55) then
+	------2型车碰撞检测（上车部分ignore）
+		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 587)) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
-			if(pos_h > 55) then
+		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 587)) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tb1(pos_y_center) /=0) and (pb1(pos_y_center) < 645) and (pb1(pos_y_center) > 655)) then
-			if((tb1(pos_y_center)=1) and (time_mov_h <10)) then
+	------障碍碰撞检测
+		elsif((tb1(pos_y_center) /=0) and (pb1(pos_y_center) > 630) and (pb1(pos_y_center) < 650)) then
+			if((tb1(pos_y_center)=1) and (time_mov_h <5)) then
 				survive_signal(2)<='0';
 			elsif((tb1(pos_y_center)=2) and (time_mov_h> -1)) then
 				survive_signal(2)<='0';
-			elsif((tb1(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 10)) then
+			elsif((tb1(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 5)) then
 				survive_signal(2)<='0';
 			end if;
-		elsif((tb2(pos_y_center) /=0) and (pb2(pos_y_center) < 645) and (pb2(pos_y_center) > 655)) then
+		elsif((tb2(pos_y_center) /=0) and (pb2(pos_y_center) > 630) and (pb2(pos_y_center) < 650)) then
 			if((tb2(pos_y_center)=1) and (time_mov_h<10)) then
 				survive_signal(3)<='0';
 			elsif((tb2(pos_y_center)=2) and (time_mov_h>-1)) then
 				survive_signal(3)<='0';
-			elsif((tb2(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 10)) then
+			elsif((tb2(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 5)) then
 				survive_signal(3)<='0';
 			end if;
+	------回到了路面上
 		else
 			pos_h_center <= 0;
 		end if;
+	
 	
 		sent <= '1';
 		if(survive_signal = "1111")then
@@ -473,6 +505,12 @@ end process;
 			end loop;
 			character_y <= std_logic_vector(to_unsigned(pos_y-60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
+			
+			pyc<= std_logic_vector(to_signed(pos_y_center,10));
+			phc<= std_logic_vector(to_signed(pos_h_center,10));
+			tmy<= std_logic_vector(to_signed(time_mov_y,10));
+			tmh<= std_logic_vector(to_signed(time_mov_h,10));
+			
 			if(time_mov_h<0)then
 				character_state<="00";
 			elsif (time_mov_h>0)then
