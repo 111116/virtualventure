@@ -7,6 +7,9 @@ entity main is
    port (
       -- 100MHz master clock input
       clk0 : in std_logic;
+      -- restart button
+      rst  : in std_logic;
+      rst_indicator : out std_logic;
       -- player input
       UD: in std_logic_vector(1 downto 0);
       LR: in std_logic_vector(1 downto 0);
@@ -184,7 +187,9 @@ begin
 
 	pll: main_pll port map (clk0, srampulse);
 
-   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,'0');
+   rst_indicator <= rst;
+
+   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,rst);
    ge: geometry port map(clk0,render_busy,data_ready,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,
          geobuf_in_clk,geobuf_in_addr,geobuf_in_data,geobuf_in_wren,render_start);
 

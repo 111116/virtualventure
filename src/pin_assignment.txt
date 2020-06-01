@@ -95,3 +95,18 @@ digit2[3],          PIN_AC21
 digit2[2],          PIN_AE22
 digit2[1],          PIN_AD22
 digit2[0],          PIN_AD23
+
+//buttons
+rst,				PIN_N1
+LR[0],				PIN_AC6
+LR[1],				PIN_AD4
+UD[0],				PIN_AD5
+UD[1],				PIN_AE5
+
+// button indicators
+
+rst_indicator,		PIN_AE17
+LR[0],				PIN_AC6
+LR[1],				PIN_AD4
+UD[0],				PIN_AD5
+UD[1],				PIN_AE5
