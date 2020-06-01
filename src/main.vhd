@@ -208,16 +208,16 @@ begin
 
    process (L,R,U,D)
    begin
-      if L='1' then
+      if L='0' then
          LR<="00";
-      elsif R='1' then
+      elsif R='0' then
          LR<="11";
       else
          LR<="10";
       end if;
-      if U='1' then
+      if U='0' then
          UD<="00";
-      elsif D='1' then
+      elsif D='0' then
          UD<="11";
       else
          UD<="10";
