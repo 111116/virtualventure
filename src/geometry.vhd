@@ -103,28 +103,28 @@ begin
 				ram_addr <= std_logic_vector(to_unsigned((object_state*4 + word_state),12));
 				
 				case object_state is
-				----gen road
+				----gen background
 				----
 				----
 				----
 				----
-				when 0|1|2 =>
+				when 0 =>
 					--------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
 						ram_data(11 downto 0) <= "000000000000";
-						ram_data(23 downto 12) <=std_logic_vector(to_unsigned((120+140*object_state),12));
+						ram_data(23 downto 12) <="000000000000";
 						ram_data(31 downto 24) <="00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						ram_data(23 downto 12) <= std_logic_vector(to_unsigned(700,12));
+						ram_data(23 downto 12) <= std_logic_vector(to_unsigned(960,12));
 						ram_data(11 downto 0) <="000000000000";
 						ram_data(31 downto 24) <="00000000";
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
 						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(40,12));
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(480,12));
 						ram_data(31 downto 24) <="00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
@@ -133,42 +133,12 @@ begin
 						word_state <= 0;
 						object_state <= object_state + 1;
 					end if;
-				----gen gap
+				----gen 
 				----
 				----
 				----
 				----
-				when 3|4|5 =>
-					--------------------------------------------------------------------------------------------x,y
-					if(word_state = 0) then
-						ram_data(11 downto 0) <= "000000000000";
-						ram_data(23 downto 12) <=std_logic_vector(to_unsigned((30+140*object_state),12));
-						ram_data(31 downto 24) <="00000000";
-						word_state <= 1;
-					--------------------------------------------------------------------------------------------u,v
-					elsif(word_state = 1) then
-						ram_data(23 downto 12) <= std_logic_vector(to_unsigned(740,12));
-						ram_data(11 downto 0) <="000000000000";
-						ram_data(31 downto 24) <="00000000";
-						word_state <= 2;
-					---------------------------------------------------------------------------------------------w,h
-					elsif(word_state = 2) then
-						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(60,12));
-						ram_data(31 downto 24) <="00000000";
-						word_state <= 3;
-					---------------------------------------------------------------------------------------------d
-					else
-						ram_data <= "0111111111111110"&"00000000"&"00000000";
-						word_state <= 0;
-						object_state <= object_state + 1;
-					end if;
-				----gen scene
-				----
-				----
-				----
-				----
-				when 6 =>
+				when 1|2|3|4|5|6 =>
 					--------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
 						ram_data(11 downto 0) <= "000000000000";
@@ -183,8 +153,8 @@ begin
 						word_state <= 2;
 					---------------------------------------------------------------------------------------------w,h
 					elsif(word_state = 2) then
-						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(640,12));
-						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(60,12));
+						ram_data(11 downto 0) <= std_logic_vector(to_unsigned(0,12));
+						ram_data(23 downto 12) <=std_logic_vector(to_unsigned(0,12));
 						ram_data(31 downto 24) <="00000000";
 						word_state <= 3;
 					---------------------------------------------------------------------------------------------d
