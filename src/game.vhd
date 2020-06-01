@@ -348,19 +348,19 @@ if(rising_edge(clk)) then
 			pos_y_center <=1;
 		end if;
 ---a:
-		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
-			if(time_mov_h>0) then
-				time_mov_h <= time_mov_h+60;
-			else
-				time_mov_h <= 60;
-			end if;	
-		else
+---		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
+---			if(time_mov_h>0) then
+---				time_mov_h <= time_mov_h+60;
+---			else
+---				time_mov_h <= 60;
+---			end if;	
+---		else
 			if((UD = "00" and (time_mov_h = 0 or time_mov_h < 0))) then
 				time_mov_h <= 40;
 			elsif(UD = "11") then
 				time_mov_h <= -20;
 			end if;	
-		end if;
+---		end if;
 	
 		if(time_mov_y = 0)then
 			if(LR = "00" and (pos_y_center /= 0)) then
@@ -393,30 +393,30 @@ if(rising_edge(clk)) then
 ---collision detection
 	---collision
 		if((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+60 > 650) and (pc1(pos_y_center) < 650) and (pos_h<60)) then
-			pos_h_center<=650 - pc1(pos_y_center);
+NULL;---			pos_h_center<=650 - pc1(pos_y_center);
 		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+60 > 650) and (pc2(pos_y_center) < 650) and (pos_h<60)) then
-			pos_h_center<=650 - pc2(pos_y_center);
+null;---			pos_h_center<=650 - pc2(pos_y_center);
 		elsif((tc1(pos_y_center) = 1)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 650)) then
 			if(pos_h > 55) then
-				pos_h_center <= 60;
+null;---				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 1)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 650)) then
 			if(pos_h > 55) then
-				pos_h_center <= 60;
+null;---				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 590)) then
 			if(pos_h > 55) then
-				pos_h_center <= 60;
+null;---				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
 			if(pos_h > 55) then
-				pos_h_center <= 60;
+null;---				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
