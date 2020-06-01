@@ -92,7 +92,12 @@ entity game is
 		character_state:out std_logic_vector(1 downto 0);
 		survive_sign :out std_logic;
 		data_ready:out std_logic;
-		reset : in std_logic
+		reset : in std_logic;
+		
+		pyc: out std_logic_vector(9 downto 0);
+		phc: out std_logic_vector(9 downto 0);
+		tmy: out std_logic_vector(9 downto 0);
+		tmh: out std_logic_vector(9 downto 0)
 		);
 
 	type array1 is array(2 downto 0) of integer range 0 to 2047;
@@ -348,7 +353,7 @@ if(rising_edge(clk)) then
 ---game logic
 
 ---a:
-		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
+		if((pc1(pos_y_center)+120*nc1(pos_y_center)+40 = 650) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
 			if(time_mov_h>0) then
 				time_mov_h <= time_mov_h+60;
 			else
@@ -373,7 +378,7 @@ if(rising_edge(clk)) then
 ---v:
 		
 		if(time_mov_h>0 ) then
-			pos_h <= pos_h_center + time_mov_h;
+			pos_h <= pos_h_center - time_mov_h;
 			time_mov_h <= time_mov_h - 1;
 		elsif (time_mov_h < 0) then
 			pos_h <= pos_h_center;
@@ -473,6 +478,12 @@ end process;
 			end loop;
 			character_y <= std_logic_vector(to_unsigned(pos_y-60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
+			
+			pyc<= std_logic_vector(to_signed(pos_y_center,10));
+			phc<= std_logic_vector(to_signed(pos_h_center,10));
+			tmy<= std_logic_vector(to_signed(time_mov_y,10));
+			tmh<= std_logic_vector(to_signed(time_mov_h,10));
+			
 			if(time_mov_h<0)then
 				character_state<="00";
 			elsif (time_mov_h>0)then
@@ -487,17 +498,3 @@ end process;
 	end process;
 
 end func;
-
-
-
-
-
-
-
-
-
-
-
-
-
-

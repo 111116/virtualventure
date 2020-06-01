@@ -21,6 +21,7 @@ entity geometry is
 		character_h:in std_logic_vector(11 downto 0);
 		character_state:in std_logic_vector(1 downto 0);
 		survive_signal :in std_logic;
+		
 -- internal ports to geometry buffer (RAM)
 		ram_clk: out std_logic;
 		ram_addr: out std_logic_vector(11 downto 0);
@@ -28,7 +29,11 @@ entity geometry is
 		wren: out std_logic;
 		start:out std_logic;
 		render_busy: in std_logic;
-		data_ready: in std_logic
+		data_ready: in std_logic;
+		pyc: in std_logic_vector(9 downto 0);
+		phc: in std_logic_vector(9 downto 0);
+		tmy: in std_logic_vector(9 downto 0);
+		tmh: in std_logic_vector(9 downto 0)
         );
 		type array1 is array(5 downto 0) of integer range 0 to 5000;
 end geometry ;
@@ -40,7 +45,7 @@ architecture geo of geometry is
 	
 	signal geo_busy :std_logic:='0';
 	signal cnt : integer :=0;
-	signal object_state : integer range 0 to 22:=0;
+	signal object_state : integer range 0 to 26:=0;
 	signal word_state : integer range 0 to 3:=0;
 	
 	signal tc:array1;---0没有，1没有斜坡，2有斜坡	
@@ -59,6 +64,11 @@ architecture geo of geometry is
 	signal survive_sign : std_logic := '1';
 	
 	signal data_available_in: std_logic:='0';
+	
+	signal pos_y_center : integer:=1;
+	signal pos_h_center : integer:=0;
+	signal time_mov_y : integer:=0;
+	signal time_mov_h : integer:=0;
 
 ------------------------------------------------------------------------------------------------------------------------------
 begin
@@ -97,6 +107,11 @@ begin
 				survive_sign <= survive_signal;
 				object_state <= 0;
 				word_state  <= 0;
+				pos_y_center<=to_integer(signed(pyc));
+				pos_h_center<=to_integer(signed(phc));
+				time_mov_y<=to_integer(signed(tmy));
+				time_mov_h<=to_integer(signed(tmh));
+
 			end if;
 
 			if(geo_busy = '1' and data_available_in = '0')then
@@ -385,10 +400,58 @@ begin
 						word_state <= 0;
 						object_state <= 21;
 					end if;
-				when 21=>
+				when 21|22|23|24=>
+					------------------------------------------------------------------------------------------x,y
+					if(word_state = 0) then
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(object_state*40,12));
+						if(object_state = 21) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240+pos_y_center,12));
+						elsif(object_state = 22) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240+pos_h_center,12));
+						elsif(object_state = 23) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240+time_mov_y,12));
+						elsif(object_state = 24) then ---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240+time_mov_h,12));
+						end if;
+						ram_data(31 downto 24) <= "00000000";
+						word_state <= 1;
+					--------------------------------------------------------------------------------------------u,v
+					elsif(word_state = 1) then
+						if(object_state = 21) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (75,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+						elsif(object_state = 22) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (100,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+						elsif(object_state = 23) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (125,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+						elsif(object_state = 24) then---y center						
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (150,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+						end if;
+						ram_data(31 downto 24) <= "00000000";
+						word_state <= 2;
+					---------------------------------------------------------------------------------------------w,h
+					elsif(word_state = 2) then
+						if(survive_sign =  '0')then
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(25,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (25,12));
+							ram_data(31 downto 24) <= "00000000";
+						else
+							ram_data <= "000000000000"&"000000000000"&"00000000";
+						end if;
+						word_state <= 3;
+					---------------------------------------------------------------------------------------------d
+					else
+						ram_data <= "0111111111011111"&"00000000"&"00000000";
+						word_state <= 0;
+						object_state <= object_state+1;
+					end if;
+				when 25=>
 					start<= '1';
-					object_state <= 22;
-				when 22=>
+					object_state <= 26;
+				when 26=>
 					object_state <= 0;
 					geo_busy <= '0';
 					data_available_in <= '1';
