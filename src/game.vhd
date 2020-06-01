@@ -19,7 +19,7 @@ begin
 	process(clk)
 	begin
 		if(rising_edge(clk))then
-			if(cnt = 16666)then
+			if(cnt = 166660)then
 				cnt<=0;
 				clk_out<='1';
 			elsif (cnt = 0)then
@@ -100,16 +100,16 @@ entity game is
 end game;
 -------------------------------------------------------------------------------------------------------------------------------------------
 architecture func of game is
-	signal sent:std_logic;--- connected with data_ready(out)
-	signal survive_signal:std_logic_vector(3 downto 0):="1111";--- mark how character died and decide 'survive' followed
-	signal survive :std_logic := '1';--- connected with survive_sign(out)
-	signal clk_in:std_logic; 	---16666
+	signal sent:std_logic;
+	signal survive_signal:std_logic_vector(3 downto 0):="1111";
+	signal survive :std_logic := '1';
+	signal clk_in:std_logic; 	
 	
 	signal tc1:array1:=(2,0,0);---0没有，1没有斜坡，2有斜坡
 	signal tc2:array1:=(1,1,0);
 	
-	signal pc1:array1:=(1000,0,0);
-	signal pc2:array1:=(1500,1300,0);
+	signal pc1:array1:=(500,0,0);
+	signal pc2:array1:=(1000,800,0);
 	
 	signal nc1:array1:=(4,0,0);
 	signal nc2:array1:=(4,4,0);
@@ -117,18 +117,18 @@ architecture func of game is
 	signal tb1:array1:=(0,2,0);---0没有，1上过，2下过，3上下都过
 	signal tb2:array1:=(1,0,3);
 	
-	signal pb1:array1:=(0,1200,0);
-	signal pb2:array1:=(1100,0,1300);
+	signal pb1:array1:=(0,700,0);
+	signal pb2:array1:=(600,0,800);
 	
-	signal rand_b :std_logic_vector(39 downto 0);---生成的随机数
-	signal rand: std_logic_vector (9 downto 0);---使用的随机数
+	signal rand_b :std_logic_vector(39 downto 0);
+	signal rand: std_logic_vector (9 downto 0);
 
-	signal pos_y : integer:=300;---主角y坐标
-	signal pos_y_center : integer:=1;---主角在哪条轨道
-	signal pos_h : integer:=0;---主角h坐标
-	signal pos_h_center : integer:=0;---主角h中心位置
-	signal time_mov_y : integer:=0;---左右影响因子（类加速度
-	signal time_mov_h : integer:=0;---上下影响因子（类加速度
+	signal pos_y : integer:=300;
+	signal pos_y_center : integer:=1;
+	signal pos_h : integer:=0;
+	signal pos_h_center : integer:=0;
+	signal time_mov_y : integer:=0;
+	signal time_mov_h : integer:=0;
 -------------------------------------------------------------------------------------------------------------------------------------------
 	component clock 
 		port(
@@ -150,7 +150,7 @@ begin
 	ck: clock port map(clk,clk_out=>clk_in);
 	rad: lfsr port map(clk,'0',rand_b);
 	
-	process(rand_b)----生成的随机数40位，取其中10位使用
+	process(rand_b)
 	begin
 		if(rand_b(39 downto 38)="00")then
 			rand <= rand_b(9 downto 0);
@@ -163,7 +163,7 @@ begin
 		end if;
 	end process;
 -------------------------------------------------------------------------------------------------------------------------------------------
-	process(pos_y,pos_y_center)---随时更新角色在哪条轨道
+	process(pos_y,pos_y_center)
 	begin
 		if(pos_y <200)then
 			pos_y_center<=0;
@@ -178,7 +178,7 @@ process(clk,reset,clk_in,sent,survive_signal,tc1,tc2,pc1,pc2,nc1,nc2,tb1,tb2,pb1
 begin
 
 if(rising_edge(clk)) then
-	if(reset = '1') then---reset
+	if(reset = '1') then
 		sent<= '1';
 		survive_signal<="1111";
 		survive <= '1';		
@@ -186,8 +186,8 @@ if(rising_edge(clk)) then
 		tc1<=(2,0,0);
 		tc2<=(1,1,0);
 	
-		pc1<=(1000,0,0);
-		pc2<=(1500,1300,0);
+		pc1<=(500,0,0);
+		pc2<=(1000,800,0);
 	
 		nc1<=(4,0,0);
 		nc2<=(4,4,0);
@@ -195,8 +195,8 @@ if(rising_edge(clk)) then
 		tb1<=(0,2,0);
 		tb2<=(1,0,3);
 	
-		pb1<=(0,1200,0);
-		pb2<=(1100,0,1300);
+		pb1<=(0,700,0);
+		pb2<=(600,0,800);
 
 		pos_y <=300;
 		pos_h <=0;
@@ -204,7 +204,6 @@ if(rising_edge(clk)) then
 		time_mov_y <=0;
 		time_mov_h<=0;	
 	elsif((clk_in = '1') and (survive = '1')) then
----3块gen_map：delete，new，maintain
 	---delete
 		for i in 0 to 2 loop
 			if(pc1(i)<500-120*nc1(i))then
@@ -271,7 +270,7 @@ if(rising_edge(clk)) then
 						end if;
 					end if;
 					
-				elsif(pc2(i)+120*nc2(i)<1140)then
+				elsif(pc2(i)+120*nc2(i)<1000)then
 				---create 1;
 					if(std_logic_vector(rand(6 downto 0))="0000000")then
 						if(rand(7)='0') then
@@ -291,7 +290,7 @@ if(rising_edge(clk)) then
 						end if;
 					end if;
 				end if;
-			elsif((tc2(i)=0) and (pc1(i)+120*nc1(i)<1140))then
+			elsif((tc2(i)=0) and (pc1(i)+120*nc1(i)<1000))then
 			---create 2;
 					if(std_logic_vector(rand(6 downto 0))="0000000")then
 						if(rand(7)='0') then
