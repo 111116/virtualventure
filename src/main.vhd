@@ -209,18 +209,18 @@ begin
    process (L,R,U,D)
    begin
       if L='1' then
-         LR="00";
+         LR<="00";
       elsif R='1' then
-         LR="11";
+         LR<="11";
       else
-         LR="10";
+         LR<="10";
       end if;
       if U='1' then
-         UD="00";
+         UD<="00";
       elsif D='1' then
-         UD="11";
+         UD<="11";
       else
-         UD="10";
+         UD<="10";
       end if;
    end process;
 
