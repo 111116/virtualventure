@@ -388,6 +388,8 @@ if(rising_edge(clk)) then
 					time_mov_h <= 110;
 				elsif(UD = "11") then
 					time_mov_h <= -120;
+				else
+					pos_h <= 0-pos_h_center - 60;
 				end if;
 			end if;	
 		else
@@ -411,6 +413,8 @@ if(rising_edge(clk)) then
 					time_mov_h <= 50;
 				elsif(UD = "11") then
 					time_mov_h <= -120;
+				else
+					pos_h <= 0-pos_h_center;
 				end if;	
 			end if;
 		end if;
