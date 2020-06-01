@@ -187,9 +187,9 @@ begin
 
 	pll: main_pll port map (clk0, srampulse);
 
-   rst_indicator <= rst;
+   rst_indicator <= not st;
 
-   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,rst);
+   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,not rst);
    ge: geometry port map(clk0,render_busy,data_ready,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,
          geobuf_in_clk,geobuf_in_addr,geobuf_in_data,geobuf_in_wren,render_start);
 
