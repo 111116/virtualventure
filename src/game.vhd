@@ -19,7 +19,7 @@ begin
 	process(clk)
 	begin
 		if(rising_edge(clk))then
-			if(cnt = 1666666)then
+			if(cnt = 166666*3)then
 				cnt<=0;
 				clk_out<='1';
 			elsif (cnt = 0)then
@@ -150,15 +150,7 @@ begin
 -------------------------------------------------------------------------------------------------------------------------------------------
 	process(pos_y,pos_y_center,time_mov_y)
 	begin
-	if(time_mov_y <20 and time_mov_y > -20)then
-		if(pos_y <200)then
-			pos_y_center<=0;
-		elsif(pos_y > 340)then
-			pos_y_center <=2;
-		else
-			pos_y_center <=1;
-		end if;
-	end if;
+		NULL;
 	end process;
 	
 process(clk,reset,clk_in,sent,survive_signal,tc1,tc2,pc1,pc2,nc1,nc2,tb1,tb2,pb1,pb2,rand,pos_y,pos_y_center,pos_h,pos_h_center,time_mov_y,time_mov_h)
@@ -347,7 +339,14 @@ if(rising_edge(clk)) then
 -------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------	
 ---game logic
-
+---pos_y_center:
+		if(pos_y <200)then
+			pos_y_center<=0;
+		elsif(pos_y > 340)then
+			pos_y_center <=2;
+		else
+			pos_y_center <=1;
+		end if;
 ---a:
 		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
 			if(time_mov_h>0) then
