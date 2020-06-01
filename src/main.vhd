@@ -173,7 +173,7 @@ architecture arch of main is
    -- pll output to sram
 	signal srampulse: std_logic;
 
-   signal render_n_element: unsigned(11 downto 0) := to_unsigned(21,12);
+   signal render_n_element: unsigned(11 downto 0) := to_unsigned(25,12);
    signal render_start : std_logic;
    signal render_busy : std_logic;
    -- ports of geometry buffers
