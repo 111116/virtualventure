@@ -460,6 +460,11 @@ end if;
 end process;
 -------------------------------------------------------------------------------------------------------------------------------------------	
 
+			pyc<= std_logic_vector(to_signed(pos_y_center,10));
+			phc<= std_logic_vector(to_signed(pos_h_center,10));
+			tmy<= std_logic_vector(to_signed(time_mov_y,10));
+			tmh<= std_logic_vector(to_signed(time_mov_h,10));
+			
 	process(sent,clk,tc1,tc2,pc1,pc2,nc1,nc2,pb1,pb2,tb1,tb2,pos_y,pos_h,clk_in,time_mov_h)
 	begin
 	if(rising_edge(clk))then
@@ -479,10 +484,6 @@ end process;
 			character_y <= std_logic_vector(to_unsigned(pos_y-60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
 			
-			pyc<= std_logic_vector(to_signed(pos_y_center,10));
-			phc<= std_logic_vector(to_signed(pos_h_center,10));
-			tmy<= std_logic_vector(to_signed(time_mov_y,10));
-			tmh<= std_logic_vector(to_signed(time_mov_h,10));
 			
 			if(time_mov_h<0)then
 				character_state<="00";
