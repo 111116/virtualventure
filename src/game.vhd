@@ -150,7 +150,14 @@ begin
 -------------------------------------------------------------------------------------------------------------------------------------------
 	process(pos_y,pos_y_center,time_mov_y)
 	begin
-		NULL;
+		---pos_y_center:
+		if(pos_y <200)then
+			pos_y_center<=0;
+		elsif(pos_y > 340)then
+			pos_y_center <=2;
+		else
+			pos_y_center <=1;
+		end if;
 	end process;
 	
 process(clk,reset,clk_in,sent,survive_signal,tc1,tc2,pc1,pc2,nc1,nc2,tb1,tb2,pb1,pb2,rand,pos_y,pos_y_center,pos_h,pos_h_center,time_mov_y,time_mov_h)
@@ -339,14 +346,7 @@ if(rising_edge(clk)) then
 -------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------	
 ---game logic
----pos_y_center:
-		if(pos_y <200)then
-			pos_y_center<=0;
-		elsif(pos_y > 340)then
-			pos_y_center <=2;
-		else
-			pos_y_center <=1;
-		end if;
+
 ---a:
 ---		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
 ---			if(time_mov_h>0) then
@@ -363,9 +363,9 @@ if(rising_edge(clk)) then
 ---		end if;
 	
 		if(time_mov_y = 0)then
-			if(LR = "00" and (pos_y_center /= 0)) then
+			if((LR = "00") and (pos_y > 160)) then
 				time_mov_y <= 70;
-			elsif(LR = "11" and (pos_y_center /= 2)) then
+			elsif((LR = "11") and (pos_y <440)) then
 				time_mov_y <= -70;
 			end if;
 		end if;
@@ -471,7 +471,7 @@ end process;
 				type_barrier(4*i+1 downto 4*i) <= std_logic_vector(to_unsigned(tb1(i),2));
 				type_barrier(3+4*i downto 2+4*i) <= std_logic_vector(to_unsigned(tb2(i),2));
 			end loop;
-			character_y <= std_logic_vector(to_unsigned(pos_y+60,12));
+			character_y <= std_logic_vector(to_unsigned(pos_y-60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
 			if(time_mov_h<0)then
 				character_state<="00";
