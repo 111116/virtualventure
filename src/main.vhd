@@ -45,7 +45,13 @@ architecture arch of main is
          character_state:out std_logic_vector(1 downto 0);
          survive_sign :out std_logic;
          data_ready:out std_logic;
-         reset : in std_logic
+         reset : in std_logic;
+	      
+	      		
+		pyc: out std_logic_vector(9 downto 0);
+		phc: out std_logic_vector(9 downto 0);
+		tmy: out std_logic_vector(9 downto 0);
+		tmh: out std_logic_vector(9 downto 0)
       );
    end component;
 
@@ -59,6 +65,10 @@ architecture arch of main is
    signal character_h: std_logic_vector(11 downto 0);
    signal character_state: std_logic_vector(1 downto 0);
    signal survive : std_logic:='1';
+	signal	pyc: std_logic_vector(9 downto 0);
+	signal	phc: std_logic_vector(9 downto 0);
+	signal	tmy: std_logic_vector(9 downto 0);
+	signal	tmh: std_logic_vector(9 downto 0);
 
    component geometry 
       port (
@@ -78,7 +88,11 @@ architecture arch of main is
          ram_addr: out std_logic_vector(11 downto 0);
          ram_data: out std_logic_vector(31 downto 0);
          wren: out std_logic;
-         start:out std_logic
+         start:out std_logic;
+	      		pyc: in std_logic_vector(9 downto 0);
+		phc: in std_logic_vector(9 downto 0);
+		tmy: in std_logic_vector(9 downto 0);
+		tmh: in std_logic_vector(9 downto 0)
       );
    end component;
 
@@ -193,9 +207,9 @@ begin
    UD_indicator <= UD;
    LR_indicator <= LR;
 
-   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,not rst);
+   ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,not rst,pyc,phc,tmy,tmh);
    ge: geometry port map(clk0,render_busy,data_ready,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,
-         geobuf_in_clk,geobuf_in_addr,geobuf_in_data,geobuf_in_wren,render_start);
+         geobuf_in_clk,geobuf_in_addr,geobuf_in_data,geobuf_in_wren,render_start,pyc,phc,tmy,tmh);
 
    -- genmetry instantiation module
    --demo: geometry_demo port map (
