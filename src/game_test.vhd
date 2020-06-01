@@ -498,17 +498,3 @@ end process;
 	end process;
 
 end func;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
