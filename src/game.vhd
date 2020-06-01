@@ -371,46 +371,46 @@ if(rising_edge(clk)) then
 		------在列车尾部要跳下列车时
 			if(time_mov_h>0 ) then
 				if(UD = "11") then
-					time_mov_h <= -20;
+					time_mov_h <= -120;
 				else
 					pos_h <= 0-pos_h_center - time_mov_h;
 					time_mov_h <= time_mov_h + 60;
 				end if;
 			elsif (time_mov_h < 0) then
 				if(UD = "00") then
-					time_mov_h <= 100;
+					time_mov_h <= 110;
 				else
 					pos_h <= 0-pos_h_center - 60;
-					time_mov_h <= 60;
+					time_mov_h <= 50;
 				end if;
 			else
 				if(UD = "00") then
-					time_mov_h <= 100;
+					time_mov_h <= 110;
 				elsif(UD = "11") then
-					time_mov_h <= -20;
+					time_mov_h <= -120;
 				end if;
 			end if;	
 		else
 		------在路面上/列车上（中间部分）
 			if(time_mov_h>0 ) then
 				if(UD = "11") then
-					time_mov_h <= -20;
+					time_mov_h <= -120;
 				else
 					pos_h <= 0-pos_h_center - time_mov_h;
 					time_mov_h <= time_mov_h - 1;
 				end if;
 			elsif (time_mov_h < 0) then
 				if(UD = "00") then
-					time_mov_h <= 40;
+					time_mov_h <= 50;
 				else
 					pos_h <= 0-pos_h_center;
 					time_mov_h <= time_mov_h + 1;
 				end if;
 			else
 				if(UD = "00") then
-					time_mov_h <= 40;
+					time_mov_h <= 50;
 				elsif(UD = "11") then
-					time_mov_h <= -20;
+					time_mov_h <= -120;
 				end if;	
 			end if;
 		end if;
@@ -425,45 +425,45 @@ if(rising_edge(clk)) then
 			pos_h_center<=650 - pc2(pos_y_center);
 	------1型车碰撞检测
 		elsif((tc1(pos_y_center) = 1)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 650)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 1)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 650)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 	------2型车碰撞检测（上车部分ignore）
 		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 590)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
-			if(pos_h > 55) then
+			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
 	------障碍碰撞检测
-		elsif((tb1(pos_y_center) /=0) and (pb1(pos_y_center) > 620) and (pb1(pos_y_center) < 650)) then
-			if((tb1(pos_y_center)=1) and (time_mov_h <10)) then
+		elsif((tb1(pos_y_center) /=0) and (pb1(pos_y_center) > 630) and (pb1(pos_y_center) < 650)) then
+			if((tb1(pos_y_center)=1) and (time_mov_h <5)) then
 				survive_signal(2)<='0';
 			elsif((tb1(pos_y_center)=2) and (time_mov_h> -1)) then
 				survive_signal(2)<='0';
-			elsif((tb1(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 10)) then
+			elsif((tb1(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 5)) then
 				survive_signal(2)<='0';
 			end if;
-		elsif((tb2(pos_y_center) /=0) and (pb2(pos_y_center) > 620) and (pb2(pos_y_center) < 650)) then
+		elsif((tb2(pos_y_center) /=0) and (pb2(pos_y_center) > 630) and (pb2(pos_y_center) < 650)) then
 			if((tb2(pos_y_center)=1) and (time_mov_h<10)) then
 				survive_signal(3)<='0';
 			elsif((tb2(pos_y_center)=2) and (time_mov_h>-1)) then
 				survive_signal(3)<='0';
-			elsif((tb2(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 10)) then
+			elsif((tb2(pos_y_center)=3) and (time_mov_h >-1 and time_mov_h < 5)) then
 				survive_signal(3)<='0';
 			end if;
 	------回到了路面上
