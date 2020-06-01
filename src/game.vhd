@@ -441,13 +441,13 @@ if(rising_edge(clk)) then
 			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
-				survive_signal(0)<='0';
+				null;---survive_signal(0)<='0';
 			end if;
 		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
 			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
-				survive_signal(0)<='0';
+				null;---survive_signal(0)<='0';
 			end if;
 	------障碍碰撞检测
 		elsif((tb1(pos_y_center) /=0) and (pb1(pos_y_center) > 630) and (pb1(pos_y_center) < 650)) then
