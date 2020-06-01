@@ -278,7 +278,7 @@ begin
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(570,12));
 							ram_data(31 downto 24) <="00000000";
 						elsif(tb(object_state - 13) = 3) then
-							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(600,12));
+							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(700,12));
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(520,12));
 							ram_data(31 downto 24) <="00000000";
 						end if;
@@ -308,8 +308,8 @@ begin
 				when 19 =>
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150+pos_h,12));
-						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+60,12));
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150+pos_h/50,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+60+pos_h,12));
 						ram_data(31 downto 24) <= "00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
