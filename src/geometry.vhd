@@ -169,7 +169,7 @@ begin
 						if(tc(object_state - 7) = 0) then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(11 downto 0) <= std_logic_vector(to_unsigned((tc(object_state - 7) - 500),12));
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(pc(object_state - 7),12));
 							if(object_state  = 7 or object_state  = 8) then-----------y
 								ram_data(23 downto 12) <= std_logic_vector(to_unsigned(70,12));
 							elsif(object_state  = 9 or object_state  = 10) then
@@ -244,7 +244,7 @@ begin
 						if(tb(object_state - 13) = 0) then
 							ram_data <= "000000000000"&"000000000000"&"00000000";
 						else
-							ram_data(11 downto 0) <= std_logic_vector(to_unsigned((tb(object_state - 13) - 500),12));
+							ram_data(11 downto 0) <= std_logic_vector(to_unsigned(pb(object_state - 13),12));
 							if(object_state = 13 or object_state = 14) then-----------y
 								if(((tc(0)/=0) and (pc(0)<pb(object_state - 13)) and (pc(0)+nc(0)*120 >pb(object_state - 13))) or ((tc(1)/=0) and (pc(1)<pb(object_state - 13)) and (pc(1)+nc(1)*120 >pb(object_state - 13)))) then
 									ram_data(23 downto 12) <= std_logic_vector(to_unsigned(20,12));
@@ -269,15 +269,15 @@ begin
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
-						if(tc(object_state - 13) = 1 ) then
+						if(tb(object_state - 13) = 1 ) then
 							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(500,12));
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(520,12));
 							ram_data(31 downto 24) <="00000000";
-						elsif(tc(object_state - 13) = 2) then
+						elsif(tb(object_state - 13) = 2) then
 							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(500,12));
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(570,12));
 							ram_data(31 downto 24) <="00000000";
-						elsif(tc(object_state - 13) = 3) then
+						elsif(tb(object_state - 13) = 3) then
 							ram_data(23 downto 12) <= std_logic_vector(to_unsigned(700,12));
 							ram_data(11 downto 0) <=std_logic_vector(to_unsigned(520,12));
 							ram_data(31 downto 24) <="00000000";
