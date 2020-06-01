@@ -324,7 +324,13 @@ begin
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
 						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150,12));
-						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+pos_h,12));
+						if(char_state =  "00")then
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+pos_h+30,12));
+						elsif(char_state =  "00")then
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+pos_h-10,12));
+						else
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (pos_y+pos_h,12));
+						end if;
 						ram_data(31 downto 24) <= "00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
@@ -366,7 +372,7 @@ begin
 						object_state <= 20;
 					end if;		
 					---------------------------------------------------------------------------------------------
-				---gen character
+				---gen "fail"-tips
 				----
 				----
 				----
