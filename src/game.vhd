@@ -108,8 +108,8 @@ architecture func of game is
 	signal tc1:array1:=(2,0,0);---0没有，1没有斜坡，2有斜坡
 	signal tc2:array1:=(1,1,0);
 	
-	signal pc1:array1:=(500,0,0);
-	signal pc2:array1:=(1000,800,0);
+	signal pc1:array1:=(1000,0,0);
+	signal pc2:array1:=(1500,1300,0);
 	
 	signal nc1:array1:=(4,0,0);
 	signal nc2:array1:=(4,4,0);
@@ -117,8 +117,8 @@ architecture func of game is
 	signal tb1:array1:=(0,2,0);---0没有，1上过，2下过，3上下都过
 	signal tb2:array1:=(1,0,3);
 	
-	signal pb1:array1:=(0,700,0);
-	signal pb2:array1:=(600,0,800);
+	signal pb1:array1:=(0,1200,0);
+	signal pb2:array1:=(1100,0,1300);
 	
 	signal rand_b :std_logic_vector(39 downto 0);---生成的随机数
 	signal rand: std_logic_vector (9 downto 0);---使用的随机数
@@ -186,8 +186,8 @@ if(rising_edge(clk)) then
 		tc1<=(2,0,0);
 		tc2<=(1,1,0);
 	
-		pc1<=(500,0,0);
-		pc2<=(1000,800,0);
+		pc1<=(1000,0,0);
+		pc2<=(1500,1300,0);
 	
 		nc1<=(4,0,0);
 		nc2<=(4,4,0);
@@ -195,8 +195,8 @@ if(rising_edge(clk)) then
 		tb1<=(0,2,0);
 		tb2<=(1,0,3);
 	
-		pb1<=(0,700,0);
-		pb2<=(600,0,800);
+		pb1<=(0,1200,0);
+		pb2<=(1100,0,1300);
 
 		pos_y <=300;
 		pos_h <=0;
