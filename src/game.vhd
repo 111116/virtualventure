@@ -360,7 +360,7 @@ if(rising_edge(clk)) then
 			elsif(UD = "11") then
 				time_mov_h <= -20;
 			end if;	
----		end if;
+		end if;
 	
 ---		if(time_mov_y = 0)then
 ---			if((LR = "00") and (pos_y > 160)) then
