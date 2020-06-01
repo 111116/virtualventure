@@ -11,8 +11,10 @@ entity main is
       rst  : in std_logic;
       rst_indicator : out std_logic;
       -- player input
-      UD: in std_logic_vector(1 downto 0);
-      LR: in std_logic_vector(1 downto 0);
+      U: in std_logic;
+      D: in std_logic;
+      L: in std_logic;
+      R: in std_logic;
       UD_indicator: out std_logic_vector(1 downto 0);
       LR_indicator: out std_logic_vector(1 downto 0);
       -- external ports to SRAM
@@ -185,7 +187,28 @@ architecture arch of main is
    signal geobuf_out_addr : std_logic_vector(11 downto 0);
    signal geobuf_out_q    : std_logic_vector(31 downto 0);
 
+   signal UD: std_logic_vector(1 downto 0);
+   signal LR: std_logic_vector(1 downto 0);
+
 begin
+
+   process (L,R,U,D)
+   begin
+      if L='1' then
+         LR="00";
+      elsif R='1' then
+         LR="11";
+      else
+         LR="10";
+      end if;
+      if U='1' then
+         UD="00";
+      elsif D='1' then
+         UD="11";
+      else
+         UD="10";
+      end if;
+   end process;
 
 	pll: main_pll port map (clk0, srampulse);
 
