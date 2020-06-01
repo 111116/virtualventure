@@ -88,6 +88,7 @@ begin
 --- 16位占位符，会被忽略
 	
 	process(clk,object_state,word_state,tc,pc,nc,pb,tb,pos_y,pos_h,data_ready)---trans
+		variable hiteffect_offset : integer range 0 to 100;
 	begin
 		if(rising_edge(clk)) then
 			if(data_ready = '1' and render_busy = '0' and geo_busy = '0')then
@@ -322,6 +323,11 @@ begin
 				----
 				when 19 =>
 					------------------------------------------------------------------------------------------x,y
+					if survive_sign = '1' then
+						hiteffect_offset := 0;
+					else
+						hiteffect_offset := 80;
+					end if;
 					if(word_state = 0) then
 						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150,12));
 						if(char_state =  "00")then
@@ -336,15 +342,15 @@ begin
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
 						if(char_state =  "00")then
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740+hiteffect_offset,12));
 							ram_data(11 downto 0)<=std_logic_vector(to_unsigned (680,12));
 							ram_data(31 downto 24) <= "00000000";
 						elsif(char_state =  "11")then
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740+hiteffect_offset,12));
 							ram_data(11 downto 0)<=std_logic_vector(to_unsigned (740,12));
 							ram_data(31 downto 24) <= "00000000";
 						else
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned(740+hiteffect_offset,12));
 							ram_data(11 downto 0)<=std_logic_vector(to_unsigned (640,12));
 							ram_data(31 downto 24) <= "00000000";
 						end if;
