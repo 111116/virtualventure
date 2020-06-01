@@ -103,11 +103,7 @@ architecture func of game is
 	signal sent:std_logic;
 	signal survive_signal:std_logic_vector(3 downto 0):="1111";
 	signal survive :std_logic := '1';
-	signal clk_in:std_logic; 
-	signal cnt:integer range 0 to 159:=0;---地铁位数 2^5*5
-	signal cnt0:integer range 0 to 31:=0;---随机数
-	
-	
+	signal clk_in:std_logic; 	
 	
 	signal tc1:array1:=(2,0,0);---0没有，1没有斜坡，2有斜坡
 	signal tc2:array1:=(1,1,0);
@@ -181,35 +177,33 @@ begin
 process(clk,reset,clk_in,sent,survive_signal,tc1,tc2,pc1,pc2,nc1,nc2,tb1,tb2,pb1,pb2,rand,pos_y,pos_y_center,pos_h,pos_h_center,time_mov_y,time_mov_h)
 begin
 
-if(reset = '1') then
-	sent<= '1';
-	survive_signal<="1111";
-	survive <= '1';		
-	cnt<=0;
-	cnt0<=0;
+if(rising_edge(clk)) then
+	if(reset = '1') then
+		sent<= '1';
+		survive_signal<="1111";
+		survive <= '1';		
 	
-	tc1<=(2,0,0);
-	tc2<=(1,1,0);
+		tc1<=(2,0,0);
+		tc2<=(1,1,0);
 	
-	pc1<=(500,0,0);
-	pc2<=(1000,800,0);
+		pc1<=(500,0,0);
+		pc2<=(1000,800,0);
 	
-	nc1<=(4,0,0);
-	nc2<=(4,4,0);
+		nc1<=(4,0,0);
+		nc2<=(4,4,0);
 	
-	tb1<=(0,2,0);
-	tb2<=(1,0,3);
+		tb1<=(0,2,0);
+		tb2<=(1,0,3);
 	
-	pb1<=(0,700,0);
-	pb2<=(600,0,800);
+		pb1<=(0,700,0);
+		pb2<=(600,0,800);
 
-	pos_y <=300;
-	pos_h <=0;
-	pos_h_center<=0;
-	time_mov_y <=0;
-	time_mov_h<=0;	
-elsif(rising_edge(clk)) then
-	if((clk_in = '1') and (survive = '1')) then
+		pos_y <=300;
+		pos_h <=0;
+		pos_h_center<=0;
+		time_mov_y <=0;
+		time_mov_h<=0;	
+	elsif((clk_in = '1') and (survive = '1')) then
 	---delete
 		for i in 0 to 2 loop
 			if(pc1(i)<500-120*nc1(i))then
@@ -474,7 +468,7 @@ end if;
 end process;
 -------------------------------------------------------------------------------------------------------------------------------------------	
 
-	process(sent,clk,tc1,tc2,pc1,pc2,nc1,nc2,pb1,pb2,tb1,tb2,pos_y,pos_h,clk_in,time_mov_h,clk_in)
+	process(sent,clk,tc1,tc2,pc1,pc2,nc1,nc2,pb1,pb2,tb1,tb2,pos_y,pos_h,clk_in,time_mov_h)
 	begin
 	if(rising_edge(clk))then
 		if(sent = '1')then
