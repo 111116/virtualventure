@@ -386,8 +386,8 @@ begin
 				when 20 =>
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(180,12));
-						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240,12));
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(220,12));
+						ram_data(23 downto 12)<=std_logic_vector(to_unsigned (190,12));
 						ram_data(31 downto 24) <= "00000000";
 						word_state <= 1;
 					--------------------------------------------------------------------------------------------u,v
