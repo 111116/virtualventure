@@ -375,7 +375,7 @@ if(rising_edge(clk)) then
 				else
 					pos_h <= 0-pos_h_center - time_mov_h;
 					time_mov_h <= time_mov_h + 60;
-				end if
+				end if;
 			elsif (time_mov_h < 0) then
 				if(UD = "00") then
 					time_mov_h <= 100;
@@ -388,7 +388,8 @@ if(rising_edge(clk)) then
 					time_mov_h <= 100;
 				elsif(UD = "11") then
 					time_mov_h <= -20;
-				end if;	
+				end if;
+			end if;	
 		else
 		------在路面上/列车上（中间部分）
 			if(time_mov_h>0 ) then
@@ -397,7 +398,7 @@ if(rising_edge(clk)) then
 				else
 					pos_h <= 0-pos_h_center - time_mov_h;
 					time_mov_h <= time_mov_h - 1;
-				end if
+				end if;
 			elsif (time_mov_h < 0) then
 				if(UD = "00") then
 					time_mov_h <= 40;
@@ -411,6 +412,7 @@ if(rising_edge(clk)) then
 				elsif(UD = "11") then
 					time_mov_h <= -20;
 				end if;	
+			end if;
 		end if;
 
 ---collision detection
