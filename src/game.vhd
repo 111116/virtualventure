@@ -437,13 +437,13 @@ if(rising_edge(clk)) then
 				survive_signal(0)<='0';
 			end if;
 	------2型车碰撞检测（上车部分ignore）
-		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 590)) then
+		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 587)) then
 			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
+		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 587)) then
 			if(pos_h < -55) then
 				pos_h_center <= 60;
 			else
