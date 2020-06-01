@@ -19,7 +19,7 @@ begin
 	process(clk)
 	begin
 		if(rising_edge(clk))then
-			if(cnt = 166660)then
+			if(cnt = 1666666)then
 				cnt<=0;
 				clk_out<='1';
 			elsif (cnt = 0)then
@@ -46,16 +46,16 @@ entity lfsr is
    port (
          clk      : in  std_logic ;
          reset    : in  std_logic ;
-         data_out : out std_logic_vector(39 downto 0)
+         data_out : out std_logic_vector(79 downto 0)
         );
 end lfsr ;
 
 
 architecture rtl of lfsr is 
 	signal feedback : std_logic:='0' ;
-	signal lfsr_reg : UNSIGNED(39 downto 0):="0111010000101101010010101101111110101010" ;
+	signal lfsr_reg : UNSIGNED(79 downto 0):="01110100001011010100101011011111101010100111010000101101010010101101111110101010" ;
 	begin
-	feedback <= lfsr_reg(39) xor lfsr_reg(0) ;
+	feedback <= lfsr_reg(79) xor lfsr_reg(0) ;
 	latch_it :  process(clk,reset)
 	begin
           if (reset = '1') then
@@ -105,24 +105,22 @@ architecture func of game is
 	signal survive :std_logic := '1';
 	signal clk_in:std_logic; 	
 	
-	signal tc1:array1:=(2,0,0);---0没有，1没有斜坡，2有斜坡
-	signal tc2:array1:=(0,1,0);
+	signal tc1:array1:=(0,0,0);---0没有，1没有斜坡，2有斜坡
+	signal tc2:array1:=(0,0,0);
 	
-	signal pc1:array1:=(500,0,0);
-	signal pc2:array1:=(0,800,0);
+	signal pc1:array1:=(0,0,0);
+	signal pc2:array1:=(0,0,0);
 	
-	signal nc1:array1:=(2,0,0);
-	signal nc2:array1:=(0,4,0);
+	signal nc1:array1:=(0,0,0);
+	signal nc2:array1:=(0,0,0);
 	
-	signal tb1:array1:=(0,2,0);---0没有，1上过，2下过，3上下都过
-	signal tb2:array1:=(1,0,3);
+	signal tb1:array1:=(0,0,0);---0没有，1上过，2下过，3上下都过
+	signal tb2:array1:=(0,0,0);
 	
-	signal pb1:array1:=(0,800,0);
-	signal pb2:array1:=(500,0,900);
+	signal pb1:array1:=(0,0,0);
+	signal pb2:array1:=(0,0,0);
 	
-	signal rand_b :std_logic_vector(39 downto 0);
-	signal rand: std_logic_vector (9 downto 0);
-
+	signal rand :std_logic_vector(79 downto 0);
 	signal pos_y : integer:=300;
 	signal pos_y_center : integer:=1;
 	signal pos_h : integer:=0;
@@ -141,30 +139,18 @@ architecture func of game is
    port (
          clk      : in  std_logic ;
          reset    : in  std_logic ;
-         data_out : out std_logic_vector(39 downto 0)
+         data_out : out std_logic_vector(79 downto 0)
         );
 	end component ;
 
 -------------------------------------------------------------------------------------------------------------------------------------------	
 begin
 	ck: clock port map(clk,clk_out=>clk_in);
-	rad: lfsr port map(clk,'0',rand_b);
-	
-	process(rand_b)
-	begin
-		if(rand_b(39 downto 38)="00")then
-			rand <= rand_b(9 downto 0);
-		elsif(rand_b(39 downto 38)="10")then
-			rand <= rand_b(19 downto 10);
-		elsif(rand_b(39 downto 38)="11")then
-			rand <= rand_b(29 downto 20);
-		else
-			rand <= rand_b(37 downto 28);
-		end if;
-	end process;
+	rad: lfsr port map(clk,'0',rand);
 -------------------------------------------------------------------------------------------------------------------------------------------
-	process(pos_y,pos_y_center)
+	process(pos_y,pos_y_center,time_mov_y)
 	begin
+	if(time_mov_y <20 and time_mov_y > -20)then
 		if(pos_y <200)then
 			pos_y_center<=0;
 		elsif(pos_y > 340)then
@@ -172,6 +158,7 @@ begin
 		else
 			pos_y_center <=1;
 		end if;
+	end if;
 	end process;
 	
 process(clk,reset,clk_in,sent,survive_signal,tc1,tc2,pc1,pc2,nc1,nc2,tb1,tb2,pb1,pb2,rand,pos_y,pos_y_center,pos_h,pos_h_center,time_mov_y,time_mov_h)
@@ -183,20 +170,20 @@ if(rising_edge(clk)) then
 		survive_signal<="1111";
 		survive <= '1';		
 	
-		tc1<=(2,0,0);
-		tc2<=(0,1,0);
+		tc1<=(0,0,0);
+		tc2<=(0,0,0);
 	
-		pc1<=(500,0,0);
-		pc2<=(0,800,0);
+		pc1<=(0,0,0);
+		pc2<=(0,0,0);
 	
-		nc1<=(2,0,0);
-		nc2<=(0,4,0);
+		nc1<=(0,0,0);
+		nc2<=(0,0,0);
 	
-		tb1<=(0,2,0);
-		tb2<=(1,0,3);
+		tb1<=(0,0,0);
+		tb2<=(0,0,0);
 	
-		pb1<=(0,800,0);
-		pb2<=(500,0,900);
+		pb1<=(0,0,0);
+		pb2<=(0,0,0);
 
 		pos_y <=300;
 		pos_h <=0;
@@ -252,18 +239,18 @@ if(rising_edge(clk)) then
 			if(tc1(i) = 0) then
 				if(tc2(i) = 0) then
 			---create 1
-					if(std_logic_vector(rand(6 downto 0))="0000000")then
-						if(rand(7)='0') then
+					if(std_logic_vector(rand(8+12*i downto 12*i))="110000000")then
+						if(rand(9)='0') then
 							tc1(i)<=1;
 						else
 							tc1(i)<=2;
 						end if;
 						pc1(i)<= 1140;
-						if(std_logic_vector(rand(9 downto 8))="00")then
+						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc1(i)<= 1;
-						elsif(std_logic_vector(rand(9 downto 8))="01")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
 							nc1(i)<= 2;
-						elsif(std_logic_vector(rand(9 downto 8))="10")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="10")then
 							nc1(i)<= 3;
 						else
 							nc1(i)<= 4;
@@ -272,18 +259,18 @@ if(rising_edge(clk)) then
 					
 				elsif(pc2(i)+120*nc2(i)<1000)then
 				---create 1;
-					if(std_logic_vector(rand(6 downto 0))="0000000")then
-						if(rand(7)='0') then
+					if(std_logic_vector(rand(8+12*i downto 12*i))="110000000")then
+						if(rand(9)='0') then
 							tc1(i)<=1;
 						else
 							tc1(i)<=2;
 						end if;
 						pc1(i)<= 1140;
-						if(std_logic_vector(rand(9 downto 8))="00")then
+						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc1(i)<= 1;
-						elsif(std_logic_vector(rand(9 downto 8))="01")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
 							nc1(i)<= 2;
-						elsif(std_logic_vector(rand(9 downto 8))="10")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="10")then
 							nc1(i)<= 3;
 						else
 							nc1(i)<= 4;
@@ -292,18 +279,18 @@ if(rising_edge(clk)) then
 				end if;
 			elsif((tc2(i)=0) and (pc1(i)+120*nc1(i)<1000))then
 			---create 2;
-					if(std_logic_vector(rand(6 downto 0))="0000000")then
-						if(rand(7)='0') then
+					if(std_logic_vector(rand(8+12*i downto 12*i))="110000000")then
+						if(rand(9)='0') then
 							tc2(i)<=1;
 						else
 							tc2(i)<=2;
 						end if;
 						pc2(i)<= 1140;
-						if(std_logic_vector(rand(9 downto 8))="00")then
+						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc2(i)<= 1;
-						elsif(std_logic_vector(rand(9 downto 8))="01")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
 							nc2(i)<= 2;
-						elsif(std_logic_vector(rand(9 downto 8))="10")then
+						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="10")then
 							nc2(i)<= 3;
 						else
 							nc2(i)<= 4;
@@ -314,12 +301,12 @@ if(rising_edge(clk)) then
 			if(tb1(i) = 0) then
 				if(tb2(i) = 0) then
 			---create 1;
-					if(std_logic_vector(rand(5 downto 0))="101101")then
-						if(std_logic_vector(rand(7 downto 6))="00") then
+					if(std_logic_vector(rand(43+12*i downto 35+12*i))="110000000")then
+						if(std_logic_vector(rand(45+12*i downto 44+12*i))="00") then
 							tb1(i)<=0;
-						elsif(std_logic_vector(rand(7 downto 6))="01") then
+						elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="01") then
 							tb1(i)<=1;
-						elsif(std_logic_vector(rand(7 downto 6))="10") then	
+						elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="10") then	
 							tb1(i)<=2;
 						else
 							tb1(i)<=3;
@@ -328,12 +315,12 @@ if(rising_edge(clk)) then
 					end if;
 				elsif(pb2(i)<1000)then
 			---create 1;
-					if(std_logic_vector(rand(5 downto 0))="000000")then
-						if(std_logic_vector(rand(7 downto 6))="00") then
+					if(std_logic_vector(rand(43+12*i downto 35+12*i))="00010000")then
+						if(std_logic_vector(rand(45+12*i downto 44+12*i))="00") then
 							tb1(i)<=0;
-						elsif(std_logic_vector(rand(7 downto 6))="01") then
+						elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="01") then
 							tb1(i)<=1;
-						elsif(std_logic_vector(rand(7 downto 6))="10") then	
+						elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="10") then	
 							tb1(i)<=2;
 						else
 							tb1(i)<=3;
@@ -343,12 +330,12 @@ if(rising_edge(clk)) then
 				end if;
 			elsif((tb2(i)=0) and (pb1(i)<1000))then
 		---create 2;
-				if(std_logic_vector(rand(5 downto 0))="000000")then
-					if(std_logic_vector(rand(7 downto 6))="00") then
+				if(std_logic_vector(rand(43+12*i downto 35+12*i))="00110000")then
+					if(std_logic_vector(rand(45+12*i downto 44+12*i))="00") then
 						tb2(i)<=0;
-					elsif(std_logic_vector(rand(7 downto 6))="01") then
+					elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="01") then
 						tb2(i)<=1;
-					elsif(std_logic_vector(rand(7 downto 6))="10") then	
+					elsif(std_logic_vector(rand(45+12*i downto 44+12*i))="10") then	
 						tb2(i)<=2;
 					else
 						tb2(i)<=3;
@@ -362,7 +349,7 @@ if(rising_edge(clk)) then
 ---game logic
 
 ---a:
-		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 650) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 650)) then
+		if((pc1(pos_y_center)+120*nc1(pos_y_center) = 610) or (pc2(pos_y_center)+120*nc2(pos_y_center) = 610)) then
 			if(time_mov_h>0) then
 				time_mov_h <= time_mov_h+60;
 			else
@@ -385,6 +372,7 @@ if(rising_edge(clk)) then
 		end if;
 	
 ---v:
+		
 		if(time_mov_h>0 ) then
 			pos_h <= pos_h_center + time_mov_h;
 			time_mov_h <= time_mov_h - 1;
@@ -409,25 +397,25 @@ if(rising_edge(clk)) then
 			pos_h_center<=650 - pc1(pos_y_center);
 		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+60 > 650) and (pc2(pos_y_center) < 650) and (pos_h<60)) then
 			pos_h_center<=650 - pc2(pos_y_center);
-		elsif((tc1(pos_y_center) = 1)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 650) and (pc1(pos_y_center) < 650)) then
+		elsif((tc1(pos_y_center) = 1)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 650)) then
 			if(pos_h > 55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc2(pos_y_center) = 1)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 650) and (pc2(pos_y_center) < 650)) then
+		elsif((tc2(pos_y_center) = 1)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 650)) then
 			if(pos_h > 55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 650) and (pc1(pos_y_center) < 590)) then
+		elsif((tc1(pos_y_center) = 2)and (pc1(pos_y_center)+120*nc1(pos_y_center) > 610) and (pc1(pos_y_center) < 590)) then
 			if(pos_h > 55) then
 				pos_h_center <= 60;
 			else
 				survive_signal(0)<='0';
 			end if;
-		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 650) and (pc2(pos_y_center) < 590)) then
+		elsif((tc2(pos_y_center) = 2)and (pc2(pos_y_center)+120*nc2(pos_y_center) > 610) and (pc2(pos_y_center) < 590)) then
 			if(pos_h > 55) then
 				pos_h_center <= 60;
 			else
