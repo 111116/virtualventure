@@ -403,7 +403,7 @@ begin
 				when 21|22|23|24=>
 					------------------------------------------------------------------------------------------x,y
 					if(word_state = 0) then
-						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(object_state*40,12));
+						ram_data(11 downto 0)<=std_logic_vector(to_unsigned(object_state*40-800,12));
 						if(object_state = 21) then---y center						
 							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (240+pos_y_center,12));
 						elsif(object_state = 22) then---y center						
@@ -418,17 +418,17 @@ begin
 					--------------------------------------------------------------------------------------------u,v
 					elsif(word_state = 1) then
 						if(object_state = 21) then---y center						
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (75,12));
-							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (2000,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(75,12));
 						elsif(object_state = 22) then---y center						
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (100,12));
-							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (2000,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(100,12));
 						elsif(object_state = 23) then---y center						
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (125,12));
-							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (2000,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(125,12));
 						elsif(object_state = 24) then---y center						
-							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (150,12));
-							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(2000,12));
+							ram_data(23 downto 12)<=std_logic_vector(to_unsigned (2000,12));
+							ram_data(11 downto 0)<=std_logic_vector(to_unsigned(150,12));
 						end if;
 						ram_data(31 downto 24) <= "00000000";
 						word_state <= 2;
