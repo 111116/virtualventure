@@ -204,22 +204,22 @@ if(rising_edge(clk)) then
 			if(tc1(i) /= 0)then
 				pc1(i) <= pc1(i)-1;
 			else
-				pc1(i) <= 1140;
+				pc1(i) <= 1200;
 			end if;
 			if(tc2(i) /= 0)then
 				pc2(i) <= pc2(i)-1;
 			else
-				pc2(i) <= 1140;
+				pc2(i) <= 1200;
 			end if;
 			if(tb1(i) /= 0)then
 				pb1(i) <= pb1(i)-1;
 			else
-				pb1(i) <= 1140;
+				pb1(i) <= 1200;
 			end if;
 			if(tb2(i) /= 0)then
 				pb2(i) <= pb2(i)-1;
 			else
-				pb2(i) <= 1140;
+				pb2(i) <= 1200;
 			end if;
 		end loop;
 	
@@ -237,7 +237,7 @@ if(rising_edge(clk)) then
 						else
 							tc1(i)<=2;
 						end if;
-						pc1(i)<= 1140;
+						pc1(i)<= 1200;
 						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc1(i)<= 1;
 						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
@@ -257,7 +257,7 @@ if(rising_edge(clk)) then
 						else
 							tc1(i)<=2;
 						end if;
-						pc1(i)<= 1140;
+						pc1(i)<= 1200;
 						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc1(i)<= 1;
 						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
@@ -277,7 +277,7 @@ if(rising_edge(clk)) then
 						else
 							tc2(i)<=2;
 						end if;
-						pc2(i)<= 1140;
+						pc2(i)<= 1200;
 						if(std_logic_vector(rand(11+12*i downto 12*i+10))="00")then
 							nc2(i)<= 1;
 						elsif(std_logic_vector(rand(11+12*i downto 12*i+10))="01")then
@@ -303,7 +303,7 @@ if(rising_edge(clk)) then
 						else
 							tb1(i)<=3;
 						end if;					
-						pb1(i)<= 1140;
+						pb1(i)<= 1200;
 					end if;
 				elsif(pb2(i)<1000)then
 			---create 1;
@@ -317,7 +317,7 @@ if(rising_edge(clk)) then
 						else
 							tb1(i)<=3;
 						end if;					
-						pb1(i)<= 1140;
+						pb1(i)<= 1200;
 					end if;
 				end if;
 			elsif((tb2(i)=0) and (pb1(i)<1000))then
@@ -332,7 +332,7 @@ if(rising_edge(clk)) then
 					else
 						tb2(i)<=3;
 					end if;					
-					pb2(i)<= 1140;
+					pb2(i)<= 1200;
 				end if;
 			end if;
 		end loop;
@@ -460,16 +460,16 @@ end process;
 	if(rising_edge(clk))then
 		if(sent = '1')then
 			for i in 0 to 2 loop
-				type_carriage(2*i+1 downto 2*i) <= std_logic_vector(to_unsigned(tc1(i),2));
-				type_carriage(7+2*i downto 6+2*i) <= std_logic_vector(to_unsigned(tc2(i),2));
-				pos_carriage(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pc1(i)-500,12));
-				pos_carriage(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pc2(i)-500,12));
-				num_carriage(3*i+2 downto 3*i)<= std_logic_vector(to_unsigned(nc1(i),3));
-				num_carriage(3*i+11 downto 3*i+9)<= std_logic_vector(to_unsigned(nc2(i),3));
-				pos_barrier(12*i+11 downto 12*i) <= std_logic_vector(to_unsigned(pb1(i)-500,12));
-				pos_barrier(47+12*i downto 36+12*i) <= std_logic_vector(to_unsigned(pb2(i)-500,12));
-				type_barrier(2*i+1 downto 2*i) <= std_logic_vector(to_unsigned(tb1(i),2));
-				type_barrier(7+2*i downto 6+2*i) <= std_logic_vector(to_unsigned(tb2(i),2));
+				type_carriage(4*i+1 downto 4*i) <= std_logic_vector(to_unsigned(tc1(i),2));
+				type_carriage(3+4*i downto 2+4*i) <= std_logic_vector(to_unsigned(tc2(i),2));
+				pos_carriage(24*i+11 downto 24*i) <= std_logic_vector(to_unsigned(pc1(i)-500,12));
+				pos_carriage(23+24*i downto 12+24*i) <= std_logic_vector(to_unsigned(pc2(i)-500,12));
+				num_carriage(6*i+2 downto 6*i)<= std_logic_vector(to_unsigned(nc1(i),3));
+				num_carriage(6*i+5 downto 6*i+3)<= std_logic_vector(to_unsigned(nc2(i),3));
+				pos_barrier(24*i+11 downto 24*i) <= std_logic_vector(to_unsigned(pb1(i)-500,12));
+				pos_barrier(23+24*i downto 12+24*i) <= std_logic_vector(to_unsigned(pb2(i)-500,12));
+				type_barrier(4*i+1 downto 4*i) <= std_logic_vector(to_unsigned(tb1(i),2));
+				type_barrier(3+4*i downto 2+4*i) <= std_logic_vector(to_unsigned(tb2(i),2));
 			end loop;
 			character_y <= std_logic_vector(to_unsigned(pos_y+60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
