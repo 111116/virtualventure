@@ -13,6 +13,8 @@ entity main is
       -- player input
       UD: in std_logic_vector(1 downto 0);
       LR: in std_logic_vector(1 downto 0);
+      UD_indicator: out std_logic_vector(1 downto 0);
+      LR_indicator: out std_logic_vector(1 downto 0);
       -- external ports to SRAM
       sram_addr: out std_logic_vector(19 downto 0);
       sram_data: inout std_logic_vector(31 downto 0);
@@ -188,6 +190,8 @@ begin
 	pll: main_pll port map (clk0, srampulse);
 
    rst_indicator <= not rst;
+   UD_indicator <= UD;
+   LR_indicator <= LR;
 
    ga: game port map(UD,LR,clk0,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,data_ready,not rst);
    ge: geometry port map(clk0,render_busy,data_ready,type_carriage,pos_carriage,num_carriage,pos_barrier,type_barrier,character_y,character_h,character_state,survive,

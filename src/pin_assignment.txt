@@ -106,7 +106,7 @@ UD[1],				PIN_AE5
 // button indicators
 
 rst_indicator,		PIN_AE17
-LR[0],				PIN_AC6
-LR[1],				PIN_AD4
-UD[0],				PIN_AD5
-UD[1],				PIN_AE5
+LR_indicator[0],	PIN_AB18
+LR_indicator[1],	PIN_AD19
+UD_indicator[0],	PIN_AF21
+UD_indicator[1],	PIN_AD21
