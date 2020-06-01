@@ -106,19 +106,19 @@ architecture func of game is
 	signal clk_in:std_logic; 	
 	
 	signal tc1:array1:=(2,0,0);---0没有，1没有斜坡，2有斜坡
-	signal tc2:array1:=(1,1,0);
+	signal tc2:array1:=(0,1,0);
 	
 	signal pc1:array1:=(500,0,0);
-	signal pc2:array1:=(1000,800,0);
+	signal pc2:array1:=(0,800,0);
 	
-	signal nc1:array1:=(4,0,0);
-	signal nc2:array1:=(4,4,0);
+	signal nc1:array1:=(2,0,0);
+	signal nc2:array1:=(0,4,0);
 	
 	signal tb1:array1:=(0,2,0);---0没有，1上过，2下过，3上下都过
 	signal tb2:array1:=(1,0,3);
 	
-	signal pb1:array1:=(0,700,0);
-	signal pb2:array1:=(600,0,800);
+	signal pb1:array1:=(0,800,0);
+	signal pb2:array1:=(500,0,900);
 	
 	signal rand_b :std_logic_vector(39 downto 0);
 	signal rand: std_logic_vector (9 downto 0);
@@ -184,19 +184,19 @@ if(rising_edge(clk)) then
 		survive <= '1';		
 	
 		tc1<=(2,0,0);
-		tc2<=(1,1,0);
+		tc2<=(0,1,0);
 	
 		pc1<=(500,0,0);
-		pc2<=(1000,800,0);
+		pc2<=(0,800,0);
 	
-		nc1<=(4,0,0);
-		nc2<=(4,4,0);
+		nc1<=(2,0,0);
+		nc2<=(0,4,0);
 	
 		tb1<=(0,2,0);
 		tb2<=(1,0,3);
 	
-		pb1<=(0,700,0);
-		pb2<=(600,0,800);
+		pb1<=(0,800,0);
+		pb2<=(500,0,900);
 
 		pos_y <=300;
 		pos_h <=0;
@@ -206,16 +206,16 @@ if(rising_edge(clk)) then
 	elsif((clk_in = '1') and (survive = '1')) then
 	---delete
 		for i in 0 to 2 loop
-			if(pc1(i)<500-120*nc1(i))then
+			if(pc1(i)<400-120*nc1(i))then
 				tc1(i) <= 0;
 			end if;
-			if(pc2(i)<500-120*nc2(i))then
+			if(pc2(i)<400-120*nc2(i))then
 				tc2(i) <= 0;
 			end if;		
-			if(pb1(i) < 500)then
+			if(pb1(i) < 400)then
 				tb1(i) <= 0;
 			end if;
-			if(tb2(i) < 500)then
+			if(tb2(i) < 400)then
 				tb2(i) <= 0;
 			end if;
 		end loop;
@@ -377,9 +377,9 @@ if(rising_edge(clk)) then
 		end if;
 	
 		if(time_mov_y = 0)then
-			if(LR = "00") then
+			if(LR = "00" and (pos_y_center /= 0)) then
 				time_mov_y <= 70;
-			elsif(LR = "11") then
+			elsif(LR = "11" and (pos_y_center /= 2)) then
 				time_mov_y <= -70;
 			end if;
 		end if;
@@ -484,7 +484,7 @@ end process;
 				type_barrier(2*i+1 downto 2*i) <= std_logic_vector(to_unsigned(tb1(i),2));
 				type_barrier(7+2*i downto 6+2*i) <= std_logic_vector(to_unsigned(tb2(i),2));
 			end loop;
-			character_y <= std_logic_vector(to_unsigned(pos_y,12));
+			character_y <= std_logic_vector(to_unsigned(pos_y+60,12));
 			character_h <= std_logic_vector(to_unsigned(pos_h,12));
 			if(time_mov_h<0)then
 				character_state<="00";
