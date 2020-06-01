@@ -1,0 +1,11 @@
+To,                 Location
+
+// 100MHz clock
+clk0,               PIN_N2
+
+Rx,					PIN_A17
+
+LR0[0],				PIN_AB18
+LR0[1],				PIN_AD19
+UD0[0],				PIN_AF21
+UD0[1],				PIN_AD21
