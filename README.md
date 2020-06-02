@@ -1,30 +1,33 @@
-## 说明
+# Virtual Venture
 
-文档暂时就写在这里。
+运行在FPGA上的跑酷动作游戏，使用VHDL编写。
 
-使用的数据类型：范围整数，定点实数，枚举，……
+[游戏介绍]
 
-`src` 主项目设计用到的代码（VHDL/Verilog源文件，不要放Quartus生成的文件）
+## 硬件
 
-`project` Quartus工作目录（Quartus生成的文件视需要，不一定要加进repo）
+- FPGA: Cyclone II (EP2C70F672C8N)
+- SRAM: IS61WV102416BLL-10TLI
+- 显示: VGA 640×480@60Hz, 3bits per channel
 
-`tests` 测试功能/模块等用到的设计
+注：SRAM有两片，通过另一块FPGA间接访问。
 
-`res` 主项目设计用到的资源文件
+## 总体架构
 
-## 概览
+<img src="img/overall_architecture.png" alt="arch" style="zoom:20%;" />
 
 ```vhdl
-main
-  input_controller  进度：待联合编译
-  game              进度：待联合编译
-  geometry          进度：
-  renderer          进度：已完成测试
-  sram_controller   进度：已完成测试
-  vga_controller    进度：已完成测试
+main              顶层模块，将其包含的所有子模块相连
+input_controller  由串口输入给出玩家动作
+game              游戏主逻辑，生成地形，更新物体/角色状态
+geometry          生成绘图调用
+renderer          执行绘图调用，绘制到帧缓冲
+sram_controller   使多模块共享SRAM读写
+vga_controller    控制VGA显示器输出图像
 ```
 
 ## 传感器控制器
+
 输入：clk,Rx
 输出：
   （跳起/落下/无命令）+（向左/向右/无命令）
@@ -55,14 +58,6 @@ port out:type_carriage,pos_carriage,num_carriage,type_barrier,pos_barrier,charac
 ​	pos_barrier[10]:12位有符号整数，表示障碍起点坐标,-1024表示不存在
 ​	type_barrier[10]:2位无符整型：00表示上下都可通过类型，01表示只能跳跃通过类型，10表示只能下方滑过类型，11为不可通过
 ```
-​		\*金币数量，每个金币：位置，高度 20 x (real + real) \~60bytes
-
-total 300bytes 2400bits
-
-\*景观
-
-\*隧道
-
 process:
 ```
 每个周期
@@ -185,7 +180,7 @@ data_available: out std_logic;
 
 ## 渲染器
 
-执行2D矩形贴图操作，支持格式RGBA5551，贴图尺寸1024×2048（竖版），最上方1024×300像素须留空。
+执行贴图操作，支持格式RGBA5551，贴图尺寸1024×1748（竖版）。
 
 贴图颜色可以预先dither到8色每通道，也可以保留原色，渲染器内部会进行实时dither。
 
@@ -257,9 +252,21 @@ sram_wren  : out std_logic
 
 ## SRAM控制器
 
-将SRAM共享给VGA控制器（只读）和渲染器（读写）。以80ns周期运行，3读1写，见代码。
+此模块的作用是将SRAM共享给VGA控制器（只读）和渲染器（读写）。
+
+SRAM最高频率为100MHz，经过中间FPGA的读周期总延迟约为35ns，时序特性测得如图（`CE=0,OE=0,WE=1`）
+
+<img src="img/sram_timing.png" alt="sram_timing" style="zoom:25%;" />
+
+实际操作中以80ns为周期，执行三次读操作和一次写操作。读取时刻由PLL上升沿控制，相对于地址时钟相位为270°（即给出地址后37.5ns读取）。
+
+<img src="img/sram_op.png" alt="sram_op" style="zoom: 45%;" />
+
+使用此SRAM控制器的读取和写入延迟可预测，且总带宽是阻塞读写方式（40ns一次I/O）的两倍。
 
 ## VGA控制器
 
-从SRAM控制器读取像素值并显示。以25MHz运行，提前2拍从SRAM控制器读取像素值
+以25MHz像素时钟运行，从SRAM控制器读取像素值，输出各3位的RGB数字值及消隐信号。
+
+帧缓冲为每地址两个像素，每个像素为RGB333。
 
